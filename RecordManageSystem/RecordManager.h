@@ -4,8 +4,8 @@
 #include "../filesystem/fileio/FileManager.h"
 #include "../filesystem/utils/pagedef.h"
 #include "../filesystem/filesystem.h"
-#include "PageLoc.h"
-#include "Wei.h"
+#include "utils/PageLoc.h"
+#include "utils/Wei.h"
 #include "DType/DTypeSchema.h"
 #include "DType/DSchema.h"
 #include "DType/DList.h"
@@ -204,7 +204,7 @@ public:
 		data.readDataBuf(pagebuf + 2 + 64 * page.LocID);
 		return true;
 	}
-	bool FindSchema(int fileID, DSchema& schema) {
+	bool GetSchema(int fileID, DSchema& schema) {
 		//¶ÁÈ¡Ä£Ê½
 		BufType filebuf = new unsigned int[2048];		
 		if (fm->readPage(fileID, 0, filebuf, 0) == -1) {

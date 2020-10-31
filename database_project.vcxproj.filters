@@ -56,16 +56,7 @@
     <ClInclude Include="filesystem\utils\pagedef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="recordmanagesystem\Myhash.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="recordmanagesystem\PageLoc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="recordmanagesystem\RecordManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="recordmanagesystem\Wei.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="recordmanagesystem\dtype\Date.h">
@@ -87,6 +78,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="recordmanagesystem\dtype\TypeName.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordManageSystem\utils\Myhash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordManageSystem\utils\PageLoc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordManageSystem\utils\Wei.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

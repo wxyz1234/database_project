@@ -12,10 +12,10 @@ class DtypeSchema {
 public:
 	bool AllowNull,HaveDefault;
 	DKey* key;	
+	DtypeData* def;
 	DtypeSchema() {
 		key = new DKey();
 	}
-	DtypeData* def;
 	virtual TypeName getType()=0;
 	virtual int getsize()=0;	
 	virtual int writeBuf(BufType buf) {

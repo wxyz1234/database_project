@@ -1,8 +1,7 @@
 #include "RecordManager.h"
-#include "Myhash.h"
+#include "utils/Myhash.h"
 #include <stdio.h>
 #include <map>
-#include <hash_set>
 using namespace std;
 RecordManager* rm;
 DSchema* sh;

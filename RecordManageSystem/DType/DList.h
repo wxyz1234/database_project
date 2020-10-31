@@ -2,7 +2,7 @@
 #define DLIST
 #include "../DType/DtypeSchema.h"
 #include "../DType/DSchema.h"
-#include "../Wei.h"
+#include "../utils/Wei.h"
 class DList {
 private:
 	DSchema* fa;
