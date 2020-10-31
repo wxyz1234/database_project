@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="filesystem\testfilesystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="recordmanagesystem\ReadFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="recordmanagesystem\TestRecordManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="filesystem\filesystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\bufmanager\BufPageManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\bufmanager\FindReplace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\fileio\FileManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\fileio\FileTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\utils\compare.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\utils\MyBitMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\utils\MyHashMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\utils\MyLinkList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem\utils\pagedef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="recordmanagesystem\Myhash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="recordmanagesystem\PageLoc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="recordmanagesystem\RecordManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="recordmanagesystem\Wei.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="recordmanagesystem\dtype\Date.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="recordmanagesystem\dtype\DKey.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="recordmanagesystem\dtype\DList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="recordmanagesystem\dtype\DSchema.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="recordmanagesystem\dtype\DTypeData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="recordmanagesystem\dtype\DTypeSchema.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="recordmanagesystem\dtype\TypeName.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
