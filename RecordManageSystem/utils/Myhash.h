@@ -19,6 +19,7 @@ public:
 		len = i;		
 	}
 	int score(void* i) {
+		int k=0;
 		switch (type) {
 		case(TypeName::Int):
 			return (*((int*)i)) % mo;
@@ -26,8 +27,7 @@ public:
 		case(TypeName::SmallInt):
 			return (*((short*)i)) % mo;
 			break;
-		case(TypeName::Char):
-			int k = 0;
+		case(TypeName::Char):			
 			for (int j = 0; j < len; j++) {
 				k = k * 128 + (int)(((char*)i)[j]);
 				if (k > mo)k %= mo;

@@ -19,6 +19,7 @@
  * 不要自行进行类似的delete[] b操作，内存的申请和释放都在BufPageManager中做好
  * 如果自行进行类似free(b)或者delete[] b的操作，可能会导致严重错误
  */
+/*
 #include "bufmanager/BufPageManager.h"
 #include "fileio/FileManager.h"
 #include "utils/pagedef.h"
@@ -67,3 +68,4 @@ int main() {
 	//具体的函数大家可以看看ppt或者程序的注释
 	return 0;
 }
+*/

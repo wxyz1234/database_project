@@ -4,6 +4,7 @@
 #include <string.h>
 using namespace std;
 class DSchema {
+	friend void makeDSchema(DSchema& sh);
 private:
 	char* name;
 	int num;
@@ -44,7 +45,7 @@ public:
 		setnum(buf[k]);
 		k += 1;
 		int i;
-		for (i = 0; i < getnum(); i++) {
+		for (i = 0; i < num; i++) {
 			typeName[i] = new char[20];
 			memcpy(typeName[i], buf + k, 20);
 			k += 5;
@@ -67,22 +68,32 @@ public:
 			case TypeName::Date:
 				a[i] = new DtypeSchemaDate();
 				break;
+			default:
+				printf("TypeName ERROR %d\n", buf[k]);
 			}
 			k += 1;
 			k += a[i]->readBuf(buf + k);
-			a[i]->readTypebuf(buf + k);
+			k += a[i]->readTypebuf(buf + k);
 		}		
 	}
-	void writeSchemaBuf(BufType& buf) {
-		memcpy(buf + 2, getName(), 20);
-		buf[7] = getnum();
+	void writeSchemaBuf(BufType buf) {
+		memcpy(buf, getName(), 20);
+		buf[5] = getnum();
 		int i, p;
-		p = 7;
-		for (i = 0; i < buf[7]; i++) {
+		p = 6;
+		for (i = 0; i < buf[5]; i++) {
 			memcpy(buf + p, getTypeName(i), 20);
 			p += 5;
-			p += getPart(i)->writeTypeBuf(&buf[p]);
+			p += getPart(i)->writeTypeBuf(buf + p);
 		}
+	}
+	int getsize() {
+		int i,ans;
+		ans = 2;
+		for (i = 0; i < num; i++) {
+			ans += a[i]->getsize();
+		}
+		return ans;
 	}
 	~DSchema() {
 		delete name;

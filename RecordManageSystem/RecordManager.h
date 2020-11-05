@@ -14,14 +14,15 @@
 #include <stdio.h>
 using namespace std;
 const unsigned int maxunsignint = 4294967295;
+int Wei::wei[31];
 class RecordManager {
 public:
 	BufFileManager* fm;
 	RecordManager() {
 		//整体初始化
-		MyBitMap::initConst();   //新加的初始化
-		fm = new BufFileManager();
 		Wei::init();
+		MyBitMap::initConst();   //新加的初始化
+		fm = new BufFileManager();		
 	}
 	/*
 	文件保存信息：
@@ -43,7 +44,7 @@ public:
 	记录保存信息：
 		开始1个int表示RID，之后按照固定顺序储存属性，单位4字节。
 	*/
-	bool CreatFile(const char* name, DSchema Schema) {
+	bool CreateFile(const char* name, DSchema* Schema) {
 		//创建文件
 		fm->createFile(name);
 		//初始化第一页记录文件相关信息
@@ -53,7 +54,7 @@ public:
 			buf[0] = 0;
 			buf[1] = 0;
 			//DSchema信息转buf
-			Schema.writeSchemaBuf(buf);
+			Schema->writeSchemaBuf(buf+2);
 			if (fm->writePage(fileID, 0, buf, 0) == -1) {
 				printf("ERROR");
 				return false;
@@ -79,10 +80,10 @@ public:
 		//关闭文件
 		return fm->closeFile(fileID);
 	}
-	PageLoc InsertRecord(int fileID, DList data) {
+	PageLoc InsertRecord(int fileID, DList* data) {
 		//data信息写入buf
 		BufType buf = new unsigned int[64];
-		data.writeDataBuf(buf);
+		data->writeDataBuf(buf);
 		//插入记录
 		BufType filebuf = new unsigned int[2048];
 		BufType pagebuf = new unsigned int[2048];
@@ -110,7 +111,7 @@ public:
 				tmp -= pagebuf[1];
 				k = Wei::BitConvInt(tmp);
 				//对应页面更新
-				memcpy(pagebuf + 2 + k * 64, buf, 64);
+				memcpy(pagebuf + 2 + k * 64, buf, 256);
 				pagebuf[0] += 1;
 				fm->writePage(fileID, i, pagebuf, 0);
 				//第一页更新
@@ -129,20 +130,20 @@ public:
 			return PageLoc(-1, -1);
 		}
 		pagebuf[0] = 0;
-		pagebuf[1] = Wei::getWei(31) - 1;
+		pagebuf[1] = Wei::wei[30] - 1;
 		//找到空位
 		int k;
 		unsigned int tmp;
 		tmp = pagebuf[1];
-		pagebuf[1] = pagebuf[1] & (-pagebuf[1]);
-		tmp -= pagebuf[1];
+		tmp = tmp & (-tmp);		
+		pagebuf[1] -= tmp;
 		k = Wei::BitConvInt(tmp);
 		//对应页面更新
-		memcpy(pagebuf + 2 + k * 64, buf, 64);
+		memcpy(pagebuf + 2 + k * 64, buf, 256);
 		pagebuf[0] += 1;
-		fm->writePage(fileID, 1 + i, pagebuf, 0);
+		fm->writePage(fileID, i, pagebuf, 0);
 		//第一页更新
-		filebuf[0] += 1;
+		filebuf[1] += 1;		
 		fm->writePage(fileID, 0, filebuf, 0);
 		delete[] filebuf, pagebuf, buf;
 		return PageLoc(i, k);
@@ -150,23 +151,31 @@ public:
 	bool DeleteRecord(int fileID, PageLoc page) {
 		//删除记录	
 		//打开页面
+		BufType filebuf = new unsigned int[2048];			
 		BufType pagebuf = new unsigned int[2048];
 		if (fm->readPage(fileID, page.PageID, pagebuf, 0) == -1) {
 			printf("ERROR\n");
 			delete[] pagebuf;
 			return false;
 		}
+		if (fm->readPage(fileID, 0, filebuf, 0) == -1) {
+			printf("ERROR\n");
+			delete[] filebuf, pagebuf;
+			return false;
+		}
 		//更新
+		filebuf[1] -= 1;
 		pagebuf[0] -= 1;
-		pagebuf[1] |= Wei::getWei(page.LocID);
+		pagebuf[1] |= Wei::wei[page.LocID];
+		fm->writePage(fileID, 0, filebuf, 0);
 		fm->writePage(fileID, page.PageID, pagebuf, 0);
 		return true;
 	}
-	bool UpdataRecord(int fileID, PageLoc page, DList data) {
+	bool UpdataRecord(int fileID, PageLoc page, DList* data) {
 		//更新记录
 		//信息转buf
 		BufType buf = new unsigned int[64];
-		data.writeDataBuf(buf);
+		data->writeDataBuf(buf);
 		//打开页面
 		BufType pagebuf = new unsigned int[2048];
 		if (fm->readPage(fileID, page.PageID, pagebuf, 0) == -1) {
@@ -175,13 +184,13 @@ public:
 			return false;
 		}
 		//判断记录是否存在
-		if ((pagebuf[1] & Wei::getWei(page.LocID)) > 0) {
+		if ((pagebuf[1] & Wei::wei[page.LocID]) > 0) {
 			printf("ERROR\n");
 			delete[] buf, pagebuf;
 			return false;
 		}
 		//更新
-		memcpy(pagebuf + 2 + 64 * page.LocID, buf, 64);
+		memcpy(pagebuf + 2 + 64 * page.LocID, buf, 256);
 		fm->writePage(fileID, page.PageID, pagebuf, 0);
 		return true;
 	}
@@ -195,8 +204,8 @@ public:
 			return false;
 		}
 		//判断记录是否存在
-		if ((pagebuf[1] & Wei::getWei(page.LocID)) > 0) {
-			printf("ERROR\n");
+		if ((pagebuf[1] & Wei::wei[page.LocID]) > 0) {
+			printf("No Record ERROR\n");
 			delete[] pagebuf;
 			return false;
 		}
@@ -212,7 +221,7 @@ public:
 			delete[] filebuf;
 			return false;
 		}
-		//buf信息转DSchema
+		//buf信息转DSchema		
 		schema.readSchemaBuf(filebuf+2);
 		return true;
 	}

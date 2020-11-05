@@ -9,10 +9,12 @@
 using namespace std;
 
 class DtypeSchema {
-public:
+private:
 	bool AllowNull,HaveDefault;
 	DKey* key;	
-	DtypeData* def;
+protected:
+	DtypeData* def = NULL;
+public:
 	DtypeSchema() {
 		key = new DKey();
 	}
@@ -21,21 +23,45 @@ public:
 	virtual int writeBuf(BufType buf) {
 		return 0;
 	}
-	virtual int readBuf(BufType buf);
+	virtual int readBuf(BufType buf) { return 0; };
+	void setAllowNull(bool i) {
+		AllowNull = i;		
+	}
+	bool getAllowNull() {
+		return AllowNull;
+	}
+	void setHaveDefault(bool i) {
+		HaveDefault = i;
+	}
+	bool getHaveDefault() {
+		return HaveDefault;
+	}
+	DtypeData* getDef() {
+		return def;
+	}
+	void setKey(KeyName i) {
+		if (key != NULL)delete key;
+		if (i== KeyName::Null)key=new DKey();
+		if (i == KeyName::Primary)key = new DPrimary();
+		if (i == KeyName::Foreign)key = new DForeign();
+	}
+	DKey* getKey() {
+		return key;
+	}
 	int writeTypeBuf(BufType buf) {
 		int k = 0;
 		buf[k] = int(getType());
 		k += 1;	
-		k += writeBuf(buf);
+		k += writeBuf(buf + k);
 
 		buf[k] = int(key->getKey());
 		k += 1;
 		if (key->getKey() == KeyName::Foreign) {
 			char* tmp = key->getFile();
-			memcpy(buf, tmp, 20);
+			memcpy(buf + k, tmp, 20);
 			k += 5;
 			tmp = key->getName();
-			memcpy(buf, tmp, 20);
+			memcpy(buf + k, tmp, 20);
 			k += 5;
 		}
 		buf[k] = AllowNull;
@@ -55,9 +81,9 @@ public:
 		case KeyName::Foreign:
 			key = new DForeign();
 			k += 1;
-			key->setFile((char*)buf[k]);
+			key->setFile((char*)(buf+k));
 			k += 5;
-			key->setName((char*)buf[k]);
+			key->setName((char*)(buf+k));
 			k += 5;
 			break;
 		case KeyName::Null:
@@ -80,8 +106,10 @@ public:
 
 class DtypeSchemaInt:public DtypeSchema {	
 public:	
-	int readBuf(BufType buf) {
-		def = new DtypeDataInt();	
+	DtypeSchemaInt() {
+		def = new DtypeDataInt();
+	}
+	int readBuf(BufType buf) {		
 		return 0;
 	}
 	enum TypeName getType() {
@@ -94,8 +122,10 @@ public:
 
 class DtypeSchemaSmallInt :public DtypeSchema {
 public:
-	int readBuf(BufType buf) {
+	DtypeSchemaSmallInt() {
 		def = new DtypeDataSmallInt();
+	}
+	int readBuf(BufType buf) {		
 		return 0;
 	}
 	enum TypeName getType() {
@@ -115,25 +145,33 @@ public:
 		return 1;
 	}
 	int readBuf(BufType buf) {
-		len = buf[0];
+		len = buf[0];		
 		def = new DtypeDataChar(len);
 		return 1;
 	}
 	enum TypeName getType() {
 		return TypeName::Char;
 	}
-	int getsize() {
-		return len/4;
+	void setlen(int i) {
+		len = i;
+		len = (len / 4 + 1) * 4;
+		if (def != NULL)delete def;
+		def = new DtypeDataChar(len);
 	}
 	int getlen() {
 		return len;
+	}
+	int getsize() {
+		return len/4;
 	}
 };
 
 class DtypeSchemaDouble :public DtypeSchema {
 public:
-	int readBuf(BufType buf) {
-		def = new DtypeDataDouble();			
+	DtypeSchemaDouble() {
+		def = new DtypeDataDouble();
+	}
+	int readBuf(BufType buf) {			
 		return 0;
 	}		
 	enum TypeName getType() {
@@ -146,8 +184,10 @@ public:
 
 class DtypeSchemaFloat :public DtypeSchema {
 public:
-	int readBuf(BufType buf) {
-		def = new DtypeDataFloat();		
+	DtypeSchemaFloat() {
+		def = new DtypeDataFloat();
+	}
+	int readBuf(BufType buf) {			
 		return 0;
 	}	
 	enum TypeName getType() {
@@ -160,15 +200,17 @@ public:
 
 class DtypeSchemaDate :public DtypeSchema {
 public:		
-	int readBuf(BufType buf) {
-		def = new DtypeDataDate();	
+	DtypeSchemaDate() {
+		def = new DtypeDataDate();
+	}
+	int readBuf(BufType buf) {		
 		return 0;
 	}	
 	enum TypeName getType() {
 		return TypeName::Date;
 	}
 	int getsize() {
-		return 3;
+		return 1;
 	}
 };
 

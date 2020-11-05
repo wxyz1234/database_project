@@ -9,6 +9,11 @@ public:
 		month = 1;
 		day = 1;
 	}
+	DateType(int i) {
+		year = i/10000;
+		month = i/100%100;
+		day = i%100;
+	}
 	DateType(int y, int m, int d)
 	{
 		year = y;
@@ -35,6 +40,9 @@ public:
 	}
 	int getday() {
 		return day;
+	}
+	int getdata() {
+		return year * 10000 + month * 100 + day;
 	}
 	bool IsLeapYear()
 	{

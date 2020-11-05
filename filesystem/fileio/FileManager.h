@@ -28,7 +28,7 @@ private:
 		return 0;
 	}
 	int _openFile(const char* name, int fileID) {
-		int f = open(name, O_RDWR);
+		int f = _open(name, O_RDWR);
 		if (f == -1) {
 			return -1;
 		}
@@ -56,12 +56,12 @@ public:
 		int f = fd[fileID];
 		off_t offset = pageID;
 		offset = (offset << PAGE_SIZE_IDX);
-		off_t error = lseek(f, offset, SEEK_SET);
+		off_t error = _lseek(f, offset, SEEK_SET);
 		if (error != offset) {
 			return -1;
 		}
 		BufType b = buf + off;
-		error = write(f, (void*) b, PAGE_SIZE);
+		error = _write(f, (void*) b, PAGE_SIZE);
 		return 0;
 	}
 	/*
@@ -78,12 +78,12 @@ public:
 		int f = fd[fileID];
 		off_t offset = pageID;
 		offset = (offset << PAGE_SIZE_IDX);
-		off_t error = lseek(f, offset, SEEK_SET);
+		off_t error = _lseek(f, offset, SEEK_SET);
 		if (error != offset) {
 			return -1;
 		}
 		BufType b = buf + off;
-		error = read(f, (void*) b, PAGE_SIZE);
+		error = _read(f, (void*) b, PAGE_SIZE);
 		return 0;
 	}
 	/*
@@ -95,7 +95,7 @@ public:
 	int closeFile(int fileID) {
 		fm->setBit(fileID, 1);
 		int f = fd[fileID];
-		close(f);
+		_close(f);
 		return 0;
 	}
 	/*

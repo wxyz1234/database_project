@@ -5,17 +5,28 @@
 #include "../utils/Wei.h"
 class DList {
 private:
-	DSchema* fa;
+	DSchema* fa = NULL;
 	int RID;
 	int isNull;
 	bool Nullchange=true;
-	DtypeData* a[20];	
+	DtypeData* a[20];
 public:
-	DList(DSchema* i) {
-		fa = i;
+	DList() {
 		RID = 0;
 		isNull = 0;
-		for (int j = 0; j < fa->getnum(); j++)
+	}
+	DList(DSchema* i) {
+		RID = 0;
+		isNull = 0;
+		setfa(i);		
+	}
+	DSchema* getfa() {
+		return fa;
+	}	
+	void setfa(DSchema* i) {
+		fa = i;
+		int num = fa->getnum();
+		for (int j = 0; j < num; j++)
 			switch (fa->getPart(j)->getType()) {
 			case TypeName::Int:
 				a[j] = new DtypeDataInt();
@@ -35,10 +46,9 @@ public:
 			case TypeName::Date:
 				a[j] = new DtypeDataDate();
 				break;
-			}			
-	}
-	DSchema* getfa() {
-		return fa;
+			default:
+				printf("ERROR setfa type %d\n",j);
+			}
 	}
 	void setRID(int i) {
 		RID = i;
@@ -48,10 +58,10 @@ public:
 	}
 	void makeNull() {
 		isNull = 0;
-		int i;
-		for (i = 0; i < fa->getnum(); i++)
+		int i, num = fa->getnum();
+		for (i = 0; i < num; i++)
 			if (a[i]->getData() == NULL)
-				isNull |= Wei::getWei(i);
+				isNull |= Wei::wei[i];
 	}
 	int getNull() {
 		if (Nullchange) {
@@ -75,9 +85,9 @@ public:
 		buf[0] = getRID();
 		buf[1] = getNull();
 		k += 2;
-		int i;
-		for (i = 0; i < getfa()->getnum(); i++) {
-			k += getPart(i)->writeDataBuf(&buf[k]);
+		int i, num = getfa()->getnum();
+		for (i = 0; i < num; i++) {
+			k += getPart(i)->writeDataBuf(buf+k);
 		}
 	}
 	void readDataBuf(BufType buf) {
@@ -85,14 +95,15 @@ public:
 		setRID(buf[0]);
 		setNull(buf[1]);
 		k += 2;
-		int i;
-		for (i = 0; i < getfa()->getnum(); i++) {
-			k += getPart(i)->readDataBuf(&buf[k]);
+		int i, num = getfa()->getnum();
+		for (i = 0; i < num; i++) {
+			k += getPart(i)->readDataBuf(buf+k);
 		}
 	}
-	~DList() {
-		for (int j = 0; j < fa->getnum(); j++)
-			delete a[j];
+	~DList() {		
+		int num = fa->getnum();
+		for (int j = 0; j < num; j++)
+			delete a[j];		
 	}
 };
 #endif

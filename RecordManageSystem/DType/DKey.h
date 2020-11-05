@@ -8,10 +8,10 @@ public:
 	virtual KeyName getKey() {
 		return KeyName::Null;
 	}
-	virtual char* getFile();
-	virtual char* getName();
-	virtual void setFile(char* buf);
-	virtual void setName(char* buf);
+	virtual char* getFile() { return NULL; };
+	virtual char* getName() { return NULL; };
+	virtual void setFile(char* buf) {};
+	virtual void setName(char* buf) {};
 };
 
 class DPrimary :public DKey {

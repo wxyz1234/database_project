@@ -36,6 +36,7 @@ public:
 		BufType b = bpm->getPage(fileID, pageID, index);
 		memcpy(b, buf + off, 2048);
 		bpm->markDirty(index); //标记脏页		
+		return 0;
 	}
 	/*
 	 * @函数名readPage
@@ -51,6 +52,7 @@ public:
 		BufType b = bpm->getPage(fileID, pageID, index);
 		memcpy(buf + off, b , 2048);
 		bpm->access(index);
+		return 0;
 	}
 	/*
 	 * @函数名closeFile
@@ -66,6 +68,8 @@ public:
 			if (fileid==fileID)
 				bpm->writeBack(i);
 		}
+		fm->closeFile(fileID);
+		return 0;
 	}
 	/*
 	 * @函数名createFile
@@ -74,7 +78,7 @@ public:
 	 * 返回:操作成功，返回true
 	 */
 	bool createFile(const char* name) {
-		return fm->createFile(name);
+		return fm->createFile(name);		
 	}
 	/*
 	 * @函数名openFile

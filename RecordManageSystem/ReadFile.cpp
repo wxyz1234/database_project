@@ -1,3 +1,4 @@
+/*
 #include "RecordManager.h"
 #include "utils/Myhash.h"
 #include <stdio.h>
@@ -16,7 +17,7 @@ int main() {
 	TypeName tn;
 	Myhash ha;
 	for (int i = 0; i < sh->getnum(); i++) 
-		if (sh->getPart(i)->key->getKey()== KeyName::Primary){
+		if (sh->getPart(i)->getKey()->getKey()== KeyName::Primary){
 			pk = i;			
 			tn = sh->getPart(i)->getType();	
 			if (tn == TypeName::Char) {
@@ -26,7 +27,7 @@ int main() {
 			ha.setType(tn);
 			break;
 		}
-	BufType buf;
+	BufType buf=NULL;
 	rm->fm->readPage(fileID,0,buf,0);
 	int num = buf[0];
 	int i,j,k,p;
@@ -49,3 +50,4 @@ int main() {
 	}
 	return 0;
 }
+*/

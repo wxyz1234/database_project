@@ -11,19 +11,19 @@ class DtypeData {
 public:	
 	virtual TypeName getType() = 0;
 	virtual int getsize() = 0;
-	virtual void* getData();
-	virtual void setData(int* i);
-	virtual void setData(short* i);
-	virtual void setData(char* i);
-	virtual void setData(double* i);
-	virtual void setData(float* i);
-	virtual void setData(DateType* i);
-	virtual void setData(int* i, bool &Nullchange);
-	virtual void setData(short* i, bool& Nullchange);
-	virtual void setData(char* i, bool& Nullchange);
-	virtual void setData(double* i, bool& Nullchange);
-	virtual void setData(float* i, bool& Nullchange);
-	virtual void setData(DateType* i, bool& Nullchange);
+	virtual void* getData() { return NULL; };
+	virtual void setData(int* i) {};
+	virtual void setData(short* i) {};
+	virtual void setData(char* i) {};
+	virtual void setData(double* i) {};
+	virtual void setData(float* i) {};
+	virtual void setData(DateType* i) {};
+	virtual void setData(int* i, bool& Nullchange) {};
+	virtual void setData(short* i, bool& Nullchange) {};
+	virtual void setData(char* i, bool& Nullchange) {};
+	virtual void setData(double* i, bool& Nullchange) {};
+	virtual void setData(float* i, bool& Nullchange) {};
+	virtual void setData(DateType* i, bool& Nullchange) {};
 	virtual int writeDataBuf(BufType buf) = 0;
 	virtual int readDataBuf(BufType buf) = 0;
 };
@@ -117,7 +117,7 @@ private:
 public:
 	DtypeDataChar(int i) {
 		len = i;
-		len = ((len - 1) / 4 + 1) * 4;
+		//len = (len / 4 + 1) * 4;
 		data = NULL;
 	}
 	void setData(char* i) {		
@@ -152,7 +152,7 @@ public:
 	int writeDataBuf(BufType buf) {
 		int k = 0;
 		if (data != NULL)memcpy(buf, data, len);
-		k += len / 4;
+		k += getsize();
 		return k;
 	}
 	int readDataBuf(BufType buf) {
@@ -193,7 +193,7 @@ public:
 	int writeDataBuf(BufType buf) {
 		int k = 0;
 		if (data != NULL)memcpy(buf, data, 8);
-		k += 2;
+		k += getsize();
 		return k;
 	}		
 	int readDataBuf(BufType buf) {
@@ -233,8 +233,8 @@ public:
 	}
 	int writeDataBuf(BufType buf) {
 		int k = 0;
-		if (data != NULL)memcpy(buf, &data, 4);
-		k += 1;
+		if (data != NULL)memcpy(buf, data, 4);
+		k += getsize();
 		return k;
 	}		
 	int readDataBuf(BufType buf) {
@@ -249,14 +249,16 @@ class DtypeDataDate :public DtypeData {
 private:
 	DateType* data = NULL;
 public:
-	void setData(DateType* i) {		
+	void setData(DateType* i) {
 		if (i != NULL) {
 			if (data == NULL)data = new DateType;
-			*data = *i;
+			data->setyear(i->getyear());
+			data->setmonth(i->getmonth());
+			data->setday(i->getday());
 		}
 		else {
 			if (data != NULL)delete data;
-			data = i;
+			data = NULL;
 		}
 	}
 	void setData(DateType* i, bool& Nullchange) {
@@ -270,17 +272,19 @@ public:
 		return TypeName::Date;
 	}
 	int getsize() {
-		return 3;
+		return 1;
 	}
 	int writeDataBuf(BufType buf) {
 		int k = 0;
-		if (data != NULL)memcpy(buf, data, 12);//sizeof(Date)=12
-		k += 3;
+		if (data != NULL) {
+			buf[k] = data->getdata();			
+		}
+		k += getsize();
 		return k;
 	}		
 	int readDataBuf(BufType buf) {
 		int k = 0;
-		setData((DateType*)buf);
+		setData(new DateType(buf[0]));
 		k += getsize();
 		return k;
 	}
