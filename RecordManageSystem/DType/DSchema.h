@@ -68,6 +68,9 @@ public:
 			case TypeName::Date:
 				a[i] = new DtypeSchemaDate();
 				break;
+			case TypeName::Numeric:
+				a[i] = new DtypeSchemaNumeric();
+				break;
 			default:
 				printf("TypeName ERROR %d\n", buf[k]);
 			}

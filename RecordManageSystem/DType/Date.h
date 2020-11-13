@@ -20,8 +20,8 @@ public:
 		month = m;
 		day = d;
 	}
-	bool equal(DateType i) {
-		return ((i.getyear() == year) && (i.getmonth() == month) && (i.getday() == day));
+	bool equal(DateType* i) {
+		return ((i->getyear() == year) && (i->getmonth() == month) && (i->getday() == day));
 	}
 	void setyear(int y) {
 		year = y;

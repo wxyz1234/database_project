@@ -34,21 +34,21 @@
 ### 四、测试数据不同模式单条记录大小计算
 
 （1）supplier表（细节下略）：
-		2(RID+isNull)+1(int)+7(char(25))+11(varchar(40))+1(int)+4(char(15))+5(numeric)+26(varchar(101))=57
+		2(RID+isNull)+1(int)+7(char(25))+11(varchar(40))+1(int)+4(char(15))+4(numeric)+26(varchar(101))=56
 （2）nation表：
 		2+1+7+1+39=50
 （3）region表：
 		2+1+7+39=49
 （4）customer表：
-		2+1+7+11+1+4+5+3+26=60
+		2+1+7+11+1+4+4+3+26=59
 （5）part表：
-		2+1+7+11+3+7+1+3+5+6=46
+		2+1+7+11+3+7+1+3+4+6=45
 （6）partsupp表：
-		2+1+1+1+5+50=60
+		2+1+1+1+4+50=59
 （7）orders表：
-		2+1+1+1+5+1+4+1+4+4=24
+		2+1+1+1+4+1+4+1+4+4=23
 （8）lineitem表：
-		2+1+1+1+1+5+5+5+5+1+1+1+1+1+7+7+12=57
+		2+1+1+1+1+4+4+4+4+1+1+1+1+1+7+7+12=53
 
 ## （三）代码文件及相关类介绍
 
@@ -80,13 +80,14 @@
 
 ​	内置创建文件、删除文件、打开文件、关闭文件、写入记录、删除记录、更新记录、查看记录、读取模式等之后要用的核心函数。
 
-#### 2、RecordManageSystem/ReadFile.cpp
+#### 2、RecordManageSystem/TestRecordManager.cpp
 
-​    测试程序1，有待完善
+​    测试程序1，进行了简单的模式生成和记录生成，并进行了基础的文件创建删除，文件打开关闭，模式读写，记录读写测试，保证RecordManager类正确性。
 
-#### 3、RecordManageSystem/TestRecordManager.cpp
+#### 3、RecordManageSystem/ReadFile.cpp
 
-​    测试程序2，尚未实现
+​    测试程序2，在测试程序1的基础上，进行了大规模记录写入，记录更新，记录删除，记录再写入，并实时检查记录储存准确性，保证RecordManager类正确性。
+​	最后生成了一个Myhash类保存了所有记录的主码信息，保证Myhash类正确性。
 
 ### 三、记录管理模块数据储存部分
 
@@ -139,6 +140,10 @@
 #### 7、RecordManageSystem/DType/Date.h
 
 ​	提供了DateType类，负责解决日期类型数据的相关底层操作，包括记录，修改，查询，合法性判断。
+
+#### 8、RecordManageSystem/DType/Numeric.h
+
+​	提供了NumericType类，负责解决Numeric类型数据的相关第层操作，包括记录，修改，查询，输出，合法性判断等。
 
 ### 四、记录管理模块辅助代码
 

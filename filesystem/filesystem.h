@@ -34,7 +34,7 @@ public:
 	int writePage(int fileID, int pageID, BufType buf, int off) {		
 		int index;
 		BufType b = bpm->getPage(fileID, pageID, index);
-		memcpy(b, buf + off, 2048);
+		memcpy(b, buf + off, 8192);
 		bpm->markDirty(index); //标记脏页		
 		return 0;
 	}
@@ -50,7 +50,7 @@ public:
 	int readPage(int fileID, int pageID, BufType buf, int off) {
 		int index;
 		BufType b = bpm->getPage(fileID, pageID, index);
-		memcpy(buf + off, b , 2048);
+		memcpy(buf + off, b , 8192);
 		bpm->access(index);
 		return 0;
 	}

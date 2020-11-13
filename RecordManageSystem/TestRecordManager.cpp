@@ -1,6 +1,6 @@
+/*
 #include "RecordManager.h"
 #include "../RecordManageSystem/utils/Wei.h"
-RecordManager* rm;
 DSchema *sh,*sh2;
 DList *li,*li2;
 PageLoc pl;
@@ -8,7 +8,7 @@ int R = 0;
 void makeDSchema(DSchema& sh) {	
 	//构造测试模式：主键 外键 默认值 不为空 6种数据类型
 	sh.setName("CeShiMoShiCeShiMoSh");
-	sh.setnum(6);
+	sh.setnum(7);
 	sh.typeName[0] = new char[20];
 	sh.setTypeName(0, "Int");
 	sh.a[0]=new DtypeSchemaInt();
@@ -62,6 +62,15 @@ void makeDSchema(DSchema& sh) {
 	sh.a[5]->getDef()->setData(new DateType(2020,11,3));
 	sh.a[5]->setKey(KeyName::Null);
 	printf("makeDSchema Finish!\n");
+
+	sh.typeName[6] = new char[20];
+	sh.setTypeName(6, "Numeric");
+	sh.a[6] = new DtypeSchemaNumeric();
+	sh.a[6]->setAllowNull(false);
+	sh.a[6]->setHaveDefault(true);
+	sh.a[6]->getDef()->setData(new NumericType(10,2,405,0,0));
+	sh.a[6]->setKey(KeyName::Null);
+	printf("makeDSchema Finish!\n");
 }
 void writeDSchema(DSchema& sh) {
 	//输出模式结果
@@ -90,6 +99,8 @@ void writeDSchema(DSchema& sh) {
 		printf("DSchema Part %d 's HaveDef is %d\n", i, hd);		
 		if (hd) {
 			printf("DSchema Part %d 's DefData is ", i);
+			DateType* tmp; 
+			NumericType* tmp2;
 			switch (tn) {
 			case TypeName::Int:
 				printf("%d\n", *((int*)sh.getPart(i)->getDef()->getData()));
@@ -107,9 +118,15 @@ void writeDSchema(DSchema& sh) {
 				printf("%f\n", *((float*)sh.getPart(i)->getDef()->getData()));
 				break;
 			case TypeName::Date:
-				DateType* tmp = ((DateType*)sh.getPart(i)->getDef()->getData());
+				tmp = ((DateType*)sh.getPart(i)->getDef()->getData());
 				printf("Date:%d\\%d\\%d\n", tmp->getyear(), tmp->getmonth(), tmp->getday());
 				break;
+			case TypeName::Numeric:
+				tmp2 = ((NumericType*)sh.getPart(i)->getDef()->getData());
+				printf("Numeric:%s\n", tmp2->getd());
+				break;
+			default:
+				printf("Type ERROR\n");
 			}			
 		}		
 	}
@@ -129,6 +146,7 @@ void makeDList(DList& li) {
 	li.getPart(3)->setData(new double(4.0));
 	li.getPart(4)->setData(new float(5.0));
 	li.getPart(5)->setData(new DateType(2020,11,6));
+	li.getPart(6)->setData(new NumericType(10,2,1005,0,0));
 	printf("makeDList Finish!\n");
 }
 void writeDList(PageLoc pl,DList& li) {
@@ -152,6 +170,8 @@ void writeDList(PageLoc pl,DList& li) {
 			printf("DList in (%d,%d)'s part %d is NULL\n", pl.PageID, pl.LocID, i);
 		else {
 			printf("DList in (%d,%d))'s part %d is ", pl.PageID, pl.LocID, i);
+			DateType* tmp;
+			NumericType* tmp2;
 			switch (tn) {
 			case TypeName::Int:
 				printf("%d\n", *((int*)li.getPart(i)->getData()));
@@ -169,9 +189,15 @@ void writeDList(PageLoc pl,DList& li) {
 				printf("%f\n", *((float*)li.getPart(i)->getData()));
 				break;
 			case TypeName::Date:
-				DateType* tmp = ((DateType*)li.getPart(i)->getData());
+				tmp = ((DateType*)li.getPart(i)->getData());
 				printf("Date:%d\\%d\\%d\n", tmp->getyear(), tmp->getmonth(), tmp->getday());
 				break;
+			case TypeName::Numeric:
+				tmp2 = ((NumericType*)li.getPart(i)->getData());
+				printf("Numeric:%s\n", tmp2->getd());
+				break;
+			default:
+				printf("Type ERROR\n");
 			}
 		}			
 	}
@@ -208,11 +234,6 @@ int main() {
 	rm.CloseFile(fileID);
 	rm.DeleteFile("data/input.txt");		
 	printf("Close and Delete File Finish!\n");
-	delete li;
-	delete li2;
-	printf("Delete li,li2 Finish!\n");
-	delete sh;
-	delete sh2;	
-	printf("Delete sh,sh2 Finish!\n");
 	return 0;
 }
+*/

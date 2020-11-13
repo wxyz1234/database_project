@@ -214,26 +214,19 @@ public:
 	}
 };
 
-//Numeric 数字总数最多27个
-/*
-class Numeric {
-private:
-	int SumDigit, PointDigit,;
-	int digit[3];
-};
 class DtypeSchemaNumeric :public DtypeSchema {
-public:
-	//
+public:	
+	DtypeSchemaNumeric() {
+		def = new DtypeDataNumeric();
+	}
+	int readBuf(BufType buf) {
+		return 0;
+	}
 	TypeName getType() {
-		return 'Numeric';
+		return TypeName::Numeric;
 	}
 	int getsize() {
-		return 5;
+		return 4;
 	}
-	bool islegal() {
-		if (SumDigit > 27)return false;
-		if (PointDigit >= SumDigit)return false;
-	}	
 };
-*/
 #endif

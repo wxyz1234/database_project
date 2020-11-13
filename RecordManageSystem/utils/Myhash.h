@@ -3,14 +3,14 @@
 enum flag { null = 0, data, deleted };
 class Myhash {
 private:
-	static const int mo = 999997;
+	static const int mo = 99997;
 	void* a[mo];
 	flag b[mo];
 	TypeName type;
 	int len;
 public:
 	Myhash() {
-		memset(b, sizeof(b), 0);
+		memset(b, 0, sizeof(b));
 	}
 	void setType(TypeName i) {
 		type = i;
@@ -43,6 +43,11 @@ public:
 		case(TypeName::Date):
 			return (((DateType*)i)->getday() * 35 + ((DateType*)i)->getmonth() * 12 + ((DateType*)i)->getyear()) % mo;
 			break;
+		case (TypeName::Numeric):
+			return (((NumericType*)i)->getd(0) % mo * (1000000000 % mo) % mo * ((NumericType*)i)->getd(1) % mo * (1000000000 % mo) % mo * ((NumericType*)i)->getd(2) % mo);
+			break;
+		default:
+			printf("Hash Score Type ERROR!\n");
 		}
 		return 0;
 	}
@@ -66,8 +71,13 @@ public:
 			return ((*(float*)k) == (*(float*)i));
 			break;
 		case(TypeName::Date):
-			return (((DateType*)k)->equal(*((DateType*)i)));
+			return (((DateType*)k)->equal((DateType*)i));
 			break;
+		case (TypeName::Numeric):
+			return (((NumericType*)k)->equal((NumericType*)i));
+			break;
+		default:
+			printf("Hash Equal Type ERROR!\n");
 		}
 		return false;
 	}
@@ -97,6 +107,11 @@ public:
 		case (TypeName::Date):
 			a[k] = new DateType((*(DateType*)i));
 			break;
+		case (TypeName::Numeric):
+			a[k] = new NumericType((*(NumericType*)i));
+			break;
+		default:
+			printf("Hash Insert Type ERROR!\n");
 		}
 		b[k] = flag::data;
 	}
@@ -125,7 +140,10 @@ public:
 		return false;
 	}
 	~Myhash() {
-		//
+		int i;
+		for (i=0;i<mo;i++)
+			if (b[i]==flag::data)
+				delete a[i];
 	}
 };
 #endif

@@ -14,7 +14,8 @@
 #include <stdio.h>
 using namespace std;
 const unsigned int maxunsignint = 4294967295;
-int Wei::wei[31];
+int Wei::wei[32];
+int Wei::shiwei[9];
 class RecordManager {
 public:
 	BufFileManager* fm;
@@ -115,7 +116,7 @@ public:
 				pagebuf[0] += 1;
 				fm->writePage(fileID, i, pagebuf, 0);
 				//第一页更新
-				filebuf[0] += 1;
+				filebuf[1] += 1;
 				fm->writePage(fileID, 0, filebuf, 0);
 				delete[] filebuf, pagebuf, buf;
 				return PageLoc(i, k);
@@ -130,7 +131,7 @@ public:
 			return PageLoc(-1, -1);
 		}
 		pagebuf[0] = 0;
-		pagebuf[1] = Wei::wei[30] - 1;
+		pagebuf[1] = Wei::wei[31] - 1;		
 		//找到空位
 		int k;
 		unsigned int tmp;

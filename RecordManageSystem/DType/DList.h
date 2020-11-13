@@ -8,6 +8,7 @@ private:
 	DSchema* fa = NULL;
 	int RID;
 	int isNull;
+	int num;
 	bool Nullchange=true;
 	DtypeData* a[20];
 public:
@@ -25,7 +26,7 @@ public:
 	}	
 	void setfa(DSchema* i) {
 		fa = i;
-		int num = fa->getnum();
+		num = fa->getnum();
 		for (int j = 0; j < num; j++)
 			switch (fa->getPart(j)->getType()) {
 			case TypeName::Int:
@@ -46,6 +47,9 @@ public:
 			case TypeName::Date:
 				a[j] = new DtypeDataDate();
 				break;
+			case TypeName::Numeric:
+				a[j] = new DtypeDataNumeric();
+				break;
 			default:
 				printf("ERROR setfa type %d\n",j);
 			}
@@ -58,7 +62,7 @@ public:
 	}
 	void makeNull() {
 		isNull = 0;
-		int i, num = fa->getnum();
+		int i;
 		for (i = 0; i < num; i++)
 			if (a[i]->getData() == NULL)
 				isNull |= Wei::wei[i];
@@ -85,7 +89,7 @@ public:
 		buf[0] = getRID();
 		buf[1] = getNull();
 		k += 2;
-		int i, num = getfa()->getnum();
+		int i;
 		for (i = 0; i < num; i++) {
 			k += getPart(i)->writeDataBuf(buf+k);
 		}
@@ -95,13 +99,12 @@ public:
 		setRID(buf[0]);
 		setNull(buf[1]);
 		k += 2;
-		int i, num = getfa()->getnum();
+		int i;
 		for (i = 0; i < num; i++) {
 			k += getPart(i)->readDataBuf(buf+k);
 		}
 	}
-	~DList() {		
-		int num = fa->getnum();
+	~DList() {				
 		for (int j = 0; j < num; j++)
 			delete a[j];		
 	}

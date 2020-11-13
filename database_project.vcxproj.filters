@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="recordmanagesystem\ReadFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="recordmanagesystem\TestRecordManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="filesystem\testfilesystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordManageSystem\ReadFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -87,6 +87,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RecordManageSystem\utils\Wei.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordManageSystem\DType\Numeric.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

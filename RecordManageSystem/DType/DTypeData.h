@@ -3,6 +3,7 @@
 #include "../DType/Dkey.h"
 #include "../DType/TypeName.h"
 #include "../DType/Date.h"
+#include "../DType/Numeric.h"
 #include "../../filesystem/utils/pagedef.h"
 #include <string.h>
 using namespace std;
@@ -18,6 +19,7 @@ public:
 	virtual void setData(double* i) {};
 	virtual void setData(float* i) {};
 	virtual void setData(DateType* i) {};
+	virtual void setData(NumericType* i) {};
 	virtual void setData(int* i, bool& Nullchange) {};
 	virtual void setData(short* i, bool& Nullchange) {};
 	virtual void setData(char* i, bool& Nullchange) {};
@@ -290,26 +292,53 @@ public:
 	}
 };
 
-//Numeric 数字总数最多27个
-/*
-class Numeric {
-private:
-	int SumDigit, PointDigit,;
-	int digit[3];
-};
 class DtypeDataNumeric :public DtypeData {
+private:
+	NumericType* data = NULL;
 public:
-	//
 	TypeName getType() {
-		return 'Numeric';
+		return TypeName::Numeric;
 	}
 	int getsize() {
-		return 5;
+		return 4;
 	}
-	bool islegal() {
-		if (SumDigit > 27)return false;
-		if (PointDigit >= SumDigit)return false;
+	void* getData() {
+		return data;
 	}
+	void setData(NumericType* i) {
+		if (i != NULL) {
+			if (data == NULL)data = new NumericType;
+			data->setsumdotd(i->getsumdotd());			
+			data->setd(i->getd(0), i->getd(1), i->getd(2));
+		}
+		else {
+			if (data != NULL)delete data;
+			data = NULL;
+		}
+	}
+	void setData(NumericType* i, bool& Nullchange) {
+		if ((i == NULL && data != NULL) || (i != NULL && data == NULL))Nullchange = true;
+		setData(i);
+	}
+	int writeDataBuf(BufType buf) {
+		int k = 0;
+		if (data != NULL) {
+			buf[k] = data->getsumdotd();
+			buf[k + 1] = data->getd(0);
+			buf[k + 2] = data->getd(1);
+			buf[k + 3] = data->getd(2);			
+		}
+		k += getsize();
+		return k;
+	}
+	int readDataBuf(BufType buf) {		
+		int k = 0;
+		NumericType* data2 = new NumericType();
+		data2->setsumdotd(buf[0]);
+		data2->setd(buf[1], buf[2], buf[3]);
+		setData(data2);
+		k += getsize();
+		return k;
+	}	
 };
-*/
 #endif

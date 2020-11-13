@@ -99,7 +99,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="filesystem\testfilesystem.cpp" />
-    <ClCompile Include="recordmanagesystem\ReadFile.cpp" />
+    <ClCompile Include="RecordManageSystem\ReadFile.cpp" />
     <ClCompile Include="recordmanagesystem\TestRecordManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -119,6 +119,7 @@
     <ClInclude Include="recordmanagesystem\dtype\DSchema.h" />
     <ClInclude Include="recordmanagesystem\dtype\DTypeData.h" />
     <ClInclude Include="recordmanagesystem\dtype\DTypeSchema.h" />
+    <ClInclude Include="RecordManageSystem\DType\Numeric.h" />
     <ClInclude Include="recordmanagesystem\dtype\TypeName.h" />
     <ClInclude Include="recordmanagesystem\RecordManager.h" />
     <ClInclude Include="RecordManageSystem\utils\Myhash.h" />
