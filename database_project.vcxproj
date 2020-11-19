@@ -99,6 +99,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="filesystem\testfilesystem.cpp" />
+    <ClCompile Include="parser\main.cpp" />
     <ClCompile Include="RecordManageSystem\ReadFile.cpp" />
     <ClCompile Include="recordmanagesystem\TestRecordManager.cpp" />
   </ItemGroup>
@@ -113,6 +114,7 @@
     <ClInclude Include="filesystem\utils\MyHashMap.h" />
     <ClInclude Include="filesystem\utils\MyLinkList.h" />
     <ClInclude Include="filesystem\utils\pagedef.h" />
+    <ClInclude Include="parser\tree.h" />
     <ClInclude Include="recordmanagesystem\dtype\Date.h" />
     <ClInclude Include="recordmanagesystem\dtype\DKey.h" />
     <ClInclude Include="recordmanagesystem\dtype\DList.h" />
@@ -125,6 +127,10 @@
     <ClInclude Include="RecordManageSystem\utils\Myhash.h" />
     <ClInclude Include="RecordManageSystem\utils\PageLoc.h" />
     <ClInclude Include="RecordManageSystem\utils\Wei.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="parser\Lexer.l" />
+    <None Include="parser\Parser.y" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
