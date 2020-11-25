@@ -27,6 +27,12 @@
     <ClCompile Include="parser\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="parser\Lexer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\Parser.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="filesystem\filesystem.h">
@@ -98,9 +104,14 @@
     <ClInclude Include="parser\tree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="parser\Parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="parser\Lexer.l" />
     <None Include="parser\Parser.y" />
+    <None Include="parser\makefile" />
+    <None Include="parser\Parser.output" />
   </ItemGroup>
 </Project>

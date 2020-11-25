@@ -3,7 +3,16 @@
 
 %{
 /* 定义节:可选，包含头文件、宏定义或全局 C 代码*/
-}%
+#include "tree.h"
+#include "../parser/Parser.h"
+
+char *get_text(const char *text) {
+    int length = strlen(text);
+    char *buffer = new char[length + 1];
+    memcpy(buffer, text, (length + 1) * sizeof(char));
+    return buffer;
+}
+%}
 
 /* 辅助定义节:可选，在此可以为正规式定义宏名字*/
 DIGIT ([0-9])
@@ -12,10 +21,9 @@ NAME ([a-zA-z][0-9a-zA-z_]*)
 TEXT ([']ONECHAR*['])
 INUM ([-]{0,1}DIGIT+)
 FNUM ([-]{0,1}DIGIT*[.]DIGIT*)
-DATE (DIGIT{4}-DIGIT{2}-DIGIT{2})
+DATENUM (DIGIT{4}-DIGIT{2}-DIGIT{2})
 
 %%
-/* 规则节:源程序的主体，不可或缺，由模式（Lex 正规表达式）和动作（C 语句或一段 C 程序）组成 */
 CREATE { return CREATE; }
 DROP { return DROP; }
 USE { return USE; }
@@ -38,7 +46,7 @@ SELECT { return SELECT; }
 WHERE { return WHERE; }
 IS { return IS; }
 NOT { return NOT; }
-NULL { return NULL; }
+NULL { return NULLC; }
 DEFAULT { return DEFAULT; }
 PRIMARY { return PRIMARY; }
 FOREIGN { return FOREIGN; }
@@ -46,13 +54,16 @@ KEY { return KEY; }
 REFERENCES { return REFERENCES; }
 RENAME { return RENAME; }
 TO { return TO; }
-Int { return INT; }
+ON { return ON; }
+AND { return AND; }
+SET { return SET; }
+Int { return INTEGER; }
 SmallInt { return SMALLINT; }
 Char { return CHAR; }
 Double { return DOUBLE; }
 Float { return FLOAT; }
-Date { return DATE; }
-Numeric { return NUMERIC; }
+Date { return DATETYPE; }
+Numeric { return NUMERICTYPE; }
 "(" { return '('; }
 ")" { return ')'; }
 "," { return ','; }
@@ -72,7 +83,7 @@ Numeric { return NUMERIC; }
 {TEXT} { yylval.string = get_text(yytext); return TEXT; }
 {INUM} { yylval.string = get_text(yytext); return INUM; }
 {FNUM} { yylval.string = get_text(yytext); return FNUM; }
-{DATE} { yylval.string = get_text(yytext); return DATE; }
+{DATENUM} { yylval.string = get_text(yytext); return DATENUM; }
 %%
 
 /* C 语言用户子程序节:可选，包含规则节用到的局部 C 函数*/

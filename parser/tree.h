@@ -1,13 +1,26 @@
+#ifndef TREE
+#define TREE
 #include <string>
 #include <vector>
 #include "../RecordManageSystem/DType/DKey.h"
 #include "../RecordManageSystem/DType/TypeName.h"
 #include "../RecordManageSystem/DType/DSchema.h"
-void workerror(char* msg) {
-    printf("Work error: %s\n", msg);
-}
-class Tree;
-class CreateDatabaseTree;
+
+class attributeTree;
+class attributelistTree;
+class valuelistsTree;
+class valuelistTree;
+class valueTree;
+class WhereClausesTree;
+class setClauselistTree;
+class columnlistTree;
+class columnTree;
+class exprTree;
+class tablelistTree;
+class conditionsTree;
+class comparisonTree;
+class typeTree;
+
 class Tree {
 public:
     virtual void visit() {};
@@ -23,7 +36,7 @@ public:
     }
     static Tree* tree;
 };
-class CreateDatabaseTree:Tree {
+class CreateDatabaseTree:public Tree {
 private:
     std::string name;
 public:
@@ -34,7 +47,7 @@ public:
         //执行
     }    
 };
-class DropDatabaseTree :Tree {
+class DropDatabaseTree :public Tree {
 private:
     std::string name;
 public:
@@ -45,7 +58,7 @@ public:
         //执行
     }
 };
-class UseDatabaseTree :Tree {
+class UseDatabaseTree :public Tree {
 private:
     std::string name;
 public:
@@ -56,7 +69,7 @@ public:
         //执行
     }
 };
-class ShowDatabaseTree :Tree {
+class ShowDatabaseTree :public Tree {
 private:
     std::string name;
 public:
@@ -67,7 +80,7 @@ public:
         //执行
     }
 };
-class ShowDatabaseSTree :Tree {
+class ShowDatabaseSTree :public Tree {
 public:
     ShowDatabaseSTree() {        
     }
@@ -75,7 +88,7 @@ public:
         //执行
     }
 };
-class ShowDatabaseDescTree :Tree {
+class ShowDatabaseDescTree :public Tree {
 private:
     std::string name;
 public:
@@ -87,7 +100,7 @@ public:
     }
 };
 
-class CreateTableTree :Tree {
+class CreateTableTree :public Tree {
 private:
     std::string name;
     attributelistTree* attribute;
@@ -96,15 +109,14 @@ public:
         name = i;
         attribute = j;
     }
-    void visit() {
-        attribute->visit();
+    void visit() {        
         //执行
     }
     ~CreateTableTree() {
         delete attribute;
     }
 };
-class DropTableTree :Tree {
+class DropTableTree :public Tree {
 private:
     std::string name;
 public:
@@ -115,7 +127,7 @@ public:
         //执行
     }
 };
-class ShowTableTree :Tree {
+class ShowTableTree :public Tree {
 private:
     std::string name;
 public:
@@ -126,7 +138,7 @@ public:
         //执行
     }
 };
-class ShowTableSTree :Tree {
+class ShowTableSTree :public Tree {
 public:
     ShowTableSTree() {
     }
@@ -135,7 +147,7 @@ public:
     }
 };
 
-class CreateIndexTree :Tree {
+class CreateIndexTree :public Tree {
 private:
     std::string idxname,tabname,attrname;
 public:
@@ -148,7 +160,7 @@ public:
         //执行
     }
 };
-class DropIndexTree :Tree {
+class DropIndexTree :public Tree {
 private:
     std::string name;
 public:
@@ -160,7 +172,7 @@ public:
     }
 };
 
-class AddPrimaryTree :Tree {
+class AddPrimaryTree :public Tree {
 private:
     std::string tname, aname;
 public:
@@ -172,7 +184,7 @@ public:
         //执行
     }
 };
-class DropPrimaryTree :Tree {
+class DropPrimaryTree :public Tree {
 private:
     std::string name;
 public:
@@ -183,7 +195,7 @@ public:
         //执行
     }
 };
-class AddForeignTree :Tree {
+class AddForeignTree :public Tree {
 private:
     std::string tname, aname, ftname, faname;
 public:
@@ -197,7 +209,7 @@ public:
         //执行
     }
 };
-class DropForeignTree :Tree {
+class DropForeignTree :public Tree {
 private:
     std::string tname,aname;
 public:
@@ -209,7 +221,7 @@ public:
         //执行
     }
 };
-class AddAttributeTree :Tree {
+class AddAttributeTree :public Tree {
 private:
     std::string name;
     attributeTree* attribute;
@@ -225,7 +237,7 @@ public:
         delete attribute;
     }
 };
-class DropAttributeTree :Tree {
+class DropAttributeTree :public Tree {
 private:
     std::string tname, aname;
 public:
@@ -238,7 +250,7 @@ public:
         //执行
     }
 };
-class TableRenameTree :Tree {
+class TableRenameTree :public Tree {
 private:
     std::string oldname, newname;
 public:
@@ -252,7 +264,7 @@ public:
     }
 };
 
-class InsertTree :Tree {
+class InsertTree :public Tree {
 private:
     std::string name;
     valuelistsTree* a;
@@ -268,7 +280,7 @@ public:
         delete a;
     }
 };
-class DeleteTree :Tree {
+class DeleteTree :public Tree {
 private:
     std::string name;
     WhereClausesTree* wherecl;
@@ -284,7 +296,7 @@ public:
         if (wherecl != nullptr)delete wherecl;
     }
 };
-class UpdateTree :Tree {
+class UpdateTree :public Tree {
 private:
     std::string name;
     WhereClausesTree* wherecl;
@@ -303,7 +315,7 @@ public:
         if (wherecl != nullptr)delete wherecl;
     }
 };
-class SelectTree :Tree {
+class SelectTree :public Tree {
 private:
     columnlistTree* collist;
     tablelistTree* tablelist;
@@ -335,7 +347,7 @@ public:
         delete a;
     }
 };
-class conditionsTree :Tree {
+class conditionsTree :public Tree {
 private:
     vector<comparisonTree*> a;
 public:
@@ -351,7 +363,7 @@ public:
         }
     }
 };
-class comparisonTree :Tree {
+class comparisonTree :public Tree {
 private:
     columnTree* col;
     opName op;
@@ -368,7 +380,7 @@ public:
     }
 };
 
-class exprTree :Tree {
+class exprTree :public Tree {
 private:
     exprType k;
     valueTree* value;
@@ -404,7 +416,7 @@ public:
         };
     }
 };
-class columnTree :Tree {
+class columnTree :public Tree {
 private:
     std::string tname, aname;
 public:
@@ -417,7 +429,7 @@ public:
         aname = c1;
     }
 };
-class columnlistTree :Tree {
+class columnlistTree :public Tree {
 private:
     vector<columnTree*> a;
 public:
@@ -433,7 +445,7 @@ public:
         }
     }
 };
-class tablelistTree :Tree {
+class tablelistTree :public Tree {
 private:
     vector<std::string> a;
 public:
@@ -445,7 +457,7 @@ public:
     }
 };
 
-class setClauseTree :Tree {
+class setClauseTree :public Tree {
 private:
     exprTree* expr;
     columnTree* col;
@@ -459,7 +471,7 @@ public:
         delete col;
     }
 };
-class setClauselistTree :Tree {
+class setClauselistTree :public Tree {
 private:
     vector<setClauseTree*> a;
 public:
@@ -477,7 +489,7 @@ public:
 };
 
 
-class attributelistTree :Tree {
+class attributelistTree :public Tree {
 private:
     DSchema* data = NULL;
     vector<attributeTree*> a;
@@ -500,14 +512,15 @@ public:
         }
     }
 };
-class attributeTree :Tree {
+class attributeTree :public Tree {
 private:
-    std::string name,def,na1,na2;
+    std::string name,na1,na2;
+    valueTree* def;
     KeyName k;
     bool allownull, hasdefault;
     typeTree* type;
 public:
-    attributeTree(char* na, typeTree* ty, bool an, bool hd, char* de = NULL) {
+    attributeTree(char* na, typeTree* ty, bool an, bool hd, valueTree* de = NULL) {
         k = KeyName::Null;
         name = na;
         type = ty;
@@ -525,25 +538,25 @@ public:
         delete type;
     }
 };
-class typeTree :Tree {
+class typeTree :public Tree {
 private:
-    std::string name;
+    TypeName name;
     int p1, p2;
 public:
-    typeTree(char* i, int i1 = 0, int i2 = 0) {
+    typeTree(TypeName i, char* i1 = "0", char* i2 = "0") {
         name = i;
-        p1 = i1;
-        p2 = i2;
+        p1 = atoi(i1);
+        p2 = atoi(i2);       
     }    
 };
-class valuelistsTree :Tree {
+class valuelistsTree :public Tree {
 private:    
-    vector<attributeTree*> a;
+    vector<valuelistTree*> a;
 public:
     valuelistsTree() {
         a.clear();
     }
-    void append(attributeTree* i) {
+    void append(valuelistTree* i) {
         a.push_back(i);
     }   
     ~valuelistsTree() {
@@ -552,7 +565,7 @@ public:
         }
     }
 };
-class valuelistTree :Tree {
+class valuelistTree :public Tree {
 private:    
     vector<valueTree*> a;
 public:
@@ -568,7 +581,7 @@ public:
         }
     }
 };
-class valueTree :Tree {
+class valueTree :public Tree {
 private:
     std::string data;
     CharTypeName k;
@@ -578,3 +591,7 @@ public:
         data = a;
     }
 };
+void workerror(char* msg) {
+    printf("Work error: %s\n", msg);
+}
+#endif

@@ -1,16 +1,18 @@
 %{
 /*声明节  将被原样拷贝,可选*/
-#include <tree.h>
 #include <stdio.h>
+#include "tree.h"
 #include "../parser/Lexer.c"
+#include "../parser/Parser.h"
 #include "../RecordManageSystem/DType/DKey.h"
 #include "../RecordManageSystem/DType/TypeName.h"
+void yyerror(const char *);
 %}
 
 /*辅助定义节  定义文法相关的名称和属性,可选*/
 
 %union{
-	Tree* tree
+	Tree* tree;
 	char* string;
 
 	CreateDatabaseTree *CreateDatabaseTree;
@@ -18,8 +20,7 @@
 	UseDatabaseTree *UseDatabaseTree;
 	ShowDatabaseTree *ShowDatabaseTree;
 	ShowDatabaseSTree *ShowDatabaseSTree;
-	ShowDatabaseDescTree *ShowDatabaseDescTree;
-	CreateTableTree *CreateTableTree;
+	ShowDatabaseDescTree *ShowDatabaseDescTree;	
 
 	CreateTableTree *CreateTableTree;
 	DropTableTree *DropTableTree;
@@ -64,11 +65,13 @@
 %token CREATE DROP USE SHOW DESC ADD
 %token DATABASE DATABASES TABLE TABLES INDEX
 %token ALTER INSERT INTO VALUES DELETE FROM UPDATE SELECT WHERE
-%token IS NOT NULL DEFAULT PRIMARY FOREIGN KEY REFERENCES RENAME TO
-%token INT  SMALLINT  CHAR  DOUBLE  FLOAT  DATE  NUMERIC 
+%token NULLC DEFAULT PRIMARY FOREIGN KEY
+%token IS NOT REFERENCES RENAME TO ON AND SET
+%token INTEGER  SMALLINT  CHAR  DOUBLE  FLOAT  DATETYPE  NUMERICTYPE
 %token '(' ')' ';' ',' '+' '-' '*' '/' '%'
 %token EQ GT LT GE LE NE
-%token <string> NAME TEXT INUM FNUM DATE
+%token <string> NAME TEXT INUM FNUM DATENUM
+
 %type <tree> command
 %type <WhereClausesTree> whereClauses
 %type <conditionsTree> conditions
@@ -83,13 +86,14 @@
 %type <attributelistTree> attributelist
 %type <attributeTree> attribute
 %type <typeTree> type
-%type <valuelistsTree>valuelists
-%type <valuelistTree>valuelist
+%type <valuelistsTree> valuelists
+%type <valuelistTree> valuelist
 %type <valueTree> value
 
-%%
-/*语法规则节  定义语法规则及语义动作. Yacc中的产生式格式为非终结符: 右端 {C语句表示的语义动作}*/
+%left '+' '-'
+%left '*' '/' '%'
 
+%%
 sql:
     command ';'
             {				
@@ -131,7 +135,7 @@ command: CREATE DATABASE NAME{
 	|	DESC NAME{
 			$$=new ShowDatabaseDescTree($2);
 			Tree::setInstance($$);
-			delete $3;
+			delete $2;
 			Tree::run();
 		}
 
@@ -222,7 +226,7 @@ command: CREATE DATABASE NAME{
 			Tree::run();
 		}
 	|	DELETE FROM NAME whereClauses{
-			$$=new DeleteTree($3,$5);
+			$$=new DeleteTree($3,$4);
 			Tree::setInstance($$);
 			delete $3;
 			Tree::run();
@@ -233,12 +237,12 @@ command: CREATE DATABASE NAME{
 			delete $2;
 			Tree::run();
 		}
-	|	SELECT columnList FROM tableList whereClauses{
+	|	SELECT columnlist FROM tablelist whereClauses{
 			$$=new SelectTree($2,$4,$5);
 			Tree::setInstance($$);			
 			Tree::run();
 		}
-	|	SELECT '*' FROM tableList whereClauses{
+	|	SELECT '*' FROM tablelist whereClauses{
 			$$=new SelectTree(nullptr,$4,$5);
 			Tree::setInstance($$);			
 			Tree::run();
@@ -263,10 +267,10 @@ conditions:	comparison{
 comparison:	column op expr{
 			 $$=new comparisonTree($1,$2,$3);
 		}
-	|	column IS NULL{
+	|	column IS NULLC{
 			$$=new comparisonTree($1,opName::IN,nullptr);
 		}
-	|	column IS NOT NULL{
+	|	column IS NOT NULLC{
 			$$=new comparisonTree($1,opName::NN,nullptr);
 		}
 	;
@@ -316,7 +320,7 @@ expr:	value{
 			$$=new exprTree($1,clacopName::DIV,$3);
 		}
 	|	expr '%' expr{
-			$$=new exprTree($1,clacopName::MOD,$3);
+			$$=new exprTree($1,clacopName::MODC,$3);
 		}
 	;
 op:		EQ{
@@ -342,7 +346,7 @@ setClauselist: setClause{
 			$$=new setClauselistTree();
 			$$->append($1);
 		}
-	|	setClauseList ',' setClause{
+	|	setClauselist ',' setClause{
 			$$->append($3);
 		}
 	;
@@ -363,35 +367,35 @@ attribute:	NAME type{
 			$$=new attributeTree($1,$2,false,false);
 			delete $1;
 		}
-	|	NAME type NOT NULL{
+	|	NAME type NOT NULLC{
 			$$=new attributeTree($1,$2,true,false);
 			delete $1;
 		}
-	|	NAME type DEFAULT NAME {
+	|	NAME type DEFAULT value {
 			$$=new attributeTree($1,$2,false,true,$4);
 			delete $1,$4;
 		}
-	|	NAME type NOT NULL DEFAULT value{
+	|	NAME type NOT NULLC DEFAULT value{
 			$$=new attributeTree($1,$2,true,true,$6);
 			delete $1,$6;
 		}
-	|	PRIMARY KEY '(' NAME ')'{
-			$$=new attributeTree(KeyName::Primary,$4);
-			delete $4;
+	|	PRIMARY KEY NAME {
+			$$=new attributeTree(KeyName::Primary,$3);
+			delete $3;
 		}
-	|	FOREIGN KEY '(' NAME ')' REFERENCES NAME '(' NAME ')'{
-			$$=new attributeTree(KeyName::Foreign,$4,$7,$9);
-			delete $4,$7,$9;
+	|	FOREIGN KEY NAME REFERENCES NAME '(' NAME ')'{
+			$$=new attributeTree(KeyName::Foreign,$3,$5,$7);
+			delete $3,$5,$7;
 		}
 	;
 
-type:	INT {
+type:	INTEGER {
 			$$=new typeTree(TypeName::Int);
 		}
 	|	SMALLINT {
 			$$=new typeTree(TypeName::SmallInt);
 		}
-	|	CHAR '(' NUM ')'{
+	|	CHAR '(' INUM ')'{
 			$$=new typeTree(TypeName::Char,$3);			
 		}
 	|	DOUBLE{
@@ -400,19 +404,19 @@ type:	INT {
 	|	FLOAT{
 			$$=new typeTree(TypeName::Float);
 		}
-	|	DATE{
+	|	DATETYPE{
 			$$=new typeTree(TypeName::Date);
 		}
-	|	NUMERIC '(' NUM ',' NUM ')'{
+	|	NUMERICTYPE '(' INUM ',' INUM ')'{
 			$$=new typeTree(TypeName::Numeric,$3,$5);
 		}
 	;
 
-valuelists:	'(' valueslist ')'{
+valuelists:	'(' valuelist ')'{
 			$$=new valuelistsTree();
 			$$->append($2);
 		}
-	|	valueslists ',' '(' valueslist ')'{
+	|	valuelists ',' '(' valuelist ')'{
 			$$->append($4);
 		}
 	;
@@ -437,8 +441,8 @@ value:	TEXT{
 			$$=new valueTree(CharTypeName::FNUM,$1);
 			delete $1;
 		}
-	|	DATE{
-			$$=new valueTree(CharTypeName::DATE,$1);
+	|	DATENUM{
+			$$=new valueTree(CharTypeName::DATENUM,$1);
 			delete $1;
 		}
 	;
@@ -454,13 +458,13 @@ void parseFile(){//程序主函数，读取命令，执行输出
 	bool outstd=false;
 	char* inputname="input.txt";
 	char* outputname="output.txt";	
-	FILE* fin,fout;
+	FILE* fin,*fout;
 	if (instd){
 		fin = fopen(inputname, "r"); 
 		yyin=fin;
 		printf("input name is %s\n",inputname);
 	}else
-		printf("input is stdin\n");s
+		printf("input is stdin\n");
 	if (outstd){
 		fout = fopen(outputname ,"w");
 		yyout=fout;
