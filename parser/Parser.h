@@ -59,13 +59,13 @@
      UPDATE = 275,
      SELECT = 276,
      WHERE = 277,
-     NULLC = 278,
-     DEFAULT = 279,
-     PRIMARY = 280,
-     FOREIGN = 281,
-     KEY = 282,
-     IS = 283,
-     NOT = 284,
+     IS = 278,
+     NOT = 279,
+     NULLC = 280,
+     DEFAULT = 281,
+     PRIMARY = 282,
+     FOREIGN = 283,
+     KEY = 284,
      REFERENCES = 285,
      RENAME = 286,
      TO = 287,
@@ -100,62 +100,62 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 14 "Parser.y"
+#line 18 "Parser.y"
 
 	Tree* tree;
 	char* string;
 
-	CreateDatabaseTree *CreateDatabaseTree;
-	DropDatabaseTree *DropDatabaseTree;
-	UseDatabaseTree *UseDatabaseTree;
-	ShowDatabaseTree *ShowDatabaseTree;
-	ShowDatabaseSTree *ShowDatabaseSTree;
-	ShowDatabaseDescTree *ShowDatabaseDescTree;	
+	CreateDatabaseTree *CreateDatabasetree;
+	DropDatabaseTree *DropDatabasetree;
+	UseDatabaseTree *UseDatabasetree;
+	ShowDatabaseTree *ShowDatabasetree;
+	ShowDatabaseSTree *ShowDatabaseStree;
+	ShowDatabaseDescTree *ShowDatabaseDesctree;	
 
-	CreateTableTree *CreateTableTree;
-	DropTableTree *DropTableTree;
-	ShowTableTree *ShowTableTree;
-	ShowTableSTree *ShowTableSTree;
+	CreateTableTree *CreateTabletree;
+	DropTableTree *DropTabletree;
+	ShowTableTree *ShowTabletree;
+	ShowTableSTree *ShowTableStree;
 
-	CreateIndexTree *CreateIndexTree;
-	DropIndexTree *DropIndexTree;
+	CreateIndexTree *CreateIndextree;
+	DropIndexTree *DropIndextree;
 
-	AddPrimaryTree *AddPrimaryTree;
-	DropPrimaryTree *DropPrimaryTree;
-	AddForeignTree *AddForeignTree;
-	DropForeignTree *DropForeignTree;
-	AddAttributeTree *AddAttributeTree;
-	DropAttributeTree *DropAttributeTree;
-	TableRenameTree *TableRenameTree;
+	AddPrimaryTree *AddPrimarytree;
+	DropPrimaryTree *DropPrimarytree;
+	AddForeignTree *AddForeigntree;
+	DropForeignTree *DropForeigntree;
+	AddAttributeTree *AddAttributetree;
+	DropAttributeTree *DropAttributetree;
+	TableRenameTree *TableRenametree;
 
-	InsertTree *InsertTree;
-	DeleteTree *DeleteTree;
-	UpdateTree *UpdateTree;
-	SelectTree *SelectTree;
+	InsertTree *Inserttree;
+	DeleteTree *Deletetree;
+	UpdateTree *Updatetree;
+	SelectTree *Selecttree;
 
-	WhereClausesTree *WhereClausesTree;
-	conditionsTree *conditionsTree;
-	comparisonTree *comparisonTree;		
-	exprTree *exprTree;
-	columnTree *columnTree;
-	columnlistTree *columnlistTree;
-	tablelistTree *tablelistTree;	
-	setClauselistTree *setClauselistTree;
-	setClauseTree *setClauseTree;
+	WhereClausesTree *WhereClausestree;
+	conditionsTree *conditionstree;
+	comparisonTree *comparisontree;		
+	exprTree *exprtree;
+	columnTree *columntree;
+	columnlistTree *columnlisttree;
+	tablelistTree *tablelisttree;	
+	setClauselistTree *setClauselisttree;
+	setClauseTree *setClausetree;
 
-	attributelistTree *attributelistTree;
-	attributeTree *attributeTree;
-	typeTree *typeTree;
-	valuelistsTree *valuelistsTree;
-	valuelistTree *valuelistTree;
-	valueTree *valueTree;	
+	attributelistTree *attributelisttree;
+	attributeTree *attributetree;
+	typeTree *typetree;
+	valuelistsTree *valueliststree;
+	valuelistTree *valuelisttree;
+	valueTree *valuetree;	
 
-	opName opName;
+	opName opname;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 159 "Parser.tab.h"
+#line 159 "Parser.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

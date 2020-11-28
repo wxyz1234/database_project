@@ -24,17 +24,18 @@ class typeTree;
 class Tree {
 public:
     virtual void visit() {};
-    static void setInstance(Tree* t) {
+    virtual ~Tree() {}
+    static void setInstance(Tree* t) {    
         if (tree != nullptr) {
             delete tree;
         }
         tree = t;
     }
-    static void run() {
+    static void run() {    
         if (tree != nullptr)
             tree->visit();
     }
-    static Tree* tree;
+    static Tree* tree;    
 };
 class CreateDatabaseTree:public Tree {
 private:
@@ -349,7 +350,7 @@ public:
 };
 class conditionsTree :public Tree {
 private:
-    vector<comparisonTree*> a;
+    std::vector<comparisonTree*> a;
 public:
     conditionsTree() {
         a.clear();
@@ -431,7 +432,7 @@ public:
 };
 class columnlistTree :public Tree {
 private:
-    vector<columnTree*> a;
+    std::vector<columnTree*> a;
 public:
     columnlistTree() {
         a.clear();
@@ -447,7 +448,7 @@ public:
 };
 class tablelistTree :public Tree {
 private:
-    vector<std::string> a;
+    std::vector<std::string> a;
 public:
     tablelistTree() {
         a.clear();
@@ -473,7 +474,7 @@ public:
 };
 class setClauselistTree :public Tree {
 private:
-    vector<setClauseTree*> a;
+    std::vector<setClauseTree*> a;
 public:
     setClauselistTree() {
         a.clear();
@@ -492,7 +493,7 @@ public:
 class attributelistTree :public Tree {
 private:
     DSchema* data = NULL;
-    vector<attributeTree*> a;
+    std::vector<attributeTree*> a;
 public:
     attributelistTree() {
         a.clear();
@@ -506,7 +507,10 @@ public:
         data = new DSchema();
     }
     ~attributelistTree() {
-        if (data != NULL)delete data;
+        if (data != NULL) {
+            delete data;
+            data = NULL;
+        }
         for (auto i : a) {
             delete i;
         }
@@ -531,11 +535,12 @@ public:
     attributeTree(KeyName i, char* na, char* n1 = NULL, char* n2 = NULL) {
         k = i;
         name = na;
-        na1 = n1;
-        na2 = n2;
+        if (n1!=NULL)na1 = n1;
+        if (n2!=NULL)na2 = n2;
     }
     ~attributeTree() {
-        delete type;
+        if (k == KeyName::Null)delete type;
+        if (hasdefault)delete def;
     }
 };
 class typeTree :public Tree {
@@ -551,7 +556,7 @@ public:
 };
 class valuelistsTree :public Tree {
 private:    
-    vector<valuelistTree*> a;
+    std::vector<valuelistTree*> a;
 public:
     valuelistsTree() {
         a.clear();
@@ -567,7 +572,7 @@ public:
 };
 class valuelistTree :public Tree {
 private:    
-    vector<valueTree*> a;
+    std::vector<valueTree*> a;
 public:
     valuelistTree() {
         a.clear();
@@ -591,7 +596,4 @@ public:
         data = a;
     }
 };
-void workerror(char* msg) {
-    printf("Work error: %s\n", msg);
-}
 #endif

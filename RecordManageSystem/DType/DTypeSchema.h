@@ -1,6 +1,6 @@
 #ifndef DTYPESCHEMA
 #define DTYPESCHEMA
-#include "../DType/Dkey.h"
+#include "../DType/DKey.h"
 #include "../DType/TypeName.h"
 #include "../DType/Date.h"
 #include "../DType/DTypeData.h"

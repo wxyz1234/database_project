@@ -1,3 +1,4 @@
+/*
 #include "RecordManager.h"
 #include "utils/Myhash.h"
 #include <stdio.h>
@@ -270,3 +271,4 @@ int main() {
 	delete sh2;
 	return 0;
 }
+*/

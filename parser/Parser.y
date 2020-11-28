@@ -1,12 +1,16 @@
 %{
 /*声明节  将被原样拷贝,可选*/
 #include <stdio.h>
-#include "tree.h"
-#include "../parser/Lexer.c"
-#include "../parser/Parser.h"
+#include "../parser/tree.h"
+//#include "../parser/Parser.h"
+//#include "../parser/Lexer.c"
 #include "../RecordManageSystem/DType/DKey.h"
 #include "../RecordManageSystem/DType/TypeName.h"
+
 void yyerror(const char *);
+int yylex(void); 
+int parseFile();
+Tree* Tree::tree = nullptr;
 %}
 
 /*辅助定义节  定义文法相关的名称和属性,可选*/
@@ -15,80 +19,80 @@ void yyerror(const char *);
 	Tree* tree;
 	char* string;
 
-	CreateDatabaseTree *CreateDatabaseTree;
-	DropDatabaseTree *DropDatabaseTree;
-	UseDatabaseTree *UseDatabaseTree;
-	ShowDatabaseTree *ShowDatabaseTree;
-	ShowDatabaseSTree *ShowDatabaseSTree;
-	ShowDatabaseDescTree *ShowDatabaseDescTree;	
+	CreateDatabaseTree *CreateDatabasetree;
+	DropDatabaseTree *DropDatabasetree;
+	UseDatabaseTree *UseDatabasetree;
+	ShowDatabaseTree *ShowDatabasetree;
+	ShowDatabaseSTree *ShowDatabaseStree;
+	ShowDatabaseDescTree *ShowDatabaseDesctree;	
 
-	CreateTableTree *CreateTableTree;
-	DropTableTree *DropTableTree;
-	ShowTableTree *ShowTableTree;
-	ShowTableSTree *ShowTableSTree;
+	CreateTableTree *CreateTabletree;
+	DropTableTree *DropTabletree;
+	ShowTableTree *ShowTabletree;
+	ShowTableSTree *ShowTableStree;
 
-	CreateIndexTree *CreateIndexTree;
-	DropIndexTree *DropIndexTree;
+	CreateIndexTree *CreateIndextree;
+	DropIndexTree *DropIndextree;
 
-	AddPrimaryTree *AddPrimaryTree;
-	DropPrimaryTree *DropPrimaryTree;
-	AddForeignTree *AddForeignTree;
-	DropForeignTree *DropForeignTree;
-	AddAttributeTree *AddAttributeTree;
-	DropAttributeTree *DropAttributeTree;
-	TableRenameTree *TableRenameTree;
+	AddPrimaryTree *AddPrimarytree;
+	DropPrimaryTree *DropPrimarytree;
+	AddForeignTree *AddForeigntree;
+	DropForeignTree *DropForeigntree;
+	AddAttributeTree *AddAttributetree;
+	DropAttributeTree *DropAttributetree;
+	TableRenameTree *TableRenametree;
 
-	InsertTree *InsertTree;
-	DeleteTree *DeleteTree;
-	UpdateTree *UpdateTree;
-	SelectTree *SelectTree;
+	InsertTree *Inserttree;
+	DeleteTree *Deletetree;
+	UpdateTree *Updatetree;
+	SelectTree *Selecttree;
 
-	WhereClausesTree *WhereClausesTree;
-	conditionsTree *conditionsTree;
-	comparisonTree *comparisonTree;		
-	exprTree *exprTree;
-	columnTree *columnTree;
-	columnlistTree *columnlistTree;
-	tablelistTree *tablelistTree;	
-	setClauselistTree *setClauselistTree;
-	setClauseTree *setClauseTree;
+	WhereClausesTree *WhereClausestree;
+	conditionsTree *conditionstree;
+	comparisonTree *comparisontree;		
+	exprTree *exprtree;
+	columnTree *columntree;
+	columnlistTree *columnlisttree;
+	tablelistTree *tablelisttree;	
+	setClauselistTree *setClauselisttree;
+	setClauseTree *setClausetree;
 
-	attributelistTree *attributelistTree;
-	attributeTree *attributeTree;
-	typeTree *typeTree;
-	valuelistsTree *valuelistsTree;
-	valuelistTree *valuelistTree;
-	valueTree *valueTree;	
+	attributelistTree *attributelisttree;
+	attributeTree *attributetree;
+	typeTree *typetree;
+	valuelistsTree *valueliststree;
+	valuelistTree *valuelisttree;
+	valueTree *valuetree;	
 
-	opName opName;
+	opName opname;
 }
 %token CREATE DROP USE SHOW DESC ADD
 %token DATABASE DATABASES TABLE TABLES INDEX
 %token ALTER INSERT INTO VALUES DELETE FROM UPDATE SELECT WHERE
-%token NULLC DEFAULT PRIMARY FOREIGN KEY
-%token IS NOT REFERENCES RENAME TO ON AND SET
+%token IS NOT NULLC DEFAULT PRIMARY FOREIGN KEY
+%token REFERENCES RENAME TO ON AND SET
 %token INTEGER  SMALLINT  CHAR  DOUBLE  FLOAT  DATETYPE  NUMERICTYPE
 %token '(' ')' ';' ',' '+' '-' '*' '/' '%'
 %token EQ GT LT GE LE NE
 %token <string> NAME TEXT INUM FNUM DATENUM
 
 %type <tree> command
-%type <WhereClausesTree> whereClauses
-%type <conditionsTree> conditions
-%type <comparisonTree> comparison
-%type <opName> op
-%type <columnTree> column
-%type <columnlistTree> columnlist
-%type <tablelistTree> tablelist
-%type <exprTree> expr
-%type <setClauselistTree> setClauselist
-%type <setClauseTree> setClause;
-%type <attributelistTree> attributelist
-%type <attributeTree> attribute
-%type <typeTree> type
-%type <valuelistsTree> valuelists
-%type <valuelistTree> valuelist
-%type <valueTree> value
+%type <WhereClausestree> whereClauses
+%type <conditionstree> conditions
+%type <comparisontree> comparison
+%type <opname> op
+%type <columntree> column
+%type <columnlisttree> columnlist
+%type <tablelisttree> tablelist
+%type <exprtree> expr
+%type <setClauselisttree> setClauselist
+%type <setClausetree> setClause;
+%type <attributelisttree> attributelist
+%type <attributetree> attribute
+%type <typetree> type
+%type <valueliststree> valuelists
+%type <valuelisttree> valuelist
+%type <valuetree> value
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -453,27 +457,25 @@ value:	TEXT{
 void yyerror(const char *msg) {
     printf("YACC error: %s\n", msg);
 }
-void parseFile(){//程序主函数，读取命令，执行输出
-	bool instd=false;
-	bool outstd=false;
-	char* inputname="input.txt";
-	char* outputname="output.txt";	
-	FILE* fin,*fout;
+int parseFile(){//程序主函数，读取命令，执行输出
+	bool instd=true;	
+	char* inputname="input.txt";	
+	FILE  *fin;	
+	extern FILE *yyin;	
 	if (instd){
 		fin = fopen(inputname, "r"); 
 		yyin=fin;
 		printf("input name is %s\n",inputname);
 	}else
-		printf("input is stdin\n");
-	if (outstd){
-		fout = fopen(outputname ,"w");
-		yyout=fout;
-		printf("output name is %s\n",outputname);
-	}else	
-		printf("output is stdout\n");	
-	printf("parse Begin!");	
+		printf("input is stdin\n");	
+	printf("parse Begin!\n");	
 	yyparse();	
-	printf("parse End!");
-	if (instd)fclose(fin);
-    if (outstd)fclose(fout);
+	printf("parse End!\n");
+	if (instd)fclose(fin);    
+	return 0;
+}
+
+int main() {	
+	parseFile();
+	return 0;
 }
