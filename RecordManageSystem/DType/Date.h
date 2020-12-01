@@ -1,5 +1,5 @@
-#ifndef DATE
-#define DATE
+#ifndef DATECLASS
+#define DATECLASS
 class DateType {
 private:
 	int year, month, day;

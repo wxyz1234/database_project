@@ -11,4 +11,4 @@ Lexer.o:Lexer.c Parser.h
 Parser.o:Parser.c Lexer.c
 	g++ -g -c Parser.c -o Parser.o
 clean:
-	rm Lexer.c Parser.c Parser.h Lexer.cpp Parser.cpp Parser.hpp Parser.output Lexer.o Parser.o
+	rm -f Lexer.c Parser.c Parser.h Parser.output Lexer.o Parser.o Parser.exe

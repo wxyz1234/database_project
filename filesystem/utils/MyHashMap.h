@@ -41,8 +41,8 @@ public:
 	 *           这里的value是自然数，如果没有找到，则返回-1
 	 */
 	int findIndex(int k1, int k2) {
-		int h = hash(k1, k2);
-		int p = list->getFirst(h);
+		int ha = hash(k1, k2);
+		int p = list->getFirst(ha);
 		while (!list->isHead(p)) {
 			if (a[p].key1 == k1 && a[p].key2 == k2) {
 				/*
@@ -63,9 +63,9 @@ public:
 	 * 功能:在hash表中，将指定value对应的两个key设置为k1和k2
 	 */
 	void replace(int index, int k1, int k2) {
-		int h = hash(k1, k2);
-		//cout << h << endl;
-		list->insertFirst(h, index);
+		int ha = hash(k1, k2);
+		//cout << ha << endl;
+		list->insertFirst(ha, index);
 		a[index].key1 = k1;
 		a[index].key2 = k2;
 	}

@@ -1,5 +1,5 @@
-#ifndef NUMERIC
-#define NUMERIC
+#ifndef NUMERICCLASS
+#define NUMERICCLASS
 #include <string.h>
 #include "../utils/Wei.h"
 class NumericType {

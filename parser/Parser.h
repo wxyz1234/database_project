@@ -54,7 +54,7 @@
      INSERT = 270,
      INTO = 271,
      VALUES = 272,
-     DELETE = 273,
+     DELETEC = 273,
      FROM = 274,
      UPDATE = 275,
      SELECT = 276,
@@ -74,9 +74,9 @@
      SET = 290,
      INTEGER = 291,
      SMALLINT = 292,
-     CHAR = 293,
-     DOUBLE = 294,
-     FLOAT = 295,
+     CHARTYPE = 293,
+     DOUBLETYPE = 294,
+     FLOATTYPE = 295,
      DATETYPE = 296,
      NUMERICTYPE = 297,
      EQ = 298,
@@ -100,7 +100,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 18 "Parser.y"
+#line 16 "Parser.y"
 
 	Tree* tree;
 	char* string;

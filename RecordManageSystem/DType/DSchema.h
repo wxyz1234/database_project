@@ -1,11 +1,14 @@
 #ifndef DSCHEMA
 #define DSCHEMA
-#include "../DType/DtypeSchema.h"
+#include "../DType/DTypeSchema.h"
 #include <string.h>
+//#include "../../parser/tree.h"
+
 using namespace std;
 class DSchema {
 	friend void makeDSchema(DSchema& sh);
-private:
+	friend class attributeTree;
+protected:
 	char* name;
 	int num;
 	DtypeSchema* a[20];
@@ -13,8 +16,9 @@ private:
 public:
 	DSchema() {
 		name = new char[20];
+		num = 0;
 	}
-	void setName(char* buf) {
+	void setName(const char* buf) {
 		memcpy(name, buf, 20);
 	}
 	char* getName() {
@@ -28,9 +32,12 @@ public:
 	}
 	void setPart(int i,DtypeSchema* tmp) {
 		a[i] = tmp;
-	}
+	}	
 	DtypeSchema* getPart(int i) {
 		return a[i];
+	}
+	void addnum() {
+		num++;
 	}
 	void setnum(int i) {
 		num = i;
@@ -78,7 +85,7 @@ public:
 			k += a[i]->readBuf(buf + k);
 			k += a[i]->readTypebuf(buf + k);
 		}		
-	}
+	}	
 	void writeSchemaBuf(BufType buf) {
 		memcpy(buf, getName(), 20);
 		buf[5] = getnum();
@@ -103,6 +110,66 @@ public:
 		int i;
 		for (i = 0; i < num; i++)
 			delete a[i],typeName[i];
+	}
+	void writeDSchema() {
+		//输出模式结果
+		printf("DSchema Name is %s\n", name);
+		int k = num;
+		printf("DSchema Num is %d\n", k);
+		char* s[] = { "Int", "SmallInt", "Char", "Double", "Float", "Date", "Numeric" };
+		char* s2[] = { "Primary", "Foreign", "Null" };
+		bool hd;
+		TypeName tn;
+		int i;
+		for (i = 0; i < k; i++) {
+			printf("DSchema Part %d 's Name is %s\n", i, typeName[i]);
+			tn = a[i]->getType();
+			printf("DSchema Part %d 's Type is %s\n", i, s[int(tn)]);
+			if (tn == TypeName::Char) {
+				printf("DSchema Part %d 's Len is %d\n", i, ((DtypeSchemaChar*)a[i])->getlen());
+			}
+			printf("DSchema Part %d 's Key is %s\n", i, s2[int(a[i]->getKey()->getKey())]);
+			if (a[i]->getKey()->getKey() == KeyName::Foreign) {
+				printf("DSchema Part %d 's Key 's Filename is %s\n", i, ((DForeign*)a[i]->getKey())->getFile());
+				printf("DSchema Part %d 's Key 's Dataname is %s\n", i, ((DForeign*)a[i]->getKey())->getName());
+			}
+			printf("DSchema Part %d 's AllowNull is %d\n", i, a[i]->getAllowNull());
+			hd = a[i]->getHaveDefault();
+			printf("DSchema Part %d 's HaveDef is %d\n", i, hd);
+			if (hd) {
+				printf("DSchema Part %d 's DefData is ", i);
+				DateType* tmp;
+				NumericType* tmp2;
+				switch (tn) {
+				case TypeName::Int:
+					printf("%d\n", *((int*)a[i]->getDef()->getData()));
+					break;
+				case TypeName::SmallInt:
+					printf("%d\n", *((short*)a[i]->getDef()->getData()));
+					break;
+				case TypeName::Char:
+					printf("%s\n", ((char*)a[i]->getDef()->getData()));
+					break;
+				case TypeName::Double:
+					printf("%f\n", *((double*)a[i]->getDef()->getData()));
+					break;
+				case TypeName::Float:
+					printf("%f\n", *((float*)a[i]->getDef()->getData()));
+					break;
+				case TypeName::Date:
+					tmp = ((DateType*)a[i]->getDef()->getData());
+					printf("Date:%d\\%d\\%d\n", tmp->getyear(), tmp->getmonth(), tmp->getday());
+					break;
+				case TypeName::Numeric:
+					tmp2 = ((NumericType*)a[i]->getDef()->getData());
+					printf("Numeric:%s\n", tmp2->getd());
+					break;
+				default:
+					printf("Type ERROR\n");
+				}
+			}
+		}
+		printf("DSchema %s END!\n", name);
 	}
 };
 #endif

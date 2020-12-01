@@ -25,7 +25,7 @@ Grammar
    20        | ALTER TABLE NAME DROP NAME
    21        | ALTER TABLE NAME RENAME TO NAME
    22        | INSERT INTO NAME VALUES valuelists
-   23        | DELETE FROM NAME whereClauses
+   23        | DELETEC FROM NAME whereClauses
    24        | UPDATE NAME SET setClauselist whereClauses
    25        | SELECT columnlist FROM tablelist whereClauses
    26        | SELECT '*' FROM tablelist whereClauses
@@ -81,9 +81,9 @@ Grammar
 
    64 type: INTEGER
    65     | SMALLINT
-   66     | CHAR '(' INUM ')'
-   67     | DOUBLE
-   68     | FLOAT
+   66     | CHARTYPE '(' INUM ')'
+   67     | DOUBLETYPE
+   68     | FLOATTYPE
    69     | DATETYPE
    70     | NUMERICTYPE '(' INUM ',' INUM ')'
 
@@ -129,7 +129,7 @@ ALTER (269) 15 16 17 18 19 20 21
 INSERT (270) 22
 INTO (271) 22
 VALUES (272) 22
-DELETE (273) 23
+DELETEC (273) 23
 FROM (274) 23 25 26
 UPDATE (275) 24
 SELECT (276) 25 26
@@ -149,9 +149,9 @@ AND (289) 30
 SET (290) 24
 INTEGER (291) 64
 SMALLINT (292) 65
-CHAR (293) 66
-DOUBLE (294) 67
-FLOAT (295) 68
+CHARTYPE (293) 66
+DOUBLETYPE (294) 67
+FLOATTYPE (295) 68
 DATETYPE (296) 69
 NUMERICTYPE (297) 70
 EQ (298) 47
@@ -215,16 +215,16 @@ state 0
 
     0 $accept: . sql $end
 
-    CREATE  shift, and go to state 1
-    DROP    shift, and go to state 2
-    USE     shift, and go to state 3
-    SHOW    shift, and go to state 4
-    DESC    shift, and go to state 5
-    ALTER   shift, and go to state 6
-    INSERT  shift, and go to state 7
-    DELETE  shift, and go to state 8
-    UPDATE  shift, and go to state 9
-    SELECT  shift, and go to state 10
+    CREATE   shift, and go to state 1
+    DROP     shift, and go to state 2
+    USE      shift, and go to state 3
+    SHOW     shift, and go to state 4
+    DESC     shift, and go to state 5
+    ALTER    shift, and go to state 6
+    INSERT   shift, and go to state 7
+    DELETEC  shift, and go to state 8
+    UPDATE   shift, and go to state 9
+    SELECT   shift, and go to state 10
 
     sql      go to state 11
     command  go to state 12
@@ -301,7 +301,7 @@ state 7
 
 state 8
 
-   23 command: DELETE . FROM NAME whereClauses
+   23 command: DELETEC . FROM NAME whereClauses
 
     FROM  shift, and go to state 27
 
@@ -330,17 +330,17 @@ state 11
     0 $accept: sql . $end
     2 sql: sql . command ';'
 
-    $end    shift, and go to state 33
-    CREATE  shift, and go to state 1
-    DROP    shift, and go to state 2
-    USE     shift, and go to state 3
-    SHOW    shift, and go to state 4
-    DESC    shift, and go to state 5
-    ALTER   shift, and go to state 6
-    INSERT  shift, and go to state 7
-    DELETE  shift, and go to state 8
-    UPDATE  shift, and go to state 9
-    SELECT  shift, and go to state 10
+    $end     shift, and go to state 33
+    CREATE   shift, and go to state 1
+    DROP     shift, and go to state 2
+    USE      shift, and go to state 3
+    SHOW     shift, and go to state 4
+    DESC     shift, and go to state 5
+    ALTER    shift, and go to state 6
+    INSERT   shift, and go to state 7
+    DELETEC  shift, and go to state 8
+    UPDATE   shift, and go to state 9
+    SELECT   shift, and go to state 10
 
     command  go to state 34
 
@@ -458,7 +458,7 @@ state 26
 
 state 27
 
-   23 command: DELETE FROM . NAME whereClauses
+   23 command: DELETEC FROM . NAME whereClauses
 
     NAME  shift, and go to state 47
 
@@ -611,7 +611,7 @@ state 46
 
 state 47
 
-   23 command: DELETE FROM NAME . whereClauses
+   23 command: DELETEC FROM NAME . whereClauses
 
     WHERE  shift, and go to state 60
 
@@ -744,7 +744,7 @@ state 60
 
 state 61
 
-   23 command: DELETE FROM NAME whereClauses .
+   23 command: DELETEC FROM NAME whereClauses .
 
     $default  reduce using rule 23 (command)
 
@@ -846,9 +846,9 @@ state 72
 
     INTEGER      shift, and go to state 96
     SMALLINT     shift, and go to state 97
-    CHAR         shift, and go to state 98
-    DOUBLE       shift, and go to state 99
-    FLOAT        shift, and go to state 100
+    CHARTYPE     shift, and go to state 98
+    DOUBLETYPE   shift, and go to state 99
+    FLOATTYPE    shift, and go to state 100
     DATETYPE     shift, and go to state 101
     NUMERICTYPE  shift, and go to state 102
 
@@ -1069,21 +1069,21 @@ state 97
 
 state 98
 
-   66 type: CHAR . '(' INUM ')'
+   66 type: CHARTYPE . '(' INUM ')'
 
     '('  shift, and go to state 135
 
 
 state 99
 
-   67 type: DOUBLE .
+   67 type: DOUBLETYPE .
 
     $default  reduce using rule 67 (type)
 
 
 state 100
 
-   68 type: FLOAT .
+   68 type: FLOATTYPE .
 
     $default  reduce using rule 68 (type)
 
@@ -1368,7 +1368,7 @@ state 134
 
 state 135
 
-   66 type: CHAR '(' . INUM ')'
+   66 type: CHARTYPE '(' . INUM ')'
 
     INUM  shift, and go to state 157
 
@@ -1590,7 +1590,7 @@ state 156
 
 state 157
 
-   66 type: CHAR '(' INUM . ')'
+   66 type: CHARTYPE '(' INUM . ')'
 
     ')'  shift, and go to state 174
 
@@ -1747,7 +1747,7 @@ state 173
 
 state 174
 
-   66 type: CHAR '(' INUM ')' .
+   66 type: CHARTYPE '(' INUM ')' .
 
     $default  reduce using rule 66 (type)
 

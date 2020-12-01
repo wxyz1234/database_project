@@ -15,7 +15,7 @@ public:
 	virtual void* getData() { return NULL; };
 	virtual void setData(int* i) {};
 	virtual void setData(short* i) {};
-	virtual void setData(char* i) {};
+	virtual void setData(const char* i) {};
 	virtual void setData(double* i) {};
 	virtual void setData(float* i) {};
 	virtual void setData(DateType* i) {};
@@ -122,14 +122,14 @@ public:
 		//len = (len / 4 + 1) * 4;
 		data = NULL;
 	}
-	void setData(char* i) {		
+	void setData(const char* i) {		
 		if (i != NULL) {
 			if (data == NULL)data = new char[len];
 			memcpy(data, i, len);
 		}
 		else {
 			if (data != NULL)delete data;
-			data = i;
+			data = (char*)i;
 		}
 	}
 	void setData(char* i, bool& Nullchange) {

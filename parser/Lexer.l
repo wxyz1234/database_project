@@ -23,67 +23,67 @@ DATENUM ([0-9]{4}-[0-9]{2}-[0-9]{2})
 BLANKCHAR ([ \f\r\t\v\n]+)
 
 %%
-CREATE { printf("CREATE"); return CREATE; }
-DROP { printf("DROP"); return DROP; }
-USE { printf("USE"); return USE; }
-SHOW { printf("SHOW"); return SHOW; }
-DESC { printf("DESC"); return DESC; }
-ADD { printf("ADD"); return ADD; }
-DATABASE { printf("DATABASE"); return DATABASE; }
-DATABASES { printf("DATABASES"); return DATABASES; }
-TABLE { printf("TABLE"); return TABLE; }
-TABLES { printf("TABLES"); return TABLES; }
-INDEX { printf("INDEX"); return INDEX; }
-ALTER { printf("ALTER"); return ALTER; }
-INSERT { printf("INSERT"); return INSERT; }
-INTO { printf("INTO"); return INTO; }
-VALUES { printf("VALUES"); return VALUES; }
-DELETE { printf("DELETE"); return DELETE; }
-FROM { printf("FROM"); return FROM; }
-UPDATE { printf("UPDATE"); return UPDATE; }
-SELECT { printf("SELECT"); return SELECT; }
-WHERE { printf("WHERE"); return WHERE; }
-IS { printf("IS"); return IS; }
-NOT { printf("NOT"); return NOT; }
-NULL { printf("NULL"); return NULLC; }
-DEFAULT { printf("DEFAULT"); return DEFAULT; }
-PRIMARY { printf("PRIMARY"); return PRIMARY; }
-FOREIGN { printf("FOREIGN"); return FOREIGN; }
-KEY { printf("KEY"); return KEY; }
-REFERENCES { printf("REFERENCES"); return REFERENCES; }
-RENAME { printf("RENAME"); return RENAME; }
-TO { printf("TO"); return TO; }
-ON { printf("ON"); return ON; }
-AND { printf("AND"); return AND; }
-SET { printf("SET"); return SET; }
-Int { printf("INTEGER"); return INTEGER; }
-SmallInt { printf("SMALLINT"); return SMALLINT; }
-Char { printf("CHAR"); return CHAR; }
-Double { printf("DOUBLE"); return DOUBLE; }
-Float { printf("FLOAT"); return FLOAT; }
-Date { printf("DATETYPE"); return DATETYPE; }
-Numeric { printf("NUMERICTYPE"); return NUMERICTYPE; }
-"(" { printf("("); return '('; }
-")" { printf(")"); return ')'; }
-";" { printf(";"); return ';'; }
-"," { printf(","); return ','; }
-"+"	{ printf("+"); return '+'; }
-"-"	{ printf("-"); return '-'; }
-"*"	{ printf("*"); return '*'; }
-"/"	{ printf("/"); return '/'; }
-"%"	{ printf("%"); return '%'; }
-"=" { printf("EQ"); return EQ; }
-">" { printf("GT"); return GT; }
-"<" { printf("LT"); return LT; }
-">=" { printf("GE"); return GE; }
-"<=" { printf("LE"); return LE; }
-"<>" { printf("NE"); return NE; }
-{NAME} { yylval.string = get_text(yytext); printf("NAME"); return NAME; }
-{TEXT} { yylval.string = get_text(yytext); printf("TEXT"); return TEXT; }
-{INUM} { yylval.string = get_text(yytext); printf("INUM"); return INUM; }
-{FNUM} { yylval.string = get_text(yytext); printf("FNUM"); return FNUM; }
-{DATENUM} { yylval.string = get_text(yytext); printf("DATENUM"); return DATENUM; }
-{BLANKCHAR} { printf("\n"); }
+CREATE { printf("CREATE\n"); return CREATE; }
+DROP { printf("DROP\n"); return DROP; }
+USE { printf("USE\n"); return USE; }
+SHOW { printf("SHOW\n"); return SHOW; }
+DESC { printf("DESC\n"); return DESC; }
+ADD { printf("ADD\n"); return ADD; }
+DATABASE { printf("DATABASE\n"); return DATABASE; }
+DATABASES { printf("DATABASES\n"); return DATABASES; }
+TABLE { printf("TABLE\n"); return TABLE; }
+TABLES { printf("TABLES\n"); return TABLES; }
+INDEX { printf("INDEX\n"); return INDEX; }
+ALTER { printf("ALTER\n"); return ALTER; }
+INSERT { printf("INSERT\n"); return INSERT; }
+INTO { printf("INTO\n"); return INTO; }
+VALUES { printf("VALUES\n"); return VALUES; }
+DELETE { printf("DELETE\n"); return DELETEC; }
+FROM { printf("FROM\n"); return FROM; }
+UPDATE { printf("UPDATE\n"); return UPDATE; }
+SELECT { printf("SELECT\n"); return SELECT; }
+WHERE { printf("WHERE\n"); return WHERE; }
+IS { printf("IS\n"); return IS; }
+NOT { printf("NOT\n"); return NOT; }
+NULL { printf("NULL\n"); return NULLC; }
+DEFAULT { printf("DEFAULT\n"); return DEFAULT; }
+PRIMARY { printf("PRIMARY\n"); return PRIMARY; }
+FOREIGN { printf("FOREIGN\n"); return FOREIGN; }
+KEY { printf("KEY\n"); return KEY; }
+REFERENCES { printf("REFERENCES\n"); return REFERENCES; }
+RENAME { printf("RENAME\n"); return RENAME; }
+TO { printf("TO\n"); return TO; }
+ON { printf("ON\n"); return ON; }
+AND { printf("AND\n"); return AND; }
+SET { printf("SET\n"); return SET; }
+Int { printf("INTEGER\n"); return INTEGER; }
+SmallInt { printf("SMALLINT\n"); return SMALLINT; }
+Char { printf("CHAR\n"); return CHARTYPE; }
+Double { printf("DOUBLE\n"); return DOUBLETYPE; }
+Float { printf("FLOAT\n"); return FLOATTYPE; }
+Date { printf("DATETYPE\n"); return DATETYPE; }
+Numeric { printf("NUMERICTYPE\n"); return NUMERICTYPE; }
+"(" { printf("(\n"); return '('; }
+")" { printf(")\n"); return ')'; }
+";" { printf(";\n"); return ';'; }
+"," { printf(",\n"); return ','; }
+"+"	{ printf("+\n"); return '+'; }
+"-"	{ printf("-\n"); return '-'; }
+"*"	{ printf("*\n"); return '*'; }
+"/"	{ printf("/\n"); return '/'; }
+"%"	{ printf("%\n"); return '%'; }
+"=" { printf("EQ\n"); return EQ; }
+">" { printf("GT\n"); return GT; }
+"<" { printf("LT\n"); return LT; }
+">=" { printf("GE\n"); return GE; }
+"<=" { printf("LE\n"); return LE; }
+"<>" { printf("NE\n"); return NE; }
+{NAME} { yylval.string = get_text(yytext); printf("NAME\n"); return NAME; }
+{TEXT} { yylval.string = get_text(yytext); printf("TEXT\n"); return TEXT; }
+{INUM} { yylval.string = get_text(yytext); printf("INUM\n"); return INUM; }
+{FNUM} { yylval.string = get_text(yytext); printf("FNUM\n"); return FNUM; }
+{DATENUM} { yylval.string = get_text(yytext); printf("DATENUM\n"); return DATENUM; }
+{BLANKCHAR} { /*printf("\n");*/ }
 %%
 
 /* C 语言用户子程序节:可选，包含规则节用到的局部 C 函数*/

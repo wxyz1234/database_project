@@ -60,6 +60,9 @@ public:
 	int getRID() {
 		return RID;
 	}
+	DtypeData* getPart(int i) {
+		return a[i];
+	}
 	void makeNull() {
 		isNull = 0;
 		int i;
@@ -78,20 +81,14 @@ public:
 		Nullchange = false;
 		isNull = i;
 	}
-	bool &getNullchange() {
-		return Nullchange;
-	}
-	DtypeData* getPart(int i) {
-		return a[i];
-	}	
 	void writeDataBuf(BufType& buf) {		
 		int k = 0;
-		buf[0] = getRID();
+		buf[0] = RID;
 		buf[1] = getNull();
 		k += 2;
 		int i;
 		for (i = 0; i < num; i++) {
-			k += getPart(i)->writeDataBuf(buf+k);
+			k += a[i]->writeDataBuf(buf+k);
 		}
 	}
 	void readDataBuf(BufType buf) {
@@ -101,7 +98,7 @@ public:
 		k += 2;
 		int i;
 		for (i = 0; i < num; i++) {
-			k += getPart(i)->readDataBuf(buf+k);
+			k += a[i]->readDataBuf(buf+k);
 		}
 	}
 	~DList() {				

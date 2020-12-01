@@ -7,6 +7,7 @@
 #include "fileio/FileManager.h"
 #include "utils/pagedef.h"
 #include <iostream>
+#include <cstring>
 
 using namespace std;
 class BufFileManager {

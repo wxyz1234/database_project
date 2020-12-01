@@ -1,10 +1,9 @@
-/*
 #include "RecordManager.h"
 #include "utils/Myhash.h"
+#include "../parser/global.h"
 #include <stdio.h>
 #include <map>
 using namespace std;
-RecordManager* rm;
 DSchema *sh,*sh2;
 DList *li,*li2;
 PageLoc pl[100];
@@ -69,66 +68,6 @@ void makeDList(DList& li,int id,int y,int m,int d,double s) {
 	li.getPart(3)->setData(new double(s));		
 	printf("makeDList Finish!\n");
 }
-void writeDSchema(DSchema& sh) {
-	//输出模式结果
-	printf("DSchema Name is %s\n", sh.getName());
-	int k = sh.getnum();
-	printf("DSchema Num is %d\n", k);
-	char* s[] = { "Int", "SmallInt", "Char", "Double", "Float", "Date", "Numeric" };
-	char* s2[] = { "Primary", "Foreign", "Null" };
-	bool hd;
-	TypeName tn;
-	int i;
-	for (i = 0; i < k; i++) {
-		printf("DSchema Part %d 's Name is %s\n", i, sh.getTypeName(i));
-		tn = sh.getPart(i)->getType();
-		printf("DSchema Part %d 's Type is %s\n", i, s[int(tn)]);
-		if (tn == TypeName::Char) {
-			printf("DSchema Part %d 's Len is %d\n", i, ((DtypeSchemaChar*)sh.getPart(i))->getlen());
-		}
-		printf("DSchema Part %d 's Key is %s\n", i, s2[int(sh.getPart(i)->getKey()->getKey())]);
-		if (sh.getPart(i)->getKey()->getKey() == KeyName::Foreign) {
-			printf("DSchema Part %d 's Key 's Filename is %s\n", i, ((DForeign*)sh.getPart(i)->getKey())->getFile());
-			printf("DSchema Part %d 's Key 's Dataname is %s\n", i, ((DForeign*)sh.getPart(i)->getKey())->getName());
-		}
-		printf("DSchema Part %d 's AllowNull is %d\n", i, sh.getPart(i)->getAllowNull());
-		hd = sh.getPart(i)->getHaveDefault();
-		printf("DSchema Part %d 's HaveDef is %d\n", i, hd);
-		if (hd) {
-			printf("DSchema Part %d 's DefData is ", i);
-			DateType* tmp;
-			NumericType* tmp2;
-			switch (tn) {
-			case TypeName::Int:
-				printf("%d\n", *((int*)sh.getPart(i)->getDef()->getData()));
-				break;
-			case TypeName::SmallInt:
-				printf("%d\n", *((short*)sh.getPart(i)->getDef()->getData()));
-				break;
-			case TypeName::Char:
-				printf("%s\n", ((char*)sh.getPart(i)->getDef()->getData()));
-				break;
-			case TypeName::Double:
-				printf("%f\n", *((double*)sh.getPart(i)->getDef()->getData()));
-				break;
-			case TypeName::Float:
-				printf("%f\n", *((float*)sh.getPart(i)->getDef()->getData()));
-				break;
-			case TypeName::Date:
-				tmp = ((DateType*)sh.getPart(i)->getDef()->getData());
-				printf("Date:%d\\%d\\%d\n", tmp->getyear(), tmp->getmonth(), tmp->getday());
-				break;
-			case TypeName::Numeric:
-				tmp2 = ((NumericType*)sh.getPart(i)->getDef()->getData());
-				printf("Numeric:%s\n", tmp2->getd());
-				break;
-			default:
-				printf("Type ERROR\n");
-			}
-		}
-	}
-	printf("DSchema %s END!\n", sh.getName());
-}
 void writeDList(PageLoc pl, DList& li) {
 	//输出记录结果
 	//printf("DList in (%d,%d)'s father is %s\n", pl.PageID, pl.LocID, li.getfa()->getName());
@@ -186,7 +125,7 @@ int main() {
 	sh2 = new DSchema();
 	int fileID;
 	makeDSchema(*sh);
-	rm->CreateFile("data/input.txt", sh);
+	rm->CreateFileF("data/input.txt", sh);
 	rm->OpenFile("data/input.txt", fileID);
 	printf("Create and Open File Finish!\n");
 
@@ -198,7 +137,7 @@ int main() {
 	}
 	printf("InsertRecord Finish!\n");
 	rm->GetSchema(fileID, *sh2);
-	writeDSchema(*sh2);
+	sh2->writeDSchema();
 	printf("writeDSchema Finish!\n");
 	for (int i = 1; i <= 80; i++) {
 		li2[i].setfa(sh2);
@@ -271,4 +210,3 @@ int main() {
 	delete sh2;
 	return 0;
 }
-*/

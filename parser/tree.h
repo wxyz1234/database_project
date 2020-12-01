@@ -2,9 +2,12 @@
 #define TREE
 #include <string>
 #include <vector>
+#include <windows.h>
 #include "../RecordManageSystem/DType/DKey.h"
 #include "../RecordManageSystem/DType/TypeName.h"
 #include "../RecordManageSystem/DType/DSchema.h"
+#include "../RecordManageSystem/DType/DTypeSchema.h"
+#include "../RecordManageSystem/RecordManager.h"
 
 class attributeTree;
 class attributelistTree;
@@ -20,6 +23,9 @@ class tablelistTree;
 class conditionsTree;
 class comparisonTree;
 class typeTree;
+
+extern std::string CurrentDatabase;
+extern RecordManager* rm;
 
 class Tree {
 public:
@@ -37,6 +43,166 @@ public:
     }
     static Tree* tree;    
 };
+
+class valueTree :public Tree {
+    friend class attributeTree;
+protected:
+    std::string data;
+    CharTypeName k;
+public:
+    valueTree(CharTypeName i, char* a) {
+        k = i;
+        data = a;
+    }
+};
+class valuelistTree :public Tree {
+private:
+    std::vector<valueTree*> a;
+public:
+    valuelistTree() {
+        a.clear();
+    }
+    void append(valueTree* i) {
+        a.push_back(i);
+    }
+    ~valuelistTree() {
+        for (auto i : a) {
+            delete i;
+        }
+    }
+};
+class valuelistsTree :public Tree {
+private:
+    std::vector<valuelistTree*> a;
+public:
+    valuelistsTree() {
+        a.clear();
+    }
+    void append(valuelistTree* i) {
+        a.push_back(i);
+    }
+    ~valuelistsTree() {
+        for (auto i : a) {
+            delete i;
+        }
+    }
+};
+class typeTree :public Tree {
+    friend class DSchema;
+    friend class attributeTree;
+protected:
+    TypeName name;
+    int p1, p2;
+public:
+    TypeName getTypeName() {
+        return name;
+    }
+    typeTree(TypeName i, char* i1 = "0", char* i2 = "0") {
+        name = i;
+        p1 = atoi(i1);
+        p2 = atoi(i2);
+    }
+};
+class attributeTree :public Tree {
+    friend class attributelistTree;
+    friend class DSchema;
+protected:
+    std::string name, na1, na2;
+    valueTree* def;
+    bool allownull, hasdefault;
+    typeTree* type;
+    KeyName k;
+public:
+    attributeTree(char* na, typeTree* ty, bool an, bool hd, valueTree* de = NULL) {
+        k = KeyName::Null;
+        name = na;
+        type = ty;
+        allownull = an;
+        hasdefault = hd;
+        if (hasdefault)def = de;
+    }
+    attributeTree(KeyName i, char* na, char* n1 = NULL, char* n2 = NULL) {
+        k = i;
+        name = na;
+        if (n1 != NULL)na1 = n1;
+        if (n2 != NULL)na2 = n2;
+    }
+    ~attributeTree() {
+        if (k == KeyName::Null)delete type;
+        if (hasdefault)delete def;
+    }
+    void addpart(DSchema* data) {
+        data->typeName[data->num] = new char[20];
+        switch (type->getTypeName()) {
+        case TypeName::Int:
+            data->a[data->num] = new DtypeSchemaInt();
+            break;
+        case TypeName::SmallInt:
+            data->a[data->num] = new DtypeSchemaSmallInt();
+            break;
+        case TypeName::Char:
+            data->a[data->num] = new DtypeSchemaChar();
+            ((DtypeSchemaChar*)data->a[data->num])->setlen(type->p1);
+            break;
+        case TypeName::Double:
+            data->a[data->num] = new DtypeSchemaDouble();
+            break;
+        case TypeName::Float:
+            data->a[data->num] = new DtypeSchemaFloat();
+            break;
+        case TypeName::Date:
+            data->a[data->num] = new DtypeSchemaDate();
+            break;
+        case TypeName::Numeric:
+            data->a[data->num] = new DtypeSchemaNumeric();
+            break;
+        default:
+            printf("TypeName ERROR %d\n", type->name);
+        }
+        data->a[data->num]->AllowNull = allownull;
+        data->a[data->num]->HaveDefault = hasdefault;
+        if (data->a[data->num]->HaveDefault)data->a[data->num]->setDefault(def->data.c_str());
+        data->a[data->num]->setKey(KeyName::Null);
+        data->num++;
+    }
+};
+class attributelistTree :public Tree {
+    friend class CreateTableTree;
+protected:
+    DSchema* data = NULL;
+    std::vector<attributeTree*> a;
+public:
+    attributelistTree() {
+        a.clear();
+    }
+    void append(attributeTree* i) {
+        a.push_back(i);
+    }
+    void visit(const char* name) {
+        //attributelist转DSchema
+        data = new DSchema();
+        int i, j;
+        data->setName(name);
+        for (i = 0; i < a.size(); i++) {
+            if (a[i]->k == KeyName::Null) {
+                a[i]->addpart(data);
+            }
+            else {
+                //
+            }
+        }
+    }
+    ~attributelistTree() {
+        if (data != NULL) {
+            delete data;
+            data = NULL;
+        }
+        for (auto i : a) {
+            delete i;
+        }
+    }
+};
+
 class CreateDatabaseTree:public Tree {
 private:
     std::string name;
@@ -45,7 +211,15 @@ public:
         name = i;
     }
     void visit() {
-        //执行
+        //创建数据库（文件夹）
+        string a = "../data/" + name;
+        if (GetFileAttributesA(a.c_str()) == INVALID_FILE_ATTRIBUTES) {
+            if (CreateDirectory(a.c_str(), NULL))
+                printf("Create Database %s success.\n",name.c_str());
+        }
+        else {
+            printf("Database %s already exists.\n",name.c_str());
+        }
     }    
 };
 class DropDatabaseTree :public Tree {
@@ -55,8 +229,16 @@ public:
     DropDatabaseTree(char* i) {
         name = i;
     }
-    void visit() {
-        //执行
+    void visit() {        
+        //删除数据库（文件夹）
+        string a = "../data/" + name;
+        if (GetFileAttributesA(a.c_str()) & FILE_ATTRIBUTE_DIRECTORY) {
+            if (RemoveDirectory(a.c_str()))
+                printf("Drop Database %s success.\n",name.c_str());
+        }
+        else {
+            printf("Database %s doesn't exist.\n",name.c_str());
+        }        
     }
 };
 class UseDatabaseTree :public Tree {
@@ -67,7 +249,9 @@ public:
         name = i;
     }
     void visit() {
-        //执行
+        //指定当前数据库
+        CurrentDatabase = name;
+        printf("Use Database %s success.\n",name.c_str());
     }
 };
 class ShowDatabaseTree :public Tree {
@@ -78,7 +262,23 @@ public:
         name = i;
     }
     void visit() {
-        //执行
+        //查找指定数据库的所有表
+        string a = "../data/" + name + "/*";
+        WIN32_FIND_DATA FindFileData;
+        HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
+        if (file == INVALID_HANDLE_VALUE) {
+            printf("There is no Database %s.\n",name.c_str());
+        }
+        else {
+            printf("Table names in %s:\n",name.c_str());
+            do {
+                if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {                    
+                }
+                else {                    
+                    printf("%s\n",FindFileData.cFileName);
+                }
+            } while (FindNextFile(file, &FindFileData));
+        }
     }
 };
 class ShowDatabaseSTree :public Tree {
@@ -86,7 +286,24 @@ public:
     ShowDatabaseSTree() {        
     }
     void visit() {
-        //执行
+        //查找所有数据库        
+        string a = "../data/*";        
+        WIN32_FIND_DATA FindFileData;
+        HANDLE file = FindFirstFileA(a.c_str(), &FindFileData);                
+        if (file == INVALID_HANDLE_VALUE) {
+            printf("There is no Database folder.\n");
+        }
+        else {
+            printf("Database names:\n");            
+            do {
+                if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                    if ((strcmp(FindFileData.cFileName,".")) && (strcmp(FindFileData.cFileName, "..")))                        
+                        printf("%s\n", FindFileData.cFileName);
+                }
+                else {                                        
+                }
+            } while (FindNextFileA(file, &FindFileData));
+        }
     }
 };
 class ShowDatabaseDescTree :public Tree {
@@ -97,7 +314,28 @@ public:
         name = i;
     }
     void visit() {
-        //执行
+        //查找指定数据库的所有表，反向输出
+        string a = "../data/" + name + "/*";
+        WIN32_FIND_DATA FindFileData;
+        HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
+        vector<string> b;
+        b.clear();
+        if (file == INVALID_HANDLE_VALUE) {
+            printf("There is no Database %s.\n",name.c_str());
+        }
+        else {
+            printf("Table names Desc in %s:\n",name.c_str());
+            do {
+                if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                }
+                else {
+                    b.push_back(FindFileData.cFileName);                    
+                }
+            } while (FindNextFile(file, &FindFileData));     
+            for (int i = b.size() - 1; i >= 0; i--) {
+                printf("%s\n",b[i]);
+            }
+        }
     }
 };
 
@@ -111,7 +349,9 @@ public:
         attribute = j;
     }
     void visit() {        
-        //执行
+        //创建表（文件）
+        attribute->visit(name.c_str());
+        rm->CreateFileF(std::string("../data/" + CurrentDatabase + "/" + name).c_str(), attribute->data);
     }
     ~CreateTableTree() {
         delete attribute;
@@ -124,8 +364,16 @@ public:
     DropTableTree(char* i) {
         name = i;
     }
-    void visit() {
-        //执行
+    void visit() {        
+        //删除表（文件）
+        string a = "../data/" + CurrentDatabase + "/" + name;
+        if ((GetFileAttributesA(a.c_str()) & FILE_ATTRIBUTE_DIRECTORY)==0) {
+            if (RemoveDirectory(a.c_str()))
+                printf("Drop Table %s success.\n", name.c_str());
+        }
+        else {
+            printf("Table %s doesn't exist.\n", name.c_str());
+        }
     }
 };
 class ShowTableTree :public Tree {
@@ -136,7 +384,22 @@ public:
         name = i;
     }
     void visit() {
-        //执行
+        //查找当前数据库特定表和表的细节
+        string a = "../data/" + CurrentDatabase + "/"+name;
+        WIN32_FIND_DATA FindFileData;
+        HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
+        if (file == INVALID_HANDLE_VALUE) {
+            printf("There is no CurrentDatabase.\n");
+        }
+        else {
+            printf("Table:%s\n", name.c_str());
+            int fileID;
+            rm->OpenFile(a.c_str(), fileID);
+            DSchema* sh = new DSchema();
+            rm->GetSchema(fileID, *sh);
+            sh->writeDSchema();
+            rm->CloseFile(fileID);            
+        }
     }
 };
 class ShowTableSTree :public Tree {
@@ -144,7 +407,29 @@ public:
     ShowTableSTree() {
     }
     void visit() {
-        //执行
+        //查找当前数据库所有表和表的细节
+        string a = "../data/" + CurrentDatabase + "/*";
+        WIN32_FIND_DATA FindFileData;
+        HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
+        if (file == INVALID_HANDLE_VALUE) {
+            printf("There is no CurrentDatabase.\n");
+        }
+        else {
+            printf("Tables in %s:\n", CurrentDatabase.c_str());
+            do {
+                if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                }
+                else {
+                    printf("Table:%s\n", FindFileData.cFileName);
+                    int fileID;
+                    rm->OpenFile(a.c_str(), fileID);
+                    DSchema* sh = new DSchema();
+                    rm->GetSchema(fileID, *sh);
+                    sh->writeDSchema();
+                    rm->CloseFile(fileID);
+                }
+            } while (FindNextFile(file, &FindFileData));
+        }
     }
 };
 
@@ -426,7 +711,7 @@ public:
         aname = c2;
     }
     columnTree(char* c1) {
-        tname = nullptr;
+        tname = "";
         aname = c1;
     }
 };
@@ -489,111 +774,4 @@ public:
     }
 };
 
-
-class attributelistTree :public Tree {
-private:
-    DSchema* data = NULL;
-    std::vector<attributeTree*> a;
-public:
-    attributelistTree() {
-        a.clear();
-    }
-    void append(attributeTree* i) {
-        a.push_back(i);
-    }
-    void visit() {
-        //执行
-        //attributelist转DSchema
-        data = new DSchema();
-    }
-    ~attributelistTree() {
-        if (data != NULL) {
-            delete data;
-            data = NULL;
-        }
-        for (auto i : a) {
-            delete i;
-        }
-    }
-};
-class attributeTree :public Tree {
-private:
-    std::string name,na1,na2;
-    valueTree* def;
-    KeyName k;
-    bool allownull, hasdefault;
-    typeTree* type;
-public:
-    attributeTree(char* na, typeTree* ty, bool an, bool hd, valueTree* de = NULL) {
-        k = KeyName::Null;
-        name = na;
-        type = ty;
-        allownull = an;
-        hasdefault = hd;
-        if (hasdefault)def = de;
-    }
-    attributeTree(KeyName i, char* na, char* n1 = NULL, char* n2 = NULL) {
-        k = i;
-        name = na;
-        if (n1!=NULL)na1 = n1;
-        if (n2!=NULL)na2 = n2;
-    }
-    ~attributeTree() {
-        if (k == KeyName::Null)delete type;
-        if (hasdefault)delete def;
-    }
-};
-class typeTree :public Tree {
-private:
-    TypeName name;
-    int p1, p2;
-public:
-    typeTree(TypeName i, char* i1 = "0", char* i2 = "0") {
-        name = i;
-        p1 = atoi(i1);
-        p2 = atoi(i2);       
-    }    
-};
-class valuelistsTree :public Tree {
-private:    
-    std::vector<valuelistTree*> a;
-public:
-    valuelistsTree() {
-        a.clear();
-    }
-    void append(valuelistTree* i) {
-        a.push_back(i);
-    }   
-    ~valuelistsTree() {
-        for (auto i : a) {
-            delete i;
-        }
-    }
-};
-class valuelistTree :public Tree {
-private:    
-    std::vector<valueTree*> a;
-public:
-    valuelistTree() {
-        a.clear();
-    }
-    void append(valueTree* i) {
-        a.push_back(i);
-    }
-    ~valuelistTree() {
-        for (auto i : a) {
-            delete i;
-        }
-    }
-};
-class valueTree :public Tree {
-private:
-    std::string data;
-    CharTypeName k;
-public:
-    valueTree(CharTypeName i, char* a) {
-        k = i;
-        data = a;
-    }
-};
 #endif

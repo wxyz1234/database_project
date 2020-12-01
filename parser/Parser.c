@@ -72,11 +72,10 @@
 
 /*声明节  将被原样拷贝,可选*/
 #include <stdio.h>
+#include "../parser/global.h"
 #include "../parser/tree.h"
-//#include "../parser/Parser.h"
-//#include "../parser/Lexer.c"
-#include "../RecordManageSystem/DType/DKey.h"
-#include "../RecordManageSystem/DType/TypeName.h"
+#include "../parser/Lexer.c"
+//#include "../RecordManageSystem/utils/Myhash.h"
 
 void yyerror(const char *);
 int yylex(void); 
@@ -85,7 +84,7 @@ Tree* Tree::tree = nullptr;
 
 
 /* Line 189 of yacc.c  */
-#line 89 "Parser.c"
+#line 87 "Parser.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -127,7 +126,7 @@ Tree* Tree::tree = nullptr;
      INSERT = 270,
      INTO = 271,
      VALUES = 272,
-     DELETE = 273,
+     DELETEC = 273,
      FROM = 274,
      UPDATE = 275,
      SELECT = 276,
@@ -147,9 +146,9 @@ Tree* Tree::tree = nullptr;
      SET = 290,
      INTEGER = 291,
      SMALLINT = 292,
-     CHAR = 293,
-     DOUBLE = 294,
-     FLOAT = 295,
+     CHARTYPE = 293,
+     DOUBLETYPE = 294,
+     FLOATTYPE = 295,
      DATETYPE = 296,
      NUMERICTYPE = 297,
      EQ = 298,
@@ -173,7 +172,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 18 "Parser.y"
+#line 16 "Parser.y"
 
 	Tree* tree;
 	char* string;
@@ -228,7 +227,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 232 "Parser.c"
+#line 230 "Parser.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -240,7 +239,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 244 "Parser.c"
+#line 242 "Parser.c"
 
 #ifdef short
 # undef short
@@ -565,14 +564,14 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   102,   102,   105,   110,   116,   122,   128,   134,   139,
-     146,   152,   158,   164,   170,   176,   183,   189,   195,   201,
-     207,   213,   219,   226,   232,   238,   244,   249,   256,   259,
-     263,   267,   271,   274,   277,   281,   286,   291,   295,   299,
-     303,   308,   311,   314,   317,   320,   323,   326,   330,   333,
-     336,   339,   342,   345,   349,   353,   357,   362,   366,   370,
-     374,   378,   382,   386,   390,   396,   399,   402,   405,   408,
-     411,   414,   419,   423,   428,   432,   436,   440,   444,   448
+       0,   100,   100,   103,   108,   114,   120,   126,   132,   137,
+     144,   150,   156,   162,   168,   174,   181,   187,   193,   199,
+     205,   211,   217,   224,   230,   236,   242,   247,   254,   257,
+     261,   265,   269,   272,   275,   279,   284,   289,   293,   297,
+     301,   306,   309,   312,   315,   318,   321,   324,   328,   331,
+     334,   337,   340,   343,   347,   351,   355,   360,   364,   368,
+     372,   376,   380,   384,   388,   394,   397,   400,   403,   406,
+     409,   412,   417,   421,   426,   430,   434,   438,   442,   446
 };
 #endif
 
@@ -583,16 +582,16 @@ static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "CREATE", "DROP", "USE", "SHOW", "DESC",
   "ADD", "DATABASE", "DATABASES", "TABLE", "TABLES", "INDEX", "ALTER",
-  "INSERT", "INTO", "VALUES", "DELETE", "FROM", "UPDATE", "SELECT",
+  "INSERT", "INTO", "VALUES", "DELETEC", "FROM", "UPDATE", "SELECT",
   "WHERE", "IS", "NOT", "NULLC", "DEFAULT", "PRIMARY", "FOREIGN", "KEY",
   "REFERENCES", "RENAME", "TO", "ON", "AND", "SET", "INTEGER", "SMALLINT",
-  "CHAR", "DOUBLE", "FLOAT", "DATETYPE", "NUMERICTYPE", "'('", "')'",
-  "';'", "','", "'+'", "'-'", "'*'", "'/'", "'%'", "EQ", "GT", "LT", "GE",
-  "LE", "NE", "NAME", "TEXT", "INUM", "FNUM", "DATENUM", "'.'", "'='",
-  "$accept", "sql", "command", "whereClauses", "conditions", "comparison",
-  "tablelist", "columnlist", "column", "expr", "op", "setClauselist",
-  "setClause", "attributelist", "attribute", "type", "valuelists",
-  "valuelist", "value", 0
+  "CHARTYPE", "DOUBLETYPE", "FLOATTYPE", "DATETYPE", "NUMERICTYPE", "'('",
+  "')'", "';'", "','", "'+'", "'-'", "'*'", "'/'", "'%'", "EQ", "GT", "LT",
+  "GE", "LE", "NE", "NAME", "TEXT", "INUM", "FNUM", "DATENUM", "'.'",
+  "'='", "$accept", "sql", "command", "whereClauses", "conditions",
+  "comparison", "tablelist", "columnlist", "column", "expr", "op",
+  "setClauselist", "setClause", "attributelist", "attribute", "type",
+  "valuelists", "valuelist", "value", 0
 };
 #endif
 
@@ -1599,7 +1598,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 103 "Parser.y"
+#line 101 "Parser.y"
     {				
             ;}
     break;
@@ -1607,7 +1606,7 @@ yyreduce:
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 106 "Parser.y"
+#line 104 "Parser.y"
     {				
             ;}
     break;
@@ -1615,7 +1614,7 @@ yyreduce:
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 110 "Parser.y"
+#line 108 "Parser.y"
     {
 			(yyval.tree)=new CreateDatabaseTree((yyvsp[(3) - (3)].string));
 			Tree::setInstance((yyval.tree));
@@ -1627,7 +1626,7 @@ yyreduce:
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 116 "Parser.y"
+#line 114 "Parser.y"
     {
 			(yyval.tree)=new DropDatabaseTree((yyvsp[(3) - (3)].string));
 			Tree::setInstance((yyval.tree));
@@ -1639,7 +1638,7 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 122 "Parser.y"
+#line 120 "Parser.y"
     {
 			(yyval.tree)=new UseDatabaseTree((yyvsp[(3) - (3)].string));
 			Tree::setInstance((yyval.tree));
@@ -1651,7 +1650,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 128 "Parser.y"
+#line 126 "Parser.y"
     {
 			(yyval.tree)=new ShowDatabaseTree((yyvsp[(3) - (3)].string));
 			Tree::setInstance((yyval.tree));
@@ -1663,7 +1662,7 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 134 "Parser.y"
+#line 132 "Parser.y"
     {
 			(yyval.tree)=new ShowDatabaseSTree();
 			Tree::setInstance((yyval.tree));			
@@ -1674,7 +1673,7 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 139 "Parser.y"
+#line 137 "Parser.y"
     {
 			(yyval.tree)=new ShowDatabaseDescTree((yyvsp[(2) - (2)].string));
 			Tree::setInstance((yyval.tree));
@@ -1686,7 +1685,7 @@ yyreduce:
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 146 "Parser.y"
+#line 144 "Parser.y"
     {
 			(yyval.tree)=new CreateTableTree((yyvsp[(3) - (6)].string),(yyvsp[(5) - (6)].attributelisttree));
 			Tree::setInstance((yyval.tree));
@@ -1698,7 +1697,7 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 152 "Parser.y"
+#line 150 "Parser.y"
     {
 			(yyval.tree)=new DropTableTree((yyvsp[(3) - (3)].string));
 			Tree::setInstance((yyval.tree));
@@ -1710,7 +1709,7 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 158 "Parser.y"
+#line 156 "Parser.y"
     {
 			(yyval.tree)=new ShowTableTree((yyvsp[(3) - (3)].string));
 			Tree::setInstance((yyval.tree));
@@ -1722,7 +1721,7 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 164 "Parser.y"
+#line 162 "Parser.y"
     {
 			(yyval.tree)=new ShowTableSTree();
 			Tree::setInstance((yyval.tree));			
@@ -1733,7 +1732,7 @@ yyreduce:
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 170 "Parser.y"
+#line 168 "Parser.y"
     {
 			(yyval.tree)=new CreateIndexTree((yyvsp[(3) - (8)].string),(yyvsp[(5) - (8)].string),(yyvsp[(7) - (8)].string));
 			Tree::setInstance((yyval.tree));			
@@ -1745,7 +1744,7 @@ yyreduce:
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 176 "Parser.y"
+#line 174 "Parser.y"
     {
 			(yyval.tree)=new DropIndexTree((yyvsp[(3) - (3)].string));
 			Tree::setInstance((yyval.tree));
@@ -1757,7 +1756,7 @@ yyreduce:
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 183 "Parser.y"
+#line 181 "Parser.y"
     {
 			(yyval.tree)=new AddPrimaryTree((yyvsp[(3) - (9)].string),(yyvsp[(8) - (9)].string));
 			Tree::setInstance((yyval.tree));			
@@ -1769,7 +1768,7 @@ yyreduce:
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 189 "Parser.y"
+#line 187 "Parser.y"
     {
 			(yyval.tree)=new DropPrimaryTree((yyvsp[(3) - (6)].string));
 			Tree::setInstance((yyval.tree));			
@@ -1781,7 +1780,7 @@ yyreduce:
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 195 "Parser.y"
+#line 193 "Parser.y"
     {
 			(yyval.tree)=new AddForeignTree((yyvsp[(3) - (14)].string),(yyvsp[(8) - (14)].string),(yyvsp[(11) - (14)].string),(yyvsp[(13) - (14)].string));
 			Tree::setInstance((yyval.tree));			
@@ -1793,7 +1792,7 @@ yyreduce:
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 201 "Parser.y"
+#line 199 "Parser.y"
     {
 			(yyval.tree)=new DropForeignTree((yyvsp[(3) - (9)].string),(yyvsp[(8) - (9)].string));
 			Tree::setInstance((yyval.tree));			
@@ -1805,7 +1804,7 @@ yyreduce:
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 207 "Parser.y"
+#line 205 "Parser.y"
     {
 			(yyval.tree)=new AddAttributeTree((yyvsp[(3) - (5)].string),(yyvsp[(5) - (5)].attributetree));
 			Tree::setInstance((yyval.tree));			
@@ -1817,7 +1816,7 @@ yyreduce:
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 213 "Parser.y"
+#line 211 "Parser.y"
     {
 			(yyval.tree)=new DropAttributeTree((yyvsp[(3) - (5)].string),(yyvsp[(5) - (5)].string));
 			Tree::setInstance((yyval.tree));			
@@ -1829,7 +1828,7 @@ yyreduce:
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 219 "Parser.y"
+#line 217 "Parser.y"
     {
 			(yyval.tree)=new TableRenameTree((yyvsp[(3) - (6)].string),(yyvsp[(6) - (6)].string));
 			Tree::setInstance((yyval.tree));			
@@ -1841,7 +1840,7 @@ yyreduce:
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 226 "Parser.y"
+#line 224 "Parser.y"
     {
 			(yyval.tree)=new InsertTree((yyvsp[(3) - (5)].string),(yyvsp[(5) - (5)].valueliststree));
 			Tree::setInstance((yyval.tree));
@@ -1853,7 +1852,7 @@ yyreduce:
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 232 "Parser.y"
+#line 230 "Parser.y"
     {
 			(yyval.tree)=new DeleteTree((yyvsp[(3) - (4)].string),(yyvsp[(4) - (4)].WhereClausestree));
 			Tree::setInstance((yyval.tree));
@@ -1865,7 +1864,7 @@ yyreduce:
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 238 "Parser.y"
+#line 236 "Parser.y"
     {
 			(yyval.tree)=new UpdateTree((yyvsp[(2) - (5)].string),(yyvsp[(4) - (5)].setClauselisttree),(yyvsp[(5) - (5)].WhereClausestree));
 			Tree::setInstance((yyval.tree));
@@ -1877,7 +1876,7 @@ yyreduce:
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 244 "Parser.y"
+#line 242 "Parser.y"
     {
 			(yyval.tree)=new SelectTree((yyvsp[(2) - (5)].columnlisttree),(yyvsp[(4) - (5)].tablelisttree),(yyvsp[(5) - (5)].WhereClausestree));
 			Tree::setInstance((yyval.tree));			
@@ -1888,7 +1887,7 @@ yyreduce:
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 249 "Parser.y"
+#line 247 "Parser.y"
     {
 			(yyval.tree)=new SelectTree(nullptr,(yyvsp[(4) - (5)].tablelisttree),(yyvsp[(5) - (5)].WhereClausestree));
 			Tree::setInstance((yyval.tree));			
@@ -1899,7 +1898,7 @@ yyreduce:
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 256 "Parser.y"
+#line 254 "Parser.y"
     {
 			(yyval.WhereClausestree)=new WhereClausesTree((yyvsp[(2) - (2)].conditionstree));
 		;}
@@ -1908,7 +1907,7 @@ yyreduce:
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 259 "Parser.y"
+#line 257 "Parser.y"
     {
 			(yyval.WhereClausestree)=nullptr;
 		;}
@@ -1917,7 +1916,7 @@ yyreduce:
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 263 "Parser.y"
+#line 261 "Parser.y"
     {
 			(yyval.conditionstree)=new conditionsTree();
 			(yyval.conditionstree)->append((yyvsp[(1) - (1)].comparisontree));
@@ -1927,7 +1926,7 @@ yyreduce:
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 267 "Parser.y"
+#line 265 "Parser.y"
     {
 			(yyval.conditionstree)->append((yyvsp[(3) - (3)].comparisontree));
 		;}
@@ -1936,7 +1935,7 @@ yyreduce:
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 271 "Parser.y"
+#line 269 "Parser.y"
     {
 			 (yyval.comparisontree)=new comparisonTree((yyvsp[(1) - (3)].columntree),(yyvsp[(2) - (3)].opname),(yyvsp[(3) - (3)].exprtree));
 		;}
@@ -1945,25 +1944,25 @@ yyreduce:
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 274 "Parser.y"
+#line 272 "Parser.y"
     {
-			(yyval.comparisontree)=new comparisonTree((yyvsp[(1) - (3)].columntree),opName::IN,nullptr);
+			(yyval.comparisontree)=new comparisonTree((yyvsp[(1) - (3)].columntree),opName::INULL,nullptr);
 		;}
     break;
 
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 277 "Parser.y"
+#line 275 "Parser.y"
     {
-			(yyval.comparisontree)=new comparisonTree((yyvsp[(1) - (4)].columntree),opName::NN,nullptr);
+			(yyval.comparisontree)=new comparisonTree((yyvsp[(1) - (4)].columntree),opName::NNULL,nullptr);
 		;}
     break;
 
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 281 "Parser.y"
+#line 279 "Parser.y"
     {		
 			(yyval.tablelisttree)=new tablelistTree();
 			(yyval.tablelisttree)->append((yyvsp[(1) - (1)].string));
@@ -1974,7 +1973,7 @@ yyreduce:
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 286 "Parser.y"
+#line 284 "Parser.y"
     {			
 			(yyval.tablelisttree)->append((yyvsp[(3) - (3)].string));
 			delete (yyvsp[(3) - (3)].string);
@@ -1984,7 +1983,7 @@ yyreduce:
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 291 "Parser.y"
+#line 289 "Parser.y"
     {		
 			(yyval.columnlisttree)=new columnlistTree();
 			(yyval.columnlisttree)->append((yyvsp[(1) - (1)].columntree));
@@ -1994,7 +1993,7 @@ yyreduce:
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 295 "Parser.y"
+#line 293 "Parser.y"
     {			
 			(yyval.columnlisttree)->append((yyvsp[(3) - (3)].columntree));
 		;}
@@ -2003,7 +2002,7 @@ yyreduce:
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 299 "Parser.y"
+#line 297 "Parser.y"
     {
 			(yyval.columntree)=new columnTree((yyvsp[(1) - (3)].string),(yyvsp[(3) - (3)].string));
 			delete (yyvsp[(1) - (3)].string),(yyvsp[(3) - (3)].string);
@@ -2013,7 +2012,7 @@ yyreduce:
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 303 "Parser.y"
+#line 301 "Parser.y"
     {
 			(yyval.columntree)=new columnTree((yyvsp[(1) - (1)].string));
 			delete (yyvsp[(1) - (1)].string);
@@ -2023,7 +2022,7 @@ yyreduce:
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 308 "Parser.y"
+#line 306 "Parser.y"
     {
 			(yyval.exprtree)=new exprTree((yyvsp[(1) - (1)].valuetree));
 		;}
@@ -2032,7 +2031,7 @@ yyreduce:
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 311 "Parser.y"
+#line 309 "Parser.y"
     {
 			(yyval.exprtree)=new exprTree((yyvsp[(1) - (1)].columntree));
 		;}
@@ -2041,7 +2040,7 @@ yyreduce:
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 314 "Parser.y"
+#line 312 "Parser.y"
     {
 			(yyval.exprtree)=new exprTree((yyvsp[(1) - (3)].exprtree),clacopName::ADD,(yyvsp[(3) - (3)].exprtree));
 		;}
@@ -2050,7 +2049,7 @@ yyreduce:
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 317 "Parser.y"
+#line 315 "Parser.y"
     {
 			(yyval.exprtree)=new exprTree((yyvsp[(1) - (3)].exprtree),clacopName::MINUS,(yyvsp[(3) - (3)].exprtree));
 		;}
@@ -2059,7 +2058,7 @@ yyreduce:
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 320 "Parser.y"
+#line 318 "Parser.y"
     {
 			(yyval.exprtree)=new exprTree((yyvsp[(1) - (3)].exprtree),clacopName::MULTI,(yyvsp[(3) - (3)].exprtree));
 		;}
@@ -2068,7 +2067,7 @@ yyreduce:
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 323 "Parser.y"
+#line 321 "Parser.y"
     {
 			(yyval.exprtree)=new exprTree((yyvsp[(1) - (3)].exprtree),clacopName::DIV,(yyvsp[(3) - (3)].exprtree));
 		;}
@@ -2077,7 +2076,7 @@ yyreduce:
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 326 "Parser.y"
+#line 324 "Parser.y"
     {
 			(yyval.exprtree)=new exprTree((yyvsp[(1) - (3)].exprtree),clacopName::MODC,(yyvsp[(3) - (3)].exprtree));
 		;}
@@ -2086,7 +2085,7 @@ yyreduce:
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 330 "Parser.y"
+#line 328 "Parser.y"
     {
 			(yyval.opname)=opName::EQ;
 		;}
@@ -2095,7 +2094,7 @@ yyreduce:
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 333 "Parser.y"
+#line 331 "Parser.y"
     {
 			(yyval.opname)=opName::EQ;
 		;}
@@ -2104,7 +2103,7 @@ yyreduce:
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 336 "Parser.y"
+#line 334 "Parser.y"
     {
 			(yyval.opname)=opName::EQ;
 		;}
@@ -2113,7 +2112,7 @@ yyreduce:
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 339 "Parser.y"
+#line 337 "Parser.y"
     {
 			(yyval.opname)=opName::EQ;
 		;}
@@ -2122,7 +2121,7 @@ yyreduce:
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 342 "Parser.y"
+#line 340 "Parser.y"
     {
 			(yyval.opname)=opName::EQ;
 		;}
@@ -2131,7 +2130,7 @@ yyreduce:
   case 53:
 
 /* Line 1455 of yacc.c  */
-#line 345 "Parser.y"
+#line 343 "Parser.y"
     {
 			(yyval.opname)=opName::EQ;
 		;}
@@ -2140,7 +2139,7 @@ yyreduce:
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 349 "Parser.y"
+#line 347 "Parser.y"
     {
 			(yyval.setClauselisttree)=new setClauselistTree();
 			(yyval.setClauselisttree)->append((yyvsp[(1) - (1)].setClausetree));
@@ -2150,7 +2149,7 @@ yyreduce:
   case 55:
 
 /* Line 1455 of yacc.c  */
-#line 353 "Parser.y"
+#line 351 "Parser.y"
     {
 			(yyval.setClauselisttree)->append((yyvsp[(3) - (3)].setClausetree));
 		;}
@@ -2159,7 +2158,7 @@ yyreduce:
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 357 "Parser.y"
+#line 355 "Parser.y"
     {
 			(yyval.setClausetree)=new setClauseTree((yyvsp[(1) - (3)].columntree),(yyvsp[(3) - (3)].exprtree));
 		;}
@@ -2168,7 +2167,7 @@ yyreduce:
   case 57:
 
 /* Line 1455 of yacc.c  */
-#line 362 "Parser.y"
+#line 360 "Parser.y"
     {		
 			(yyval.attributelisttree)=new attributelistTree();
 			(yyval.attributelisttree)->append((yyvsp[(1) - (1)].attributetree));
@@ -2178,7 +2177,7 @@ yyreduce:
   case 58:
 
 /* Line 1455 of yacc.c  */
-#line 366 "Parser.y"
+#line 364 "Parser.y"
     {			
 			(yyval.attributelisttree)->append((yyvsp[(3) - (3)].attributetree));
 		;}
@@ -2187,7 +2186,7 @@ yyreduce:
   case 59:
 
 /* Line 1455 of yacc.c  */
-#line 370 "Parser.y"
+#line 368 "Parser.y"
     {
 			(yyval.attributetree)=new attributeTree((yyvsp[(1) - (2)].string),(yyvsp[(2) - (2)].typetree),false,false);
 			delete (yyvsp[(1) - (2)].string);
@@ -2197,7 +2196,7 @@ yyreduce:
   case 60:
 
 /* Line 1455 of yacc.c  */
-#line 374 "Parser.y"
+#line 372 "Parser.y"
     {
 			(yyval.attributetree)=new attributeTree((yyvsp[(1) - (4)].string),(yyvsp[(2) - (4)].typetree),true,false);
 			delete (yyvsp[(1) - (4)].string);
@@ -2207,7 +2206,7 @@ yyreduce:
   case 61:
 
 /* Line 1455 of yacc.c  */
-#line 378 "Parser.y"
+#line 376 "Parser.y"
     {
 			(yyval.attributetree)=new attributeTree((yyvsp[(1) - (4)].string),(yyvsp[(2) - (4)].typetree),false,true,(yyvsp[(4) - (4)].valuetree));
 			delete (yyvsp[(1) - (4)].string),(yyvsp[(4) - (4)].valuetree);
@@ -2217,7 +2216,7 @@ yyreduce:
   case 62:
 
 /* Line 1455 of yacc.c  */
-#line 382 "Parser.y"
+#line 380 "Parser.y"
     {
 			(yyval.attributetree)=new attributeTree((yyvsp[(1) - (6)].string),(yyvsp[(2) - (6)].typetree),true,true,(yyvsp[(6) - (6)].valuetree));
 			delete (yyvsp[(1) - (6)].string),(yyvsp[(6) - (6)].valuetree);
@@ -2227,7 +2226,7 @@ yyreduce:
   case 63:
 
 /* Line 1455 of yacc.c  */
-#line 386 "Parser.y"
+#line 384 "Parser.y"
     {
 			(yyval.attributetree)=new attributeTree(KeyName::Primary,(yyvsp[(3) - (3)].string));
 			delete (yyvsp[(3) - (3)].string);
@@ -2237,7 +2236,7 @@ yyreduce:
   case 64:
 
 /* Line 1455 of yacc.c  */
-#line 390 "Parser.y"
+#line 388 "Parser.y"
     {
 			(yyval.attributetree)=new attributeTree(KeyName::Foreign,(yyvsp[(3) - (8)].string),(yyvsp[(5) - (8)].string),(yyvsp[(7) - (8)].string));
 			delete (yyvsp[(3) - (8)].string),(yyvsp[(5) - (8)].string),(yyvsp[(7) - (8)].string);
@@ -2247,7 +2246,7 @@ yyreduce:
   case 65:
 
 /* Line 1455 of yacc.c  */
-#line 396 "Parser.y"
+#line 394 "Parser.y"
     {
 			(yyval.typetree)=new typeTree(TypeName::Int);
 		;}
@@ -2256,7 +2255,7 @@ yyreduce:
   case 66:
 
 /* Line 1455 of yacc.c  */
-#line 399 "Parser.y"
+#line 397 "Parser.y"
     {
 			(yyval.typetree)=new typeTree(TypeName::SmallInt);
 		;}
@@ -2265,7 +2264,7 @@ yyreduce:
   case 67:
 
 /* Line 1455 of yacc.c  */
-#line 402 "Parser.y"
+#line 400 "Parser.y"
     {
 			(yyval.typetree)=new typeTree(TypeName::Char,(yyvsp[(3) - (4)].string));			
 		;}
@@ -2274,7 +2273,7 @@ yyreduce:
   case 68:
 
 /* Line 1455 of yacc.c  */
-#line 405 "Parser.y"
+#line 403 "Parser.y"
     {
 			(yyval.typetree)=new typeTree(TypeName::Double);
 		;}
@@ -2283,7 +2282,7 @@ yyreduce:
   case 69:
 
 /* Line 1455 of yacc.c  */
-#line 408 "Parser.y"
+#line 406 "Parser.y"
     {
 			(yyval.typetree)=new typeTree(TypeName::Float);
 		;}
@@ -2292,7 +2291,7 @@ yyreduce:
   case 70:
 
 /* Line 1455 of yacc.c  */
-#line 411 "Parser.y"
+#line 409 "Parser.y"
     {
 			(yyval.typetree)=new typeTree(TypeName::Date);
 		;}
@@ -2301,7 +2300,7 @@ yyreduce:
   case 71:
 
 /* Line 1455 of yacc.c  */
-#line 414 "Parser.y"
+#line 412 "Parser.y"
     {
 			(yyval.typetree)=new typeTree(TypeName::Numeric,(yyvsp[(3) - (6)].string),(yyvsp[(5) - (6)].string));
 		;}
@@ -2310,7 +2309,7 @@ yyreduce:
   case 72:
 
 /* Line 1455 of yacc.c  */
-#line 419 "Parser.y"
+#line 417 "Parser.y"
     {
 			(yyval.valueliststree)=new valuelistsTree();
 			(yyval.valueliststree)->append((yyvsp[(2) - (3)].valuelisttree));
@@ -2320,7 +2319,7 @@ yyreduce:
   case 73:
 
 /* Line 1455 of yacc.c  */
-#line 423 "Parser.y"
+#line 421 "Parser.y"
     {
 			(yyval.valueliststree)->append((yyvsp[(4) - (5)].valuelisttree));
 		;}
@@ -2329,7 +2328,7 @@ yyreduce:
   case 74:
 
 /* Line 1455 of yacc.c  */
-#line 428 "Parser.y"
+#line 426 "Parser.y"
     {
 			(yyval.valuelisttree)=new valuelistTree();
 			(yyval.valuelisttree)->append((yyvsp[(1) - (1)].valuetree));
@@ -2339,7 +2338,7 @@ yyreduce:
   case 75:
 
 /* Line 1455 of yacc.c  */
-#line 432 "Parser.y"
+#line 430 "Parser.y"
     {
 			(yyval.valuelisttree)->append((yyvsp[(3) - (3)].valuetree));
 		;}
@@ -2348,7 +2347,7 @@ yyreduce:
   case 76:
 
 /* Line 1455 of yacc.c  */
-#line 436 "Parser.y"
+#line 434 "Parser.y"
     {
 			(yyval.valuetree)=new valueTree(CharTypeName::TEXT,(yyvsp[(1) - (1)].string));
 			delete (yyvsp[(1) - (1)].string);
@@ -2358,7 +2357,7 @@ yyreduce:
   case 77:
 
 /* Line 1455 of yacc.c  */
-#line 440 "Parser.y"
+#line 438 "Parser.y"
     {
 			(yyval.valuetree)=new valueTree(CharTypeName::INUM,(yyvsp[(1) - (1)].string));
 			delete (yyvsp[(1) - (1)].string);
@@ -2368,7 +2367,7 @@ yyreduce:
   case 78:
 
 /* Line 1455 of yacc.c  */
-#line 444 "Parser.y"
+#line 442 "Parser.y"
     {
 			(yyval.valuetree)=new valueTree(CharTypeName::FNUM,(yyvsp[(1) - (1)].string));
 			delete (yyvsp[(1) - (1)].string);
@@ -2378,7 +2377,7 @@ yyreduce:
   case 79:
 
 /* Line 1455 of yacc.c  */
-#line 448 "Parser.y"
+#line 446 "Parser.y"
     {
 			(yyval.valuetree)=new valueTree(CharTypeName::DATENUM,(yyvsp[(1) - (1)].string));
 			delete (yyvsp[(1) - (1)].string);
@@ -2388,7 +2387,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 2392 "Parser.c"
+#line 2390 "Parser.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2600,7 +2599,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 454 "Parser.y"
+#line 452 "Parser.y"
 
 
 /*支撑函数节  规则节用到的局部 C 函数定义,可选*/
@@ -2620,6 +2619,7 @@ int parseFile(){//程序主函数，读取命令，执行输出
 		printf("input is stdin\n");	
 	printf("parse Begin!\n");	
 	yyparse();	
+	printf("\n");
 	printf("parse End!\n");
 	if (instd)fclose(fin);    
 	return 0;
@@ -2627,5 +2627,6 @@ int parseFile(){//程序主函数，读取命令，执行输出
 
 int main() {	
 	parseFile();
+	system("pause");
 	return 0;
 }

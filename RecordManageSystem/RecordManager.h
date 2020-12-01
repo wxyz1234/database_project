@@ -1,7 +1,5 @@
 #ifndef RECORD_MANAGER
 #define RECORD_MANAGER
-#include "../filesystem/bufmanager/BufPageManager.h"
-#include "../filesystem/fileio/FileManager.h"
 #include "../filesystem/utils/pagedef.h"
 #include "../filesystem/filesystem.h"
 #include "utils/PageLoc.h"
@@ -13,9 +11,7 @@
 #include <iostream>
 #include <stdio.h>
 using namespace std;
-const unsigned int maxunsignint = 4294967295;
-int Wei::wei[32];
-int Wei::shiwei[9];
+extern const unsigned int maxunsignint;
 class RecordManager {
 public:
 	BufFileManager* fm;
@@ -45,7 +41,7 @@ public:
 	记录保存信息：
 		开始1个int表示RID，之后按照固定顺序储存属性，单位4字节。
 	*/
-	bool CreateFile(const char* name, DSchema* Schema) {
+	bool CreateFileF(const char* name, DSchema* Schema) {
 		//创建文件
 		fm->createFile(name);
 		//初始化第一页记录文件相关信息

@@ -117,8 +117,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="filesystem\testfilesystem.cpp" />
-    <ClCompile Include="parser\Lexer.c" />
-    <ClCompile Include="parser\Parser.c" />
     <ClCompile Include="RecordManageSystem\ReadFile.cpp" />
     <ClCompile Include="recordmanagesystem\TestRecordManager.cpp" />
   </ItemGroup>
@@ -133,8 +131,10 @@
     <ClInclude Include="filesystem\utils\MyHashMap.h" />
     <ClInclude Include="filesystem\utils\MyLinkList.h" />
     <ClInclude Include="filesystem\utils\pagedef.h" />
-    <ClInclude Include="parser\Parser.h" />
-    <ClInclude Include="parser\tree.h" />
+    <ClInclude Include="parser\global.h" />
+    <ClInclude Include="parser\tree.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="recordmanagesystem\dtype\Date.h" />
     <ClInclude Include="recordmanagesystem\dtype\DKey.h" />
     <ClInclude Include="recordmanagesystem\dtype\DList.h" />

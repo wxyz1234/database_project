@@ -9,10 +9,11 @@
 using namespace std;
 
 class DtypeSchema {
-private:
+	friend class DSchema;
+	friend class attributeTree;
+protected:
 	bool AllowNull,HaveDefault;
 	DKey* key;	
-protected:
 	DtypeData* def = NULL;
 public:
 	DtypeSchema() {
@@ -24,6 +25,7 @@ public:
 		return 0;
 	}
 	virtual int readBuf(BufType buf) { return 0; };
+	virtual void setDefault(const char* v) = 0;
 	void setAllowNull(bool i) {
 		AllowNull = i;		
 	}
@@ -118,6 +120,10 @@ public:
 	int getsize() {
 		return 1;
 	}	
+	void setDefault(const char* v) {
+		int i = atoi(v);
+		def->setData(&i);
+	}
 };
 
 class DtypeSchemaSmallInt :public DtypeSchema {
@@ -133,6 +139,10 @@ public:
 	}
 	int getsize() {
 		return 1;
+	}
+	void setDefault(const char* v) {
+		short i = atoi(v);
+		def->setData(&i);
 	}
 };
 
@@ -164,6 +174,9 @@ public:
 	int getsize() {
 		return len/4;
 	}
+	void setDefault(const char* v) {
+		def->setData(v);
+	}
 };
 
 class DtypeSchemaDouble :public DtypeSchema {
@@ -179,6 +192,10 @@ public:
 	}
 	int getsize() {
 		return 2;
+	}
+	void setDefault(const char* v) {
+		double i= atof(v);
+		def->setData(&i);
 	}
 };
 
@@ -196,6 +213,10 @@ public:
 	int getsize() {
 		return 1;
 	}
+	void setDefault(const char* v) {
+		float i = atof(v);
+		def->setData(&i);
+	}
 };
 
 class DtypeSchemaDate :public DtypeSchema {
@@ -212,6 +233,10 @@ public:
 	int getsize() {
 		return 1;
 	}
+	void setDefault(const char* v) {
+		DateType i = DateType(atoi(v));
+		def->setData(&i);
+	}
 };
 
 class DtypeSchemaNumeric :public DtypeSchema {
@@ -227,6 +252,10 @@ public:
 	}
 	int getsize() {
 		return 4;
-	}
+	}	
+	void setDefault(const char* v) {
+		//NumericType i = DateType(atoi(v->data));
+		//def->setData(&i);
+	}	
 };
 #endif

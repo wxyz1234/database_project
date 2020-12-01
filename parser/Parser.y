@@ -1,11 +1,9 @@
 %{
 /*声明节  将被原样拷贝,可选*/
 #include <stdio.h>
+#include "../parser/global.h"
 #include "../parser/tree.h"
-//#include "../parser/Parser.h"
-//#include "../parser/Lexer.c"
-#include "../RecordManageSystem/DType/DKey.h"
-#include "../RecordManageSystem/DType/TypeName.h"
+//#include "../RecordManageSystem/utils/Myhash.h"
 
 void yyerror(const char *);
 int yylex(void); 
@@ -68,10 +66,10 @@ Tree* Tree::tree = nullptr;
 }
 %token CREATE DROP USE SHOW DESC ADD
 %token DATABASE DATABASES TABLE TABLES INDEX
-%token ALTER INSERT INTO VALUES DELETE FROM UPDATE SELECT WHERE
+%token ALTER INSERT INTO VALUES DELETEC FROM UPDATE SELECT WHERE
 %token IS NOT NULLC DEFAULT PRIMARY FOREIGN KEY
 %token REFERENCES RENAME TO ON AND SET
-%token INTEGER  SMALLINT  CHAR  DOUBLE  FLOAT  DATETYPE  NUMERICTYPE
+%token INTEGER  SMALLINT  CHARTYPE  DOUBLETYPE  FLOATTYPE  DATETYPE  NUMERICTYPE
 %token '(' ')' ';' ',' '+' '-' '*' '/' '%'
 %token EQ GT LT GE LE NE
 %token <string> NAME TEXT INUM FNUM DATENUM
@@ -229,7 +227,7 @@ command: CREATE DATABASE NAME{
 			delete $3;
 			Tree::run();
 		}
-	|	DELETE FROM NAME whereClauses{
+	|	DELETEC FROM NAME whereClauses{
 			$$=new DeleteTree($3,$4);
 			Tree::setInstance($$);
 			delete $3;
@@ -272,10 +270,10 @@ comparison:	column op expr{
 			 $$=new comparisonTree($1,$2,$3);
 		}
 	|	column IS NULLC{
-			$$=new comparisonTree($1,opName::IN,nullptr);
+			$$=new comparisonTree($1,opName::INULL,nullptr);
 		}
 	|	column IS NOT NULLC{
-			$$=new comparisonTree($1,opName::NN,nullptr);
+			$$=new comparisonTree($1,opName::NNULL,nullptr);
 		}
 	;
 tablelist: NAME{		
@@ -399,13 +397,13 @@ type:	INTEGER {
 	|	SMALLINT {
 			$$=new typeTree(TypeName::SmallInt);
 		}
-	|	CHAR '(' INUM ')'{
+	|	CHARTYPE '(' INUM ')'{
 			$$=new typeTree(TypeName::Char,$3);			
 		}
-	|	DOUBLE{
+	|	DOUBLETYPE{
 			$$=new typeTree(TypeName::Double);
 		}
-	|	FLOAT{
+	|	FLOATTYPE{
 			$$=new typeTree(TypeName::Float);
 		}
 	|	DATETYPE{
@@ -470,6 +468,7 @@ int parseFile(){//程序主函数，读取命令，执行输出
 		printf("input is stdin\n");	
 	printf("parse Begin!\n");	
 	yyparse();	
+	printf("\n");
 	printf("parse End!\n");
 	if (instd)fclose(fin);    
 	return 0;
@@ -477,5 +476,6 @@ int parseFile(){//程序主函数，读取命令，执行输出
 
 int main() {	
 	parseFile();
+	system("pause");
 	return 0;
 }

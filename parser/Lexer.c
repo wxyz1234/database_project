@@ -736,307 +736,307 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 26 "Lexer.l"
-{ printf("CREATE"); return CREATE; }
+{ printf("CREATE\n"); return CREATE; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 27 "Lexer.l"
-{ printf("DROP"); return DROP; }
+{ printf("DROP\n"); return DROP; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 28 "Lexer.l"
-{ printf("USE"); return USE; }
+{ printf("USE\n"); return USE; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 29 "Lexer.l"
-{ printf("SHOW"); return SHOW; }
+{ printf("SHOW\n"); return SHOW; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 30 "Lexer.l"
-{ printf("DESC"); return DESC; }
+{ printf("DESC\n"); return DESC; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 31 "Lexer.l"
-{ printf("ADD"); return ADD; }
+{ printf("ADD\n"); return ADD; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 32 "Lexer.l"
-{ printf("DATABASE"); return DATABASE; }
+{ printf("DATABASE\n"); return DATABASE; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 33 "Lexer.l"
-{ printf("DATABASES"); return DATABASES; }
+{ printf("DATABASES\n"); return DATABASES; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 34 "Lexer.l"
-{ printf("TABLE"); return TABLE; }
+{ printf("TABLE\n"); return TABLE; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 35 "Lexer.l"
-{ printf("TABLES"); return TABLES; }
+{ printf("TABLES\n"); return TABLES; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 36 "Lexer.l"
-{ printf("INDEX"); return INDEX; }
+{ printf("INDEX\n"); return INDEX; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 37 "Lexer.l"
-{ printf("ALTER"); return ALTER; }
+{ printf("ALTER\n"); return ALTER; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 38 "Lexer.l"
-{ printf("INSERT"); return INSERT; }
+{ printf("INSERT\n"); return INSERT; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 39 "Lexer.l"
-{ printf("INTO"); return INTO; }
+{ printf("INTO\n"); return INTO; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 40 "Lexer.l"
-{ printf("VALUES"); return VALUES; }
+{ printf("VALUES\n"); return VALUES; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 41 "Lexer.l"
-{ printf("DELETE"); return DELETE; }
+{ printf("DELETE\n"); return DELETEC; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 42 "Lexer.l"
-{ printf("FROM"); return FROM; }
+{ printf("FROM\n"); return FROM; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 43 "Lexer.l"
-{ printf("UPDATE"); return UPDATE; }
+{ printf("UPDATE\n"); return UPDATE; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 44 "Lexer.l"
-{ printf("SELECT"); return SELECT; }
+{ printf("SELECT\n"); return SELECT; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 45 "Lexer.l"
-{ printf("WHERE"); return WHERE; }
+{ printf("WHERE\n"); return WHERE; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 46 "Lexer.l"
-{ printf("IS"); return IS; }
+{ printf("IS\n"); return IS; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 47 "Lexer.l"
-{ printf("NOT"); return NOT; }
+{ printf("NOT\n"); return NOT; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 48 "Lexer.l"
-{ printf("NULL"); return NULLC; }
+{ printf("NULL\n"); return NULLC; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 49 "Lexer.l"
-{ printf("DEFAULT"); return DEFAULT; }
+{ printf("DEFAULT\n"); return DEFAULT; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 50 "Lexer.l"
-{ printf("PRIMARY"); return PRIMARY; }
+{ printf("PRIMARY\n"); return PRIMARY; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 51 "Lexer.l"
-{ printf("FOREIGN"); return FOREIGN; }
+{ printf("FOREIGN\n"); return FOREIGN; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
 #line 52 "Lexer.l"
-{ printf("KEY"); return KEY; }
+{ printf("KEY\n"); return KEY; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 53 "Lexer.l"
-{ printf("REFERENCES"); return REFERENCES; }
+{ printf("REFERENCES\n"); return REFERENCES; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 54 "Lexer.l"
-{ printf("RENAME"); return RENAME; }
+{ printf("RENAME\n"); return RENAME; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 55 "Lexer.l"
-{ printf("TO"); return TO; }
+{ printf("TO\n"); return TO; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
 #line 56 "Lexer.l"
-{ printf("ON"); return ON; }
+{ printf("ON\n"); return ON; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 57 "Lexer.l"
-{ printf("AND"); return AND; }
+{ printf("AND\n"); return AND; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 58 "Lexer.l"
-{ printf("SET"); return SET; }
+{ printf("SET\n"); return SET; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
 #line 59 "Lexer.l"
-{ printf("INTEGER"); return INTEGER; }
+{ printf("INTEGER\n"); return INTEGER; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
 #line 60 "Lexer.l"
-{ printf("SMALLINT"); return SMALLINT; }
+{ printf("SMALLINT\n"); return SMALLINT; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
 #line 61 "Lexer.l"
-{ printf("CHAR"); return CHAR; }
+{ printf("CHAR\n"); return CHARTYPE; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
 #line 62 "Lexer.l"
-{ printf("DOUBLE"); return DOUBLE; }
+{ printf("DOUBLE\n"); return DOUBLETYPE; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
 #line 63 "Lexer.l"
-{ printf("FLOAT"); return FLOAT; }
+{ printf("FLOAT\n"); return FLOATTYPE; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 64 "Lexer.l"
-{ printf("DATETYPE"); return DATETYPE; }
+{ printf("DATETYPE\n"); return DATETYPE; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 65 "Lexer.l"
-{ printf("NUMERICTYPE"); return NUMERICTYPE; }
+{ printf("NUMERICTYPE\n"); return NUMERICTYPE; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 66 "Lexer.l"
-{ printf("("); return '('; }
+{ printf("(\n"); return '('; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
 #line 67 "Lexer.l"
-{ printf(")"); return ')'; }
+{ printf(")\n"); return ')'; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
 #line 68 "Lexer.l"
-{ printf(";"); return ';'; }
+{ printf(";\n"); return ';'; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
 #line 69 "Lexer.l"
-{ printf(","); return ','; }
+{ printf(",\n"); return ','; }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
 #line 70 "Lexer.l"
-{ printf("+"); return '+'; }
+{ printf("+\n"); return '+'; }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
 #line 71 "Lexer.l"
-{ printf("-"); return '-'; }
+{ printf("-\n"); return '-'; }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
 #line 72 "Lexer.l"
-{ printf("*"); return '*'; }
+{ printf("*\n"); return '*'; }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
 #line 73 "Lexer.l"
-{ printf("/"); return '/'; }
+{ printf("/\n"); return '/'; }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
 #line 74 "Lexer.l"
-{ printf("%"); return '%'; }
+{ printf("%\n"); return '%'; }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
 #line 75 "Lexer.l"
-{ printf("EQ"); return EQ; }
+{ printf("EQ\n"); return EQ; }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
 #line 76 "Lexer.l"
-{ printf("GT"); return GT; }
+{ printf("GT\n"); return GT; }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
 #line 77 "Lexer.l"
-{ printf("LT"); return LT; }
+{ printf("LT\n"); return LT; }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
 #line 78 "Lexer.l"
-{ printf("GE"); return GE; }
+{ printf("GE\n"); return GE; }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
 #line 79 "Lexer.l"
-{ printf("LE"); return LE; }
+{ printf("LE\n"); return LE; }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
 #line 80 "Lexer.l"
-{ printf("NE"); return NE; }
+{ printf("NE\n"); return NE; }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
 #line 81 "Lexer.l"
-{ yylval.string = get_text(yytext); printf("NAME"); return NAME; }
+{ yylval.string = get_text(yytext); printf("NAME\n"); return NAME; }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
 #line 82 "Lexer.l"
-{ yylval.string = get_text(yytext); printf("TEXT"); return TEXT; }
+{ yylval.string = get_text(yytext); printf("TEXT\n"); return TEXT; }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
 #line 83 "Lexer.l"
-{ yylval.string = get_text(yytext); printf("INUM"); return INUM; }
+{ yylval.string = get_text(yytext); printf("INUM\n"); return INUM; }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
 #line 84 "Lexer.l"
-{ yylval.string = get_text(yytext); printf("FNUM"); return FNUM; }
+{ yylval.string = get_text(yytext); printf("FNUM\n"); return FNUM; }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
 #line 85 "Lexer.l"
-{ yylval.string = get_text(yytext); printf("DATENUM"); return DATENUM; }
+{ yylval.string = get_text(yytext); printf("DATENUM\n"); return DATENUM; }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
 #line 86 "Lexer.l"
-{ printf("\n"); }
+{ /*printf("\n");*/ }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
