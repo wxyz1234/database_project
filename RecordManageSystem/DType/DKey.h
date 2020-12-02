@@ -10,8 +10,8 @@ public:
 	}
 	virtual char* getFile() { return NULL; };
 	virtual char* getName() { return NULL; };
-	virtual void setFile(char* buf) {};
-	virtual void setName(char* buf) {};
+	virtual void setFile(const char* buf) {};
+	virtual void setName(const char* buf) {};
 };
 
 class DPrimary :public DKey {
@@ -33,10 +33,10 @@ public:
 	KeyName getKey() {
 		return KeyName::Foreign;
 	}
-	void setFile(char* buf) {
+	void setFile(const char* buf) {
 		memcpy(refFile, buf, 20);
 	}
-	void setName(char* buf) {
+	void setName(const char* buf) {
 		memcpy(refName, buf, 20);
 	}
 	char* getFile() {

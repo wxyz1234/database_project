@@ -43,6 +43,7 @@ public:
     }
     static Tree* tree;    
 };
+Tree* Tree::tree = nullptr;
 
 class valueTree :public Tree {
     friend class attributeTree;
@@ -94,9 +95,6 @@ protected:
     TypeName name;
     int p1, p2;
 public:
-    TypeName getTypeName() {
-        return name;
-    }
     typeTree(TypeName i, char* i1 = "0", char* i2 = "0") {
         name = i;
         p1 = atoi(i1);
@@ -109,7 +107,7 @@ class attributeTree :public Tree {
 protected:
     std::string name, na1, na2;
     valueTree* def;
-    bool allownull, hasdefault;
+    bool allownull, hasdefault = false;
     typeTree* type;
     KeyName k;
 public:
@@ -128,12 +126,14 @@ public:
         if (n2 != NULL)na2 = n2;
     }
     ~attributeTree() {
-        if (k == KeyName::Null)delete type;
-        if (hasdefault)delete def;
+        if (k == KeyName::Null) {
+            delete type;
+            if (hasdefault)delete def;
+        }
     }
     void addpart(DSchema* data) {
         data->typeName[data->num] = new char[20];
-        switch (type->getTypeName()) {
+        switch (type->name) {
         case TypeName::Int:
             data->a[data->num] = new DtypeSchemaInt();
             break;
@@ -155,13 +155,16 @@ public:
             break;
         case TypeName::Numeric:
             data->a[data->num] = new DtypeSchemaNumeric();
+            ((DtypeSchemaNumeric*)data->a[data->num])->setsumdotd(type->p1, type->p2);
             break;
         default:
             printf("TypeName ERROR %d\n", type->name);
         }
         data->a[data->num]->AllowNull = allownull;
         data->a[data->num]->HaveDefault = hasdefault;
-        if (data->a[data->num]->HaveDefault)data->a[data->num]->setDefault(def->data.c_str());
+        if (data->a[data->num]->HaveDefault){
+            data->a[data->num]->setDefault(def->data.c_str());                    
+        }
         data->a[data->num]->setKey(KeyName::Null);
         data->num++;
     }
@@ -182,13 +185,28 @@ public:
         //attributelist转DSchema
         data = new DSchema();
         int i, j;
+        bool flag;
         data->setName(name);
         for (i = 0; i < a.size(); i++) {
             if (a[i]->k == KeyName::Null) {
                 a[i]->addpart(data);
             }
             else {
-                //
+                flag = true;
+                for (j=0;j<data->num;j++)
+                    if (data->typeName[j] == a[i]->name) {
+                        if (a[i]->k == KeyName::Primary) {
+                            data->a[i]->key = new DPrimary();
+                        }
+                        if (a[i]->k == KeyName::Foreign) {
+                            data->a[i]->key = new DForeign();
+                            data->a[i]->key->setFile(a[i]->na1.c_str());
+                            data->a[i]->key->setName(a[i]->na2.c_str());
+                        }                            
+                        flag = false;
+                        break;
+                    }
+                if (flag)printf("attribute ERROR\n");
             }
         }
     }
@@ -351,7 +369,9 @@ public:
     void visit() {        
         //创建表（文件）
         attribute->visit(name.c_str());
+        printf("create table way:%s\n", std::string("../data/" + CurrentDatabase + "/" + name).c_str());
         rm->CreateFileF(std::string("../data/" + CurrentDatabase + "/" + name).c_str(), attribute->data);
+        printf("Create Table %s success.\n", name.c_str());
     }
     ~CreateTableTree() {
         delete attribute;
@@ -386,6 +406,7 @@ public:
     void visit() {
         //查找当前数据库特定表和表的细节
         string a = "../data/" + CurrentDatabase + "/"+name;
+        //printf("show table way:%s\n", a.c_str());
         WIN32_FIND_DATA FindFileData;
         HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
         if (file == INVALID_HANDLE_VALUE) {

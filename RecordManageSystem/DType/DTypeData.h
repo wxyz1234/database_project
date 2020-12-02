@@ -48,9 +48,9 @@ public:
 		if ((i == NULL && data != NULL) || (i != NULL && data == NULL))Nullchange = true;
 		setData(i);
 	}
-	void* getData() {
+	void* getData() {		
 		return data;
-	}	
+	}		
 	TypeName getType() {
 		return TypeName::Int;
 	}
@@ -118,8 +118,7 @@ private:
 	char* data = NULL;
 public:
 	DtypeDataChar(int i) {
-		len = i;
-		//len = (len / 4 + 1) * 4;
+		len = i;		
 		data = NULL;
 	}
 	void setData(const char* i) {		
@@ -294,21 +293,31 @@ public:
 
 class DtypeDataNumeric :public DtypeData {
 private:
+	int sumd, dotd;
 	NumericType* data = NULL;
 public:
+	DtypeDataNumeric(int i) {
+		sumd = i / 100;
+		dotd = i % 100;
+		data = NULL;
+	}
+	DtypeDataNumeric(int i,int j) {
+		sumd = i;
+		dotd = j;
+		data = NULL;
+	}
 	TypeName getType() {
 		return TypeName::Numeric;
 	}
 	int getsize() {
-		return 4;
+		return 3;
 	}
 	void* getData() {
 		return data;
 	}
 	void setData(NumericType* i) {
 		if (i != NULL) {
-			if (data == NULL)data = new NumericType;
-			data->setsumdotd(i->getsumdotd());			
+			if (data == NULL)data = new NumericType;					
 			data->setd(i->getd(0), i->getd(1), i->getd(2));
 		}
 		else {
@@ -322,20 +331,18 @@ public:
 	}
 	int writeDataBuf(BufType buf) {
 		int k = 0;
-		if (data != NULL) {
-			buf[k] = data->getsumdotd();
-			buf[k + 1] = data->getd(0);
-			buf[k + 2] = data->getd(1);
-			buf[k + 3] = data->getd(2);			
+		if (data != NULL) {			
+			buf[k] = data->getd(0);
+			buf[k + 1] = data->getd(1);
+			buf[k + 2] = data->getd(2);			
 		}
 		k += getsize();
 		return k;
 	}
 	int readDataBuf(BufType buf) {		
 		int k = 0;
-		NumericType* data2 = new NumericType();
-		data2->setsumdotd(buf[0]);
-		data2->setd(buf[1], buf[2], buf[3]);
+		NumericType* data2 = new NumericType();		
+		data2->setd(buf[0], buf[1], buf[2]);
 		setData(data2);
 		k += getsize();
 		return k;

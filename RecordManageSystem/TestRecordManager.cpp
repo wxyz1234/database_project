@@ -1,4 +1,3 @@
-/*
 #include "RecordManager.h"
 #include "../RecordManageSystem/utils/Wei.h"
 DSchema *sh,*sh2;
@@ -236,4 +235,3 @@ int main() {
 	printf("Close and Delete File Finish!\n");
 	return 0;
 }
-*/

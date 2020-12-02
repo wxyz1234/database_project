@@ -24,6 +24,12 @@
     <ClCompile Include="RecordManageSystem\ReadFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="parser\Lexer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\Parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="filesystem\filesystem.h">
@@ -95,14 +101,14 @@
     <ClInclude Include="parser\tree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="parser\global.h">
+    <ClInclude Include="parser\Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="parser\Lexer.l" />
-    <None Include="parser\Parser.y" />
     <None Include="parser\makefile" />
     <None Include="parser\Parser.output" />
+    <None Include="parser\Lexer.l" />
+    <None Include="parser\Parser.y" />
   </ItemGroup>
 </Project>

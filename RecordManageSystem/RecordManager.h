@@ -11,7 +11,9 @@
 #include <iostream>
 #include <stdio.h>
 using namespace std;
-extern const unsigned int maxunsignint;
+const unsigned int maxunsignint = 4294967295;
+int Wei::wei[32];
+int Wei::shiwei[10];
 class RecordManager {
 public:
 	BufFileManager* fm;

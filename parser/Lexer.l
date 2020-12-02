@@ -1,5 +1,4 @@
 %option noyywrap
-%option caseless
 
 %{
 /* 定义节:可选，包含头文件、宏定义或全局 C 代码*/
@@ -56,13 +55,13 @@ TO { printf("TO\n"); return TO; }
 ON { printf("ON\n"); return ON; }
 AND { printf("AND\n"); return AND; }
 SET { printf("SET\n"); return SET; }
-Int { printf("INTEGER\n"); return INTEGER; }
-SmallInt { printf("SMALLINT\n"); return SMALLINT; }
-Char { printf("CHAR\n"); return CHARTYPE; }
-Double { printf("DOUBLE\n"); return DOUBLETYPE; }
-Float { printf("FLOAT\n"); return FLOATTYPE; }
-Date { printf("DATETYPE\n"); return DATETYPE; }
-Numeric { printf("NUMERICTYPE\n"); return NUMERICTYPE; }
+INT { printf("INTEGER\n"); return INTEGER; }
+SMALLINT { printf("SMALLINT\n"); return SMALLINT; }
+CHAR { printf("CHAR\n"); return CHARTYPE; }
+DOUBLE { printf("DOUBLE\n"); return DOUBLETYPE; }
+FLOAT { printf("FLOAT\n"); return FLOATTYPE; }
+DATE { printf("DATETYPE\n"); return DATETYPE; }
+NUMERIC { printf("NUMERICTYPE\n"); return NUMERICTYPE; }
 "(" { printf("(\n"); return '('; }
 ")" { printf(")\n"); return ')'; }
 ";" { printf(";\n"); return ';'; }

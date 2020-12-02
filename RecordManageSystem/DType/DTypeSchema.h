@@ -11,6 +11,7 @@ using namespace std;
 class DtypeSchema {
 	friend class DSchema;
 	friend class attributeTree;
+	friend class attributelistTree;
 protected:
 	bool AllowNull,HaveDefault;
 	DKey* key;	
@@ -107,15 +108,32 @@ public:
 };
 
 class DtypeSchemaInt:public DtypeSchema {	
+private:
+	int len;
 public:	
 	DtypeSchemaInt() {
 		def = new DtypeDataInt();
 	}
-	int readBuf(BufType buf) {		
-		return 0;
+	DtypeSchemaInt(int i) {		
+		len = i;
+		def = new DtypeDataInt();
+	}
+	int writeBuf(BufType buf) {
+		buf[0] = len;
+		return 1;
+	}
+	int readBuf(BufType buf) {
+		len = buf[0];		
+		return 1;
 	}
 	enum TypeName getType() {
 		return TypeName::Int;
+	}
+	void setlen(int i) {
+		len = i;
+	}
+	int getlen() {
+		return len;
 	}
 	int getsize() {
 		return 1;
@@ -240,22 +258,55 @@ public:
 };
 
 class DtypeSchemaNumeric :public DtypeSchema {
+private:
+	int sumd, dotd;
 public:	
-	DtypeSchemaNumeric() {
-		def = new DtypeDataNumeric();
+	void setsumdotd(int i) {
+		sumd = i / 100;
+		dotd = i % 100;
+		if (def != NULL)delete def;
+		def = new DtypeDataNumeric(sumd * 100 + dotd);
+	}
+	void setsumdotd(int i,int j) {
+		sumd = i;
+		dotd = j;
+		if (def != NULL)delete def;
+		def = new DtypeDataNumeric(sumd,dotd);
+	}
+	int getsumdotd() {
+		return sumd * 100 + dotd;
+	}
+	int getsumd() {
+		return sumd;
+	}
+	int getdotd() {
+		return dotd;
+	}
+	bool islegal() {
+		if (sumd > 27)return false;
+		if (dotd > sumd)return false;
+		return true;
+	}
+	int writeBuf(BufType buf) {
+		buf[0] = sumd * 100 + dotd;
+		return 1;
 	}
 	int readBuf(BufType buf) {
-		return 0;
+		sumd = buf[0] / 100;
+		dotd = buf[0] % 100;
+		def = new DtypeDataNumeric(sumd,dotd);
+		return 1;
 	}
 	TypeName getType() {
 		return TypeName::Numeric;
 	}
 	int getsize() {
-		return 4;
+		return 3;
 	}	
 	void setDefault(const char* v) {
-		//NumericType i = DateType(atoi(v->data));
-		//def->setData(&i);
+		NumericType i;
+		i.setd(v,sumd,dotd);
+		def->setData(&i);
 	}	
 };
 #endif

@@ -48,7 +48,7 @@ public:
 				a[j] = new DtypeDataDate();
 				break;
 			case TypeName::Numeric:
-				a[j] = new DtypeDataNumeric();
+				a[j] = new DtypeDataNumeric(((DtypeSchemaNumeric*)fa->getPart(j))->getsumdotd());
 				break;
 			default:
 				printf("ERROR setfa type %d\n",j);

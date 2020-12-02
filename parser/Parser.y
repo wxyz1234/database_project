@@ -1,14 +1,16 @@
 %{
 /*声明节  将被原样拷贝,可选*/
 #include <stdio.h>
-#include "../parser/global.h"
 #include "../parser/tree.h"
-//#include "../RecordManageSystem/utils/Myhash.h"
+#include "../parser/Lexer.cpp"
+#include <string>
+#include "../RecordManageSystem/RecordManager.h"
 
 void yyerror(const char *);
 int yylex(void); 
 int parseFile();
-Tree* Tree::tree = nullptr;
+std::string CurrentDatabase = "";
+RecordManager* rm = new RecordManager();
 %}
 
 /*辅助定义节  定义文法相关的名称和属性,可选*/
@@ -143,9 +145,9 @@ command: CREATE DATABASE NAME{
 
 	|	CREATE TABLE NAME '(' attributelist ')'{
 			$$=new CreateTableTree($3,$5);
-			Tree::setInstance($$);
+			Tree::setInstance($$);			
 			delete $3;
-			Tree::run;			
+			Tree::run;						
 		}
 	|	DROP TABLE NAME{
 			$$=new DropTableTree($3);
@@ -177,11 +179,10 @@ command: CREATE DATABASE NAME{
 			delete $3;
 			Tree::run();
 		}
-
-	|	ALTER TABLE NAME ADD PRIMARY KEY '(' NAME ')'{
-			$$=new AddPrimaryTree($3,$8);
+	|	ALTER TABLE NAME ADD attribute{
+			$$=new AddAttributeTree($3,$5);
 			Tree::setInstance($$);			
-			delete $3,$8;
+			delete $3;
 			Tree::run();
 		}
 	|	ALTER TABLE NAME DROP PRIMARY KEY {
@@ -189,23 +190,11 @@ command: CREATE DATABASE NAME{
 			Tree::setInstance($$);			
 			delete $3;
 			Tree::run();
-		}
-	|	ALTER TABLE NAME ADD FOREIGN KEY '(' NAME ')' REFERENCES NAME '(' NAME ')'{
-			$$=new AddForeignTree($3,$8,$11,$13);
-			Tree::setInstance($$);			
-			delete $3,$8,$11,$13;
-			Tree::run();
-		}
+		}	
 	|	ALTER TABLE NAME DROP FOREIGN KEY '(' NAME ')'{
 			$$=new DropForeignTree($3,$8);
 			Tree::setInstance($$);			
 			delete $3,$8;
-			Tree::run();
-		}
-	|	ALTER TABLE NAME ADD attribute{
-			$$=new AddAttributeTree($3,$5);
-			Tree::setInstance($$);			
-			delete $3;
 			Tree::run();
 		}
 	|	ALTER TABLE NAME DROP NAME{
@@ -381,18 +370,18 @@ attribute:	NAME type{
 			$$=new attributeTree($1,$2,true,true,$6);
 			delete $1,$6;
 		}
-	|	PRIMARY KEY NAME {
-			$$=new attributeTree(KeyName::Primary,$3);
-			delete $3;
+	|	PRIMARY KEY '(' NAME ')' {
+			$$=new attributeTree(KeyName::Primary,$4);
+			delete $4;
 		}
-	|	FOREIGN KEY NAME REFERENCES NAME '(' NAME ')'{
-			$$=new attributeTree(KeyName::Foreign,$3,$5,$7);
-			delete $3,$5,$7;
+	|	FOREIGN KEY '(' NAME ')' REFERENCES NAME '(' NAME ')'{
+			$$=new attributeTree(KeyName::Foreign,$4,$7,$9);
+			delete $4,$7,$9;
 		}
 	;
 
-type:	INTEGER {
-			$$=new typeTree(TypeName::Int);
+type:	INTEGER '(' INUM ')' {
+			$$=new typeTree(TypeName::Int,$3);
 		}
 	|	SMALLINT {
 			$$=new typeTree(TypeName::SmallInt);
@@ -457,7 +446,8 @@ void yyerror(const char *msg) {
 }
 int parseFile(){//程序主函数，读取命令，执行输出
 	bool instd=true;	
-	char* inputname="input.txt";	
+	//char* inputname = "./parser/input.txt";
+	char* inputname="input.txt";		
 	FILE  *fin;	
 	extern FILE *yyin;	
 	if (instd){
@@ -476,6 +466,6 @@ int parseFile(){//程序主函数，读取命令，执行输出
 
 int main() {	
 	parseFile();
-	system("pause");
+	//system("pause");
 	return 0;
 }

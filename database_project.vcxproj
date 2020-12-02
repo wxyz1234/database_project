@@ -117,8 +117,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="filesystem\testfilesystem.cpp" />
-    <ClCompile Include="RecordManageSystem\ReadFile.cpp" />
-    <ClCompile Include="recordmanagesystem\TestRecordManager.cpp" />
+    <ClCompile Include="parser\Lexer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="parser\Parser.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="RecordManageSystem\ReadFile.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="recordmanagesystem\TestRecordManager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="filesystem\bufmanager\BufPageManager.h" />
@@ -131,7 +141,7 @@
     <ClInclude Include="filesystem\utils\MyHashMap.h" />
     <ClInclude Include="filesystem\utils\MyLinkList.h" />
     <ClInclude Include="filesystem\utils\pagedef.h" />
-    <ClInclude Include="parser\global.h" />
+    <ClInclude Include="parser\Parser.h" />
     <ClInclude Include="parser\tree.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>

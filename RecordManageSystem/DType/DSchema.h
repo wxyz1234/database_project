@@ -8,6 +8,7 @@ using namespace std;
 class DSchema {
 	friend void makeDSchema(DSchema& sh);
 	friend class attributeTree;
+	friend class attributelistTree;
 protected:
 	char* name;
 	int num;
@@ -120,13 +121,22 @@ public:
 		char* s2[] = { "Primary", "Foreign", "Null" };
 		bool hd;
 		TypeName tn;
-		int i;
+		int i,sumd,dotd;
 		for (i = 0; i < k; i++) {
 			printf("DSchema Part %d 's Name is %s\n", i, typeName[i]);
 			tn = a[i]->getType();
 			printf("DSchema Part %d 's Type is %s\n", i, s[int(tn)]);
+			if (tn == TypeName::Int) {
+				printf("DSchema Part %d 's Len is %d\n", i, ((DtypeSchemaInt*)a[i])->getlen());
+			}
 			if (tn == TypeName::Char) {
 				printf("DSchema Part %d 's Len is %d\n", i, ((DtypeSchemaChar*)a[i])->getlen());
+			}
+			if (tn == TypeName::Numeric) {
+				sumd = ((DtypeSchemaNumeric*)a[i])->getsumd();
+				dotd = ((DtypeSchemaNumeric*)a[i])->getdotd();
+				printf("DSchema Part %d 's sumd is %d\n", i, sumd);
+				printf("DSchema Part %d 's dotd is %d\n", i, dotd);
 			}
 			printf("DSchema Part %d 's Key is %s\n", i, s2[int(a[i]->getKey()->getKey())]);
 			if (a[i]->getKey()->getKey() == KeyName::Foreign) {
@@ -161,8 +171,8 @@ public:
 					printf("Date:%d\\%d\\%d\n", tmp->getyear(), tmp->getmonth(), tmp->getday());
 					break;
 				case TypeName::Numeric:
-					tmp2 = ((NumericType*)a[i]->getDef()->getData());
-					printf("Numeric:%s\n", tmp2->getd());
+					tmp2 = ((NumericType*)a[i]->getDef()->getData());					
+					printf("Numeric:%s\n", tmp2->getd(sumd,dotd));
 					break;
 				default:
 					printf("Type ERROR\n");

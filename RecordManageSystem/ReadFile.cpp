@@ -1,6 +1,5 @@
 #include "RecordManager.h"
 #include "utils/Myhash.h"
-#include "../parser/global.h"
 #include <stdio.h>
 #include <map>
 using namespace std;
@@ -9,6 +8,7 @@ DList *li,*li2;
 PageLoc pl[100];
 int R = 0;
 map<int, PageLoc> RP;
+RecordManager* rm = new RecordManager();
 void makeDSchema(DSchema& sh) {
 	//构造测试模式：ID int,Name char,Date date,Score double
 	sh.setName("BigdataCeshi");
@@ -16,9 +16,10 @@ void makeDSchema(DSchema& sh) {
 	sh.typeName[0] = new char[20];
 	sh.setTypeName(0, "ID");
 	sh.a[0] = new DtypeSchemaNumeric();
+	((DtypeSchemaNumeric*)sh.a[0])->setsumdotd(18,0);	
 	sh.a[0]->setAllowNull(false);
-	sh.a[0]->setHaveDefault(true);
-	sh.a[0]->getDef()->setData(new NumericType(18,0,0,213,0));
+	sh.a[0]->setHaveDefault(false);
+	//sh.a[0]->getDef()->setData(new NumericType(0,213,0));
 	sh.a[0]->setKey(KeyName::Primary);
 
 	sh.typeName[1] = new char[20];
@@ -41,10 +42,10 @@ void makeDSchema(DSchema& sh) {
 
 	sh.typeName[3] = new char[20];
 	sh.setTypeName(3, "Score");
-	sh.a[3] = new DtypeSchemaDouble();
+	sh.a[3] = new DtypeSchemaInt(10);
 	sh.a[3]->setAllowNull(true);
 	sh.a[3]->setHaveDefault(true);
-	sh.a[3]->getDef()->setData(new double(0.000));
+	sh.a[3]->getDef()->setData(new int(87));
 	sh.a[3]->setKey(KeyName::Null);
 
 	printf("makeDSchema Finish!\n");
@@ -55,17 +56,17 @@ void makeDList(DList& li,int id,int y,int m,int d,double s) {
 	li.setRID(R);
 	li.setfa(sh);
 	li.setNull(0);
-	li.getPart(0)->setData(new NumericType(18,0,0,id,0));	
+	li.getPart(0)->setData(new NumericType(0,id,0));	
 	char c[30];
 	c[0] = 'A';
 	c[1] = 'A';
 	c[2] = 'A';
-	c[3] = char('0' + (id / 10));
+	c[3] = char('0' + (id / 10 % 10));
 	c[4] = char('0' + (id % 10));
 	c[5] = '\0';	
 	li.getPart(1)->setData(c);
 	li.getPart(2)->setData(new DateType(y, m, d));
-	li.getPart(3)->setData(new double(s));		
+	li.getPart(3)->setData(new int(s));		
 	printf("makeDList Finish!\n");
 }
 void writeDList(PageLoc pl, DList& li) {
@@ -88,9 +89,17 @@ void writeDList(PageLoc pl, DList& li) {
 			printf("DList in (%d,%d))'s part %d is ", pl.PageID, pl.LocID, i);
 			DateType* tmp;
 			NumericType* tmp2;
+			int sumd, dotd, len;
 			switch (tn) {
 			case TypeName::Int:
-				printf("%d\n", *((int*)li.getPart(i)->getData()));
+				len= ((DtypeSchemaInt*)li.getfa()->getPart(i))->getlen();
+				sumd = *((int*)li.getPart(i)->getData());
+				if (sumd < 0) {
+					printf("-");
+					sumd = -sumd;
+				}
+				for (int j = len - 1; j >= 0; j--)printf("%d",sumd/Wei::shiwei[j]%10);
+				printf("\n");				
 				break;
 			case TypeName::SmallInt:
 				printf("%d\n", *((short*)li.getPart(i)->getData()));
@@ -110,7 +119,9 @@ void writeDList(PageLoc pl, DList& li) {
 				break;
 			case TypeName::Numeric:
 				tmp2 = ((NumericType*)li.getPart(i)->getData());
-				printf("Numeric:%s\n", tmp2->getd());
+				sumd = ((DtypeSchemaNumeric*)li.getfa()->getPart(i))->getsumd();
+				dotd = ((DtypeSchemaNumeric*)li.getfa()->getPart(i))->getdotd();
+				printf("Numeric:%s\n", tmp2->getd(sumd, dotd));
 				break;
 			default:
 				printf("Type ERROR\n");
@@ -146,7 +157,7 @@ int main() {
 	}
 	printf("FindRecord Finish!\n");
 	for (int i = 1; i <= 80; i++) {
-		makeDList(li[i], i, 2020, 12, i, double(i) * i * i * 0.5);
+		makeDList(li[i], i, 2020, 12, i, double(i) * i * i * 2);
 		rm->UpdataRecord(fileID, pl[i], &li[i]);
 	}
 	printf("UpdataRecord Finish!\n");
@@ -195,9 +206,9 @@ int main() {
 	}
 	for (i = 1; i <= 80; i++) {
 		printf("PageLoc of RID %d is (%d,%d)\n", li2[i].getRID(), RP[li2[i].getRID()].PageID, RP[li2[i].getRID()].LocID);
-		if (ha.Find(new NumericType(18, 0, 0, i, 0)))
+		if (ha.Find(new NumericType(0, i, 0)))
 			printf("Find ID %d success!\n", i);
-		if (ha.Find(new NumericType(18, 0, 0, i+100, 0)))
+		if (ha.Find(new NumericType(0, i+100, 0)))
 			printf("Find ID %d success!\n", i+100);
 	}
 	printf("Hash Check Finish!\n");	
