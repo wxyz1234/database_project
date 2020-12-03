@@ -8,6 +8,7 @@
 #include "../RecordManageSystem/DType/DSchema.h"
 #include "../RecordManageSystem/DType/DTypeSchema.h"
 #include "../RecordManageSystem/RecordManager.h"
+#include "../RecordManageSystem/utils/Myhash.h"
 
 class attributeTree;
 class attributelistTree;
@@ -133,9 +134,11 @@ public:
     }
     void addpart(DSchema* data) {
         data->typeName[data->num] = new char[20];
+        memcpy(data->typeName[data->num],name.c_str(),20);
         switch (type->name) {
         case TypeName::Int:
             data->a[data->num] = new DtypeSchemaInt();
+            ((DtypeSchemaInt*)data->a[data->num])->setlen(type->p1);
             break;
         case TypeName::SmallInt:
             data->a[data->num] = new DtypeSchemaSmallInt();
@@ -196,12 +199,12 @@ public:
                 for (j=0;j<data->num;j++)
                     if (data->typeName[j] == a[i]->name) {
                         if (a[i]->k == KeyName::Primary) {
-                            data->a[i]->key = new DPrimary();
+                            data->a[j]->key = new DPrimary();
                         }
                         if (a[i]->k == KeyName::Foreign) {
-                            data->a[i]->key = new DForeign();
-                            data->a[i]->key->setFile(a[i]->na1.c_str());
-                            data->a[i]->key->setName(a[i]->na2.c_str());
+                            data->a[j]->key = new DForeign();
+                            data->a[j]->key->setFile(a[i]->na1.c_str());
+                            data->a[j]->key->setName(a[i]->na2.c_str());
                         }                            
                         flag = false;
                         break;
@@ -251,6 +254,18 @@ public:
         //删除数据库（文件夹）
         string a = "../data/" + name;
         if (GetFileAttributesA(a.c_str()) & FILE_ATTRIBUTE_DIRECTORY) {
+            string filea = a + "/*";
+            WIN32_FIND_DATA FindFileData;
+            HANDLE file = FindFirstFile(filea.c_str(), &FindFileData);
+            if (file != INVALID_HANDLE_VALUE) {
+                do {
+                    if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                    }
+                    else {                                                
+                        DeleteFile(std::string(a+"/"+ FindFileData.cFileName).c_str());
+                    }
+                } while (FindNextFile(file, &FindFileData));
+            }
             if (RemoveDirectory(a.c_str()))
                 printf("Drop Database %s success.\n",name.c_str());
         }
@@ -268,6 +283,10 @@ public:
     }
     void visit() {
         //指定当前数据库
+        if (_access(std::string("../data/" + name + "/").c_str(), 0) == -1) {
+            printf("Database %s is not exist!\n",name.c_str());
+            return;
+        }
         CurrentDatabase = name;
         printf("Use Database %s success.\n",name.c_str());
     }
@@ -281,11 +300,15 @@ public:
     }
     void visit() {
         //查找指定数据库的所有表
-        string a = "../data/" + name + "/*";
+        if (_access(std::string("../data/" + name + "/").c_str(), 0) == -1) {
+            printf("There is no Database %s.\n", name.c_str());
+            return;
+        }
+        string a = "../data/" + name + "/*";        
         WIN32_FIND_DATA FindFileData;
         HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
         if (file == INVALID_HANDLE_VALUE) {
-            printf("There is no Database %s.\n",name.c_str());
+            printf("There is no Table in %s.\n",name.c_str());
         }
         else {
             printf("Table names in %s:\n",name.c_str());
@@ -333,7 +356,11 @@ public:
     }
     void visit() {
         //查找指定数据库的所有表，反向输出
-        string a = "../data/" + name + "/*";
+        if (_access(std::string("../data/" + name + "/").c_str(), 0) == -1) {
+            printf("There is no Database %s.\n", name.c_str());
+            return;
+        }
+        string a = "../data/" + name + "/*";        
         WIN32_FIND_DATA FindFileData;
         HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
         vector<string> b;
@@ -351,7 +378,7 @@ public:
                 }
             } while (FindNextFile(file, &FindFileData));     
             for (int i = b.size() - 1; i >= 0; i--) {
-                printf("%s\n",b[i]);
+                printf("%s\n",b[i].c_str());
             }
         }
     }
@@ -367,7 +394,11 @@ public:
         attribute = j;
     }
     void visit() {        
-        //创建表（文件）
+        //创建表（文件）           
+        if (_access(std::string("../data/"+ CurrentDatabase+"/").c_str(), 0) == -1 || CurrentDatabase=="") {
+            printf("CurrentDatabase is not exist!\n");
+            return;
+        }
         attribute->visit(name.c_str());
         printf("create table way:%s\n", std::string("../data/" + CurrentDatabase + "/" + name).c_str());
         rm->CreateFileF(std::string("../data/" + CurrentDatabase + "/" + name).c_str(), attribute->data);
@@ -386,9 +417,13 @@ public:
     }
     void visit() {        
         //删除表（文件）
+        if (_access(std::string("../data/" + CurrentDatabase + "/").c_str(), 0) == -1 || CurrentDatabase == "") {
+            printf("CurrentDatabase is not exist!\n");
+            return;
+        }
         string a = "../data/" + CurrentDatabase + "/" + name;
-        if ((GetFileAttributesA(a.c_str()) & FILE_ATTRIBUTE_DIRECTORY)==0) {
-            if (RemoveDirectory(a.c_str()))
+        if ((GetFileAttributesA(a.c_str()) & FILE_ATTRIBUTE_DIRECTORY)==0) {            
+            if (DeleteFile(a.c_str()))
                 printf("Drop Table %s success.\n", name.c_str());
         }
         else {
@@ -404,13 +439,17 @@ public:
         name = i;
     }
     void visit() {
-        //查找当前数据库特定表和表的细节
+        //查找当前数据库特定表和表的具体数据
+        if (_access(std::string("../data/" + CurrentDatabase + "/").c_str(), 0) == -1 || CurrentDatabase == "") {
+            printf("CurrentDatabase is not exist!\n");
+            return;
+        }
         string a = "../data/" + CurrentDatabase + "/"+name;
         //printf("show table way:%s\n", a.c_str());
         WIN32_FIND_DATA FindFileData;
         HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
         if (file == INVALID_HANDLE_VALUE) {
-            printf("There is no CurrentDatabase.\n");
+            printf("There is no Table %s.\n",name.c_str());
         }
         else {
             printf("Table:%s\n", name.c_str());
@@ -423,12 +462,47 @@ public:
         }
     }
 };
+class ShowTableDescTree :public Tree {
+private:
+    std::string name;
+public:
+    ShowTableDescTree(char* i) {
+        name = i;
+    }
+    void visit() {
+        //查找当前数据库特定表和表的具体数据，反向输出
+        if (_access(std::string("../data/" + CurrentDatabase + "/").c_str(), 0) == -1 || CurrentDatabase == "") {
+            printf("CurrentDatabase is not exist!\n");
+            return;
+        }
+        string a = "../data/" + CurrentDatabase + "/" + name;
+        //printf("show table way:%s\n", a.c_str());
+        WIN32_FIND_DATA FindFileData;
+        HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
+        if (file == INVALID_HANDLE_VALUE) {
+            printf("There is no Table %s.\n", name.c_str());
+        }
+        else {
+            printf("Table:%s\n", name.c_str());
+            int fileID;
+            rm->OpenFile(a.c_str(), fileID);
+            DSchema* sh = new DSchema();
+            rm->GetSchema(fileID, *sh);
+            sh->writeDSchema();
+            rm->CloseFile(fileID);
+        }
+    }
+};
 class ShowTableSTree :public Tree {
 public:
     ShowTableSTree() {
     }
     void visit() {
         //查找当前数据库所有表和表的细节
+        if (_access(std::string("../data/" + CurrentDatabase + "/").c_str(), 0) == -1 || CurrentDatabase == "") {
+            printf("CurrentDatabase is not exist!\n");
+            return;
+        }
         string a = "../data/" + CurrentDatabase + "/*";
         WIN32_FIND_DATA FindFileData;
         HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
@@ -443,7 +517,7 @@ public:
                 else {
                     printf("Table:%s\n", FindFileData.cFileName);
                     int fileID;
-                    rm->OpenFile(a.c_str(), fileID);
+                    rm->OpenFile(std::string("../data/" + CurrentDatabase + "/"+ FindFileData.cFileName).c_str(), fileID);
                     DSchema* sh = new DSchema();
                     rm->GetSchema(fileID, *sh);
                     sh->writeDSchema();

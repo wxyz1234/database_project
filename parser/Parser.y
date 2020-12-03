@@ -136,10 +136,10 @@ command: CREATE DATABASE NAME{
 			Tree::setInstance($$);			
 			Tree::run();
 		}
-	|	DESC NAME{
-			$$=new ShowDatabaseDescTree($2);
+	|	DESC DATABASE NAME{
+			$$=new ShowDatabaseDescTree($3);
 			Tree::setInstance($$);
-			delete $2;
+			delete $3;
 			Tree::run();
 		}
 
@@ -147,7 +147,7 @@ command: CREATE DATABASE NAME{
 			$$=new CreateTableTree($3,$5);
 			Tree::setInstance($$);			
 			delete $3;
-			Tree::run;						
+			Tree::run();						
 		}
 	|	DROP TABLE NAME{
 			$$=new DropTableTree($3);
@@ -157,6 +157,12 @@ command: CREATE DATABASE NAME{
 		}
 	|	SHOW TABLE NAME{
 			$$=new ShowTableTree($3);
+			Tree::setInstance($$);
+			delete $3;
+			Tree::run();
+		}
+	|	DESC TABLE NAME{
+			$$=new ShowTableDescTree($3);
 			Tree::setInstance($$);
 			delete $3;
 			Tree::run();
@@ -355,19 +361,19 @@ attributelist: attribute{
 		}
 	;
 attribute:	NAME type{
-			$$=new attributeTree($1,$2,false,false);
-			delete $1;
-		}
-	|	NAME type NOT NULLC{
 			$$=new attributeTree($1,$2,true,false);
 			delete $1;
 		}
+	|	NAME type NOT NULLC{
+			$$=new attributeTree($1,$2,false,false);
+			delete $1;
+		}
 	|	NAME type DEFAULT value {
-			$$=new attributeTree($1,$2,false,true,$4);
+			$$=new attributeTree($1,$2,true,true,$4);
 			delete $1,$4;
 		}
 	|	NAME type NOT NULLC DEFAULT value{
-			$$=new attributeTree($1,$2,true,true,$6);
+			$$=new attributeTree($1,$2,false,true,$6);
 			delete $1,$6;
 		}
 	|	PRIMARY KEY '(' NAME ')' {

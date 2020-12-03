@@ -136,8 +136,8 @@ int main() {
 	sh2 = new DSchema();
 	int fileID;
 	makeDSchema(*sh);
-	rm->CreateFileF("data/input.txt", sh);
-	rm->OpenFile("data/input.txt", fileID);
+	rm->CreateFileF("../data/test", sh);
+	rm->OpenFile("../data/test", fileID);
 	printf("Create and Open File Finish!\n");
 
 	li = new DList[100]();

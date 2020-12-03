@@ -166,14 +166,15 @@ public:
 
 class DtypeSchemaChar :public DtypeSchema {
 private:
-	int len;
+	int old_len,len;
 public:	
 	int writeBuf(BufType buf) {
-		buf[0] = len;
+		buf[0] = old_len;
 		return 1;
 	}
 	int readBuf(BufType buf) {
-		len = buf[0];		
+		old_len = buf[0];
+		len = (old_len / 4 + 1) * 4;
 		def = new DtypeDataChar(len);
 		return 1;
 	}
@@ -181,13 +182,16 @@ public:
 		return TypeName::Char;
 	}
 	void setlen(int i) {
-		len = i;
-		len = (len / 4 + 1) * 4;
+		old_len = i;
+		len = (old_len / 4 + 1) * 4;
 		if (def != NULL)delete def;
 		def = new DtypeDataChar(len);
 	}
 	int getlen() {
 		return len;
+	}
+	int getold_len() {
+		return old_len;
 	}
 	int getsize() {
 		return len/4;

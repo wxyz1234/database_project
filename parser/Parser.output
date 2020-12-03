@@ -10,160 +10,161 @@ Grammar
     5        | USE DATABASE NAME
     6        | SHOW DATABASE NAME
     7        | SHOW DATABASES
-    8        | DESC NAME
+    8        | DESC DATABASE NAME
     9        | CREATE TABLE NAME '(' attributelist ')'
    10        | DROP TABLE NAME
    11        | SHOW TABLE NAME
-   12        | SHOW TABLES
-   13        | CREATE INDEX NAME ON NAME '(' NAME ')'
-   14        | DROP INDEX NAME
-   15        | ALTER TABLE NAME ADD attribute
-   16        | ALTER TABLE NAME DROP PRIMARY KEY
-   17        | ALTER TABLE NAME DROP FOREIGN KEY '(' NAME ')'
-   18        | ALTER TABLE NAME DROP NAME
-   19        | ALTER TABLE NAME RENAME TO NAME
-   20        | INSERT INTO NAME VALUES valuelists
-   21        | DELETEC FROM NAME whereClauses
-   22        | UPDATE NAME SET setClauselist whereClauses
-   23        | SELECT columnlist FROM tablelist whereClauses
-   24        | SELECT '*' FROM tablelist whereClauses
+   12        | DESC TABLE NAME
+   13        | SHOW TABLES
+   14        | CREATE INDEX NAME ON NAME '(' NAME ')'
+   15        | DROP INDEX NAME
+   16        | ALTER TABLE NAME ADD attribute
+   17        | ALTER TABLE NAME DROP PRIMARY KEY
+   18        | ALTER TABLE NAME DROP FOREIGN KEY '(' NAME ')'
+   19        | ALTER TABLE NAME DROP NAME
+   20        | ALTER TABLE NAME RENAME TO NAME
+   21        | INSERT INTO NAME VALUES valuelists
+   22        | DELETEC FROM NAME whereClauses
+   23        | UPDATE NAME SET setClauselist whereClauses
+   24        | SELECT columnlist FROM tablelist whereClauses
+   25        | SELECT '*' FROM tablelist whereClauses
 
-   25 whereClauses: WHERE conditions
-   26             | /* empty */
+   26 whereClauses: WHERE conditions
+   27             | /* empty */
 
-   27 conditions: comparison
-   28           | conditions AND comparison
+   28 conditions: comparison
+   29           | conditions AND comparison
 
-   29 comparison: column op expr
-   30           | column IS NULLC
-   31           | column IS NOT NULLC
+   30 comparison: column op expr
+   31           | column IS NULLC
+   32           | column IS NOT NULLC
 
-   32 tablelist: NAME
-   33          | tablelist ',' NAME
+   33 tablelist: NAME
+   34          | tablelist ',' NAME
 
-   34 columnlist: column
-   35           | columnlist ',' column
+   35 columnlist: column
+   36           | columnlist ',' column
 
-   36 column: NAME '.' NAME
-   37       | NAME
+   37 column: NAME '.' NAME
+   38       | NAME
 
-   38 expr: value
-   39     | column
-   40     | expr '+' expr
-   41     | expr '-' expr
-   42     | expr '*' expr
-   43     | expr '/' expr
-   44     | expr '%' expr
+   39 expr: value
+   40     | column
+   41     | expr '+' expr
+   42     | expr '-' expr
+   43     | expr '*' expr
+   44     | expr '/' expr
+   45     | expr '%' expr
 
-   45 op: EQ
-   46   | GT
-   47   | LT
-   48   | GE
-   49   | LE
-   50   | NE
+   46 op: EQ
+   47   | GT
+   48   | LT
+   49   | GE
+   50   | LE
+   51   | NE
 
-   51 setClauselist: setClause
-   52              | setClauselist ',' setClause
+   52 setClauselist: setClause
+   53              | setClauselist ',' setClause
 
-   53 setClause: column '=' expr
+   54 setClause: column '=' expr
 
-   54 attributelist: attribute
-   55              | attributelist ',' attribute
+   55 attributelist: attribute
+   56              | attributelist ',' attribute
 
-   56 attribute: NAME type
-   57          | NAME type NOT NULLC
-   58          | NAME type DEFAULT value
-   59          | NAME type NOT NULLC DEFAULT value
-   60          | PRIMARY KEY '(' NAME ')'
-   61          | FOREIGN KEY '(' NAME ')' REFERENCES NAME '(' NAME ')'
+   57 attribute: NAME type
+   58          | NAME type NOT NULLC
+   59          | NAME type DEFAULT value
+   60          | NAME type NOT NULLC DEFAULT value
+   61          | PRIMARY KEY '(' NAME ')'
+   62          | FOREIGN KEY '(' NAME ')' REFERENCES NAME '(' NAME ')'
 
-   62 type: INTEGER '(' INUM ')'
-   63     | SMALLINT
-   64     | CHARTYPE '(' INUM ')'
-   65     | DOUBLETYPE
-   66     | FLOATTYPE
-   67     | DATETYPE
-   68     | NUMERICTYPE '(' INUM ',' INUM ')'
+   63 type: INTEGER '(' INUM ')'
+   64     | SMALLINT
+   65     | CHARTYPE '(' INUM ')'
+   66     | DOUBLETYPE
+   67     | FLOATTYPE
+   68     | DATETYPE
+   69     | NUMERICTYPE '(' INUM ',' INUM ')'
 
-   69 valuelists: '(' valuelist ')'
-   70           | valuelists ',' '(' valuelist ')'
+   70 valuelists: '(' valuelist ')'
+   71           | valuelists ',' '(' valuelist ')'
 
-   71 valuelist: value
-   72          | valuelist ',' value
+   72 valuelist: value
+   73          | valuelist ',' value
 
-   73 value: TEXT
-   74      | INUM
-   75      | FNUM
-   76      | DATENUM
+   74 value: TEXT
+   75      | INUM
+   76      | FNUM
+   77      | DATENUM
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
-'%' (37) 44
-'(' (40) 9 13 17 60 61 62 64 68 69 70
-')' (41) 9 13 17 60 61 62 64 68 69 70
-'*' (42) 24 42
-'+' (43) 40
-',' (44) 33 35 52 55 68 70 72
-'-' (45) 41
-'.' (46) 36
-'/' (47) 43
+'%' (37) 45
+'(' (40) 9 14 18 61 62 63 65 69 70 71
+')' (41) 9 14 18 61 62 63 65 69 70 71
+'*' (42) 25 43
+'+' (43) 41
+',' (44) 34 36 53 56 69 71 73
+'-' (45) 42
+'.' (46) 37
+'/' (47) 44
 ';' (59) 1 2
-'=' (61) 53
+'=' (61) 54
 error (256)
-CREATE (258) 3 9 13
-DROP (259) 4 10 14 16 17 18
+CREATE (258) 3 9 14
+DROP (259) 4 10 15 17 18 19
 USE (260) 5
-SHOW (261) 6 7 11 12
-DESC (262) 8
-ADD (263) 15
-DATABASE (264) 3 4 5 6
+SHOW (261) 6 7 11 13
+DESC (262) 8 12
+ADD (263) 16
+DATABASE (264) 3 4 5 6 8
 DATABASES (265) 7
-TABLE (266) 9 10 11 15 16 17 18 19
-TABLES (267) 12
-INDEX (268) 13 14
-ALTER (269) 15 16 17 18 19
-INSERT (270) 20
-INTO (271) 20
-VALUES (272) 20
-DELETEC (273) 21
-FROM (274) 21 23 24
-UPDATE (275) 22
-SELECT (276) 23 24
-WHERE (277) 25
-IS (278) 30 31
-NOT (279) 31 57 59
-NULLC (280) 30 31 57 59
-DEFAULT (281) 58 59
-PRIMARY (282) 16 60
-FOREIGN (283) 17 61
-KEY (284) 16 17 60 61
-REFERENCES (285) 61
-RENAME (286) 19
-TO (287) 19
-ON (288) 13
-AND (289) 28
-SET (290) 22
-INTEGER (291) 62
-SMALLINT (292) 63
-CHARTYPE (293) 64
-DOUBLETYPE (294) 65
-FLOATTYPE (295) 66
-DATETYPE (296) 67
-NUMERICTYPE (297) 68
-EQ (298) 45
-GT (299) 46
-LT (300) 47
-GE (301) 48
-LE (302) 49
-NE (303) 50
-NAME (304) 3 4 5 6 8 9 10 11 13 14 15 16 17 18 19 20 21 22 32 33 36
-    37 56 57 58 59 60 61
-TEXT (305) 73
-INUM (306) 62 64 68 74
-FNUM (307) 75
-DATENUM (308) 76
+TABLE (266) 9 10 11 12 16 17 18 19 20
+TABLES (267) 13
+INDEX (268) 14 15
+ALTER (269) 16 17 18 19 20
+INSERT (270) 21
+INTO (271) 21
+VALUES (272) 21
+DELETEC (273) 22
+FROM (274) 22 24 25
+UPDATE (275) 23
+SELECT (276) 24 25
+WHERE (277) 26
+IS (278) 31 32
+NOT (279) 32 58 60
+NULLC (280) 31 32 58 60
+DEFAULT (281) 59 60
+PRIMARY (282) 17 61
+FOREIGN (283) 18 62
+KEY (284) 17 18 61 62
+REFERENCES (285) 62
+RENAME (286) 20
+TO (287) 20
+ON (288) 14
+AND (289) 29
+SET (290) 23
+INTEGER (291) 63
+SMALLINT (292) 64
+CHARTYPE (293) 65
+DOUBLETYPE (294) 66
+FLOATTYPE (295) 67
+DATETYPE (296) 68
+NUMERICTYPE (297) 69
+EQ (298) 46
+GT (299) 47
+LT (300) 48
+GE (301) 49
+LE (302) 50
+NE (303) 51
+NAME (304) 3 4 5 6 8 9 10 11 12 14 15 16 17 18 19 20 21 22 23 33 34
+    37 38 57 58 59 60 61 62
+TEXT (305) 74
+INUM (306) 63 65 69 75
+FNUM (307) 76
+DATENUM (308) 77
 
 
 Nonterminals, with rules where they appear
@@ -174,39 +175,39 @@ sql (66)
     on left: 1 2, on right: 0 2
 command (67)
     on left: 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
-    24, on right: 1 2
+    24 25, on right: 1 2
 whereClauses (68)
-    on left: 25 26, on right: 21 22 23 24
+    on left: 26 27, on right: 22 23 24 25
 conditions (69)
-    on left: 27 28, on right: 25 28
+    on left: 28 29, on right: 26 29
 comparison (70)
-    on left: 29 30 31, on right: 27 28
+    on left: 30 31 32, on right: 28 29
 tablelist (71)
-    on left: 32 33, on right: 23 24 33
+    on left: 33 34, on right: 24 25 34
 columnlist (72)
-    on left: 34 35, on right: 23 35
+    on left: 35 36, on right: 24 36
 column (73)
-    on left: 36 37, on right: 29 30 31 34 35 39 53
+    on left: 37 38, on right: 30 31 32 35 36 40 54
 expr (74)
-    on left: 38 39 40 41 42 43 44, on right: 29 40 41 42 43 44 53
+    on left: 39 40 41 42 43 44 45, on right: 30 41 42 43 44 45 54
 op (75)
-    on left: 45 46 47 48 49 50, on right: 29
+    on left: 46 47 48 49 50 51, on right: 30
 setClauselist (76)
-    on left: 51 52, on right: 22 52
+    on left: 52 53, on right: 23 53
 setClause (77)
-    on left: 53, on right: 51 52
+    on left: 54, on right: 52 53
 attributelist (78)
-    on left: 54 55, on right: 9 55
+    on left: 55 56, on right: 9 56
 attribute (79)
-    on left: 56 57 58 59 60 61, on right: 15 54 55
+    on left: 57 58 59 60 61 62, on right: 16 55 56
 type (80)
-    on left: 62 63 64 65 66 67 68, on right: 56 57 58 59
+    on left: 63 64 65 66 67 68 69, on right: 57 58 59 60
 valuelists (81)
-    on left: 69 70, on right: 20 70
+    on left: 70 71, on right: 21 71
 valuelist (82)
-    on left: 71 72, on right: 69 70 72
+    on left: 72 73, on right: 70 71 73
 value (83)
-    on left: 73 74 75 76, on right: 38 58 59 71 72
+    on left: 74 75 76 77, on right: 39 59 60 72 73
 
 
 state 0
@@ -232,7 +233,7 @@ state 1
 
     3 command: CREATE . DATABASE NAME
     9        | CREATE . TABLE NAME '(' attributelist ')'
-   13        | CREATE . INDEX NAME ON NAME '(' NAME ')'
+   14        | CREATE . INDEX NAME ON NAME '(' NAME ')'
 
     DATABASE  shift, and go to state 13
     TABLE     shift, and go to state 14
@@ -243,7 +244,7 @@ state 2
 
     4 command: DROP . DATABASE NAME
    10        | DROP . TABLE NAME
-   14        | DROP . INDEX NAME
+   15        | DROP . INDEX NAME
 
     DATABASE  shift, and go to state 16
     TABLE     shift, and go to state 17
@@ -262,7 +263,7 @@ state 4
     6 command: SHOW . DATABASE NAME
     7        | SHOW . DATABASES
    11        | SHOW . TABLE NAME
-   12        | SHOW . TABLES
+   13        | SHOW . TABLES
 
     DATABASE   shift, and go to state 20
     DATABASES  shift, and go to state 21
@@ -272,53 +273,55 @@ state 4
 
 state 5
 
-    8 command: DESC . NAME
+    8 command: DESC . DATABASE NAME
+   12        | DESC . TABLE NAME
 
-    NAME  shift, and go to state 24
+    DATABASE  shift, and go to state 24
+    TABLE     shift, and go to state 25
 
 
 state 6
 
-   15 command: ALTER . TABLE NAME ADD attribute
-   16        | ALTER . TABLE NAME DROP PRIMARY KEY
-   17        | ALTER . TABLE NAME DROP FOREIGN KEY '(' NAME ')'
-   18        | ALTER . TABLE NAME DROP NAME
-   19        | ALTER . TABLE NAME RENAME TO NAME
+   16 command: ALTER . TABLE NAME ADD attribute
+   17        | ALTER . TABLE NAME DROP PRIMARY KEY
+   18        | ALTER . TABLE NAME DROP FOREIGN KEY '(' NAME ')'
+   19        | ALTER . TABLE NAME DROP NAME
+   20        | ALTER . TABLE NAME RENAME TO NAME
 
-    TABLE  shift, and go to state 25
+    TABLE  shift, and go to state 26
 
 
 state 7
 
-   20 command: INSERT . INTO NAME VALUES valuelists
+   21 command: INSERT . INTO NAME VALUES valuelists
 
-    INTO  shift, and go to state 26
+    INTO  shift, and go to state 27
 
 
 state 8
 
-   21 command: DELETEC . FROM NAME whereClauses
+   22 command: DELETEC . FROM NAME whereClauses
 
-    FROM  shift, and go to state 27
+    FROM  shift, and go to state 28
 
 
 state 9
 
-   22 command: UPDATE . NAME SET setClauselist whereClauses
+   23 command: UPDATE . NAME SET setClauselist whereClauses
 
-    NAME  shift, and go to state 28
+    NAME  shift, and go to state 29
 
 
 state 10
 
-   23 command: SELECT . columnlist FROM tablelist whereClauses
-   24        | SELECT . '*' FROM tablelist whereClauses
+   24 command: SELECT . columnlist FROM tablelist whereClauses
+   25        | SELECT . '*' FROM tablelist whereClauses
 
-    '*'   shift, and go to state 29
-    NAME  shift, and go to state 30
+    '*'   shift, and go to state 30
+    NAME  shift, and go to state 31
 
-    columnlist  go to state 31
-    column      go to state 32
+    columnlist  go to state 32
+    column      go to state 33
 
 
 state 11
@@ -326,7 +329,7 @@ state 11
     0 $accept: sql . $end
     2 sql: sql . command ';'
 
-    $end     shift, and go to state 33
+    $end     shift, and go to state 34
     CREATE   shift, and go to state 1
     DROP     shift, and go to state 2
     USE      shift, and go to state 3
@@ -338,70 +341,70 @@ state 11
     UPDATE   shift, and go to state 9
     SELECT   shift, and go to state 10
 
-    command  go to state 34
+    command  go to state 35
 
 
 state 12
 
     1 sql: command . ';'
 
-    ';'  shift, and go to state 35
+    ';'  shift, and go to state 36
 
 
 state 13
 
     3 command: CREATE DATABASE . NAME
 
-    NAME  shift, and go to state 36
+    NAME  shift, and go to state 37
 
 
 state 14
 
     9 command: CREATE TABLE . NAME '(' attributelist ')'
 
-    NAME  shift, and go to state 37
+    NAME  shift, and go to state 38
 
 
 state 15
 
-   13 command: CREATE INDEX . NAME ON NAME '(' NAME ')'
+   14 command: CREATE INDEX . NAME ON NAME '(' NAME ')'
 
-    NAME  shift, and go to state 38
+    NAME  shift, and go to state 39
 
 
 state 16
 
     4 command: DROP DATABASE . NAME
 
-    NAME  shift, and go to state 39
+    NAME  shift, and go to state 40
 
 
 state 17
 
    10 command: DROP TABLE . NAME
 
-    NAME  shift, and go to state 40
+    NAME  shift, and go to state 41
 
 
 state 18
 
-   14 command: DROP INDEX . NAME
+   15 command: DROP INDEX . NAME
 
-    NAME  shift, and go to state 41
+    NAME  shift, and go to state 42
 
 
 state 19
 
     5 command: USE DATABASE . NAME
 
-    NAME  shift, and go to state 42
+    NAME  shift, and go to state 43
 
 
 state 20
 
     6 command: SHOW DATABASE . NAME
 
-    NAME  shift, and go to state 43
+    NAME  shift, and go to state 44
 
 
 state 21
@@ -415,1390 +418,1411 @@ state 22
 
    11 command: SHOW TABLE . NAME
 
-    NAME  shift, and go to state 44
+    NAME  shift, and go to state 45
 
 
 state 23
 
-   12 command: SHOW TABLES .
+   13 command: SHOW TABLES .
 
-    $default  reduce using rule 12 (command)
+    $default  reduce using rule 13 (command)
 
 
 state 24
 
-    8 command: DESC NAME .
-
-    $default  reduce using rule 8 (command)
-
-
-state 25
-
-   15 command: ALTER TABLE . NAME ADD attribute
-   16        | ALTER TABLE . NAME DROP PRIMARY KEY
-   17        | ALTER TABLE . NAME DROP FOREIGN KEY '(' NAME ')'
-   18        | ALTER TABLE . NAME DROP NAME
-   19        | ALTER TABLE . NAME RENAME TO NAME
-
-    NAME  shift, and go to state 45
-
-
-state 26
-
-   20 command: INSERT INTO . NAME VALUES valuelists
+    8 command: DESC DATABASE . NAME
 
     NAME  shift, and go to state 46
 
 
-state 27
+state 25
 
-   21 command: DELETEC FROM . NAME whereClauses
+   12 command: DESC TABLE . NAME
 
     NAME  shift, and go to state 47
 
 
+state 26
+
+   16 command: ALTER TABLE . NAME ADD attribute
+   17        | ALTER TABLE . NAME DROP PRIMARY KEY
+   18        | ALTER TABLE . NAME DROP FOREIGN KEY '(' NAME ')'
+   19        | ALTER TABLE . NAME DROP NAME
+   20        | ALTER TABLE . NAME RENAME TO NAME
+
+    NAME  shift, and go to state 48
+
+
+state 27
+
+   21 command: INSERT INTO . NAME VALUES valuelists
+
+    NAME  shift, and go to state 49
+
+
 state 28
 
-   22 command: UPDATE NAME . SET setClauselist whereClauses
+   22 command: DELETEC FROM . NAME whereClauses
 
-    SET  shift, and go to state 48
+    NAME  shift, and go to state 50
 
 
 state 29
 
-   24 command: SELECT '*' . FROM tablelist whereClauses
+   23 command: UPDATE NAME . SET setClauselist whereClauses
 
-    FROM  shift, and go to state 49
+    SET  shift, and go to state 51
 
 
 state 30
 
-   36 column: NAME . '.' NAME
-   37       | NAME .
+   25 command: SELECT '*' . FROM tablelist whereClauses
 
-    '.'  shift, and go to state 50
-
-    $default  reduce using rule 37 (column)
+    FROM  shift, and go to state 52
 
 
 state 31
 
-   23 command: SELECT columnlist . FROM tablelist whereClauses
-   35 columnlist: columnlist . ',' column
+   37 column: NAME . '.' NAME
+   38       | NAME .
 
-    FROM  shift, and go to state 51
-    ','   shift, and go to state 52
+    '.'  shift, and go to state 53
+
+    $default  reduce using rule 38 (column)
 
 
 state 32
 
-   34 columnlist: column .
+   24 command: SELECT columnlist . FROM tablelist whereClauses
+   36 columnlist: columnlist . ',' column
 
-    $default  reduce using rule 34 (columnlist)
+    FROM  shift, and go to state 54
+    ','   shift, and go to state 55
 
 
 state 33
+
+   35 columnlist: column .
+
+    $default  reduce using rule 35 (columnlist)
+
+
+state 34
 
     0 $accept: sql $end .
 
     $default  accept
 
 
-state 34
+state 35
 
     2 sql: sql command . ';'
 
-    ';'  shift, and go to state 53
+    ';'  shift, and go to state 56
 
 
-state 35
+state 36
 
     1 sql: command ';' .
 
     $default  reduce using rule 1 (sql)
 
 
-state 36
+state 37
 
     3 command: CREATE DATABASE NAME .
 
     $default  reduce using rule 3 (command)
 
 
-state 37
+state 38
 
     9 command: CREATE TABLE NAME . '(' attributelist ')'
 
-    '('  shift, and go to state 54
-
-
-state 38
-
-   13 command: CREATE INDEX NAME . ON NAME '(' NAME ')'
-
-    ON  shift, and go to state 55
+    '('  shift, and go to state 57
 
 
 state 39
+
+   14 command: CREATE INDEX NAME . ON NAME '(' NAME ')'
+
+    ON  shift, and go to state 58
+
+
+state 40
 
     4 command: DROP DATABASE NAME .
 
     $default  reduce using rule 4 (command)
 
 
-state 40
+state 41
 
    10 command: DROP TABLE NAME .
 
     $default  reduce using rule 10 (command)
 
 
-state 41
-
-   14 command: DROP INDEX NAME .
-
-    $default  reduce using rule 14 (command)
-
-
 state 42
+
+   15 command: DROP INDEX NAME .
+
+    $default  reduce using rule 15 (command)
+
+
+state 43
 
     5 command: USE DATABASE NAME .
 
     $default  reduce using rule 5 (command)
 
 
-state 43
+state 44
 
     6 command: SHOW DATABASE NAME .
 
     $default  reduce using rule 6 (command)
 
 
-state 44
+state 45
 
    11 command: SHOW TABLE NAME .
 
     $default  reduce using rule 11 (command)
 
 
-state 45
-
-   15 command: ALTER TABLE NAME . ADD attribute
-   16        | ALTER TABLE NAME . DROP PRIMARY KEY
-   17        | ALTER TABLE NAME . DROP FOREIGN KEY '(' NAME ')'
-   18        | ALTER TABLE NAME . DROP NAME
-   19        | ALTER TABLE NAME . RENAME TO NAME
-
-    DROP    shift, and go to state 56
-    ADD     shift, and go to state 57
-    RENAME  shift, and go to state 58
-
-
 state 46
 
-   20 command: INSERT INTO NAME . VALUES valuelists
+    8 command: DESC DATABASE NAME .
 
-    VALUES  shift, and go to state 59
+    $default  reduce using rule 8 (command)
 
 
 state 47
 
-   21 command: DELETEC FROM NAME . whereClauses
+   12 command: DESC TABLE NAME .
 
-    WHERE  shift, and go to state 60
-
-    $default  reduce using rule 26 (whereClauses)
-
-    whereClauses  go to state 61
+    $default  reduce using rule 12 (command)
 
 
 state 48
 
-   22 command: UPDATE NAME SET . setClauselist whereClauses
+   16 command: ALTER TABLE NAME . ADD attribute
+   17        | ALTER TABLE NAME . DROP PRIMARY KEY
+   18        | ALTER TABLE NAME . DROP FOREIGN KEY '(' NAME ')'
+   19        | ALTER TABLE NAME . DROP NAME
+   20        | ALTER TABLE NAME . RENAME TO NAME
 
-    NAME  shift, and go to state 30
-
-    column         go to state 62
-    setClauselist  go to state 63
-    setClause      go to state 64
+    DROP    shift, and go to state 59
+    ADD     shift, and go to state 60
+    RENAME  shift, and go to state 61
 
 
 state 49
 
-   24 command: SELECT '*' FROM . tablelist whereClauses
+   21 command: INSERT INTO NAME . VALUES valuelists
 
-    NAME  shift, and go to state 65
-
-    tablelist  go to state 66
+    VALUES  shift, and go to state 62
 
 
 state 50
 
-   36 column: NAME '.' . NAME
+   22 command: DELETEC FROM NAME . whereClauses
 
-    NAME  shift, and go to state 67
+    WHERE  shift, and go to state 63
+
+    $default  reduce using rule 27 (whereClauses)
+
+    whereClauses  go to state 64
 
 
 state 51
 
-   23 command: SELECT columnlist FROM . tablelist whereClauses
+   23 command: UPDATE NAME SET . setClauselist whereClauses
 
-    NAME  shift, and go to state 65
+    NAME  shift, and go to state 31
 
-    tablelist  go to state 68
+    column         go to state 65
+    setClauselist  go to state 66
+    setClause      go to state 67
 
 
 state 52
 
-   35 columnlist: columnlist ',' . column
+   25 command: SELECT '*' FROM . tablelist whereClauses
 
-    NAME  shift, and go to state 30
+    NAME  shift, and go to state 68
 
-    column  go to state 69
+    tablelist  go to state 69
 
 
 state 53
+
+   37 column: NAME '.' . NAME
+
+    NAME  shift, and go to state 70
+
+
+state 54
+
+   24 command: SELECT columnlist FROM . tablelist whereClauses
+
+    NAME  shift, and go to state 68
+
+    tablelist  go to state 71
+
+
+state 55
+
+   36 columnlist: columnlist ',' . column
+
+    NAME  shift, and go to state 31
+
+    column  go to state 72
+
+
+state 56
 
     2 sql: sql command ';' .
 
     $default  reduce using rule 2 (sql)
 
 
-state 54
+state 57
 
     9 command: CREATE TABLE NAME '(' . attributelist ')'
 
-    PRIMARY  shift, and go to state 70
-    FOREIGN  shift, and go to state 71
-    NAME     shift, and go to state 72
+    PRIMARY  shift, and go to state 73
+    FOREIGN  shift, and go to state 74
+    NAME     shift, and go to state 75
 
-    attributelist  go to state 73
-    attribute      go to state 74
-
-
-state 55
-
-   13 command: CREATE INDEX NAME ON . NAME '(' NAME ')'
-
-    NAME  shift, and go to state 75
-
-
-state 56
-
-   16 command: ALTER TABLE NAME DROP . PRIMARY KEY
-   17        | ALTER TABLE NAME DROP . FOREIGN KEY '(' NAME ')'
-   18        | ALTER TABLE NAME DROP . NAME
-
-    PRIMARY  shift, and go to state 76
-    FOREIGN  shift, and go to state 77
-    NAME     shift, and go to state 78
-
-
-state 57
-
-   15 command: ALTER TABLE NAME ADD . attribute
-
-    PRIMARY  shift, and go to state 70
-    FOREIGN  shift, and go to state 71
-    NAME     shift, and go to state 72
-
-    attribute  go to state 79
+    attributelist  go to state 76
+    attribute      go to state 77
 
 
 state 58
 
-   19 command: ALTER TABLE NAME RENAME . TO NAME
+   14 command: CREATE INDEX NAME ON . NAME '(' NAME ')'
 
-    TO  shift, and go to state 80
+    NAME  shift, and go to state 78
 
 
 state 59
 
-   20 command: INSERT INTO NAME VALUES . valuelists
+   17 command: ALTER TABLE NAME DROP . PRIMARY KEY
+   18        | ALTER TABLE NAME DROP . FOREIGN KEY '(' NAME ')'
+   19        | ALTER TABLE NAME DROP . NAME
 
-    '('  shift, and go to state 81
-
-    valuelists  go to state 82
+    PRIMARY  shift, and go to state 79
+    FOREIGN  shift, and go to state 80
+    NAME     shift, and go to state 81
 
 
 state 60
 
-   25 whereClauses: WHERE . conditions
+   16 command: ALTER TABLE NAME ADD . attribute
 
-    NAME  shift, and go to state 30
+    PRIMARY  shift, and go to state 73
+    FOREIGN  shift, and go to state 74
+    NAME     shift, and go to state 75
 
-    conditions  go to state 83
-    comparison  go to state 84
-    column      go to state 85
+    attribute  go to state 82
 
 
 state 61
 
-   21 command: DELETEC FROM NAME whereClauses .
+   20 command: ALTER TABLE NAME RENAME . TO NAME
 
-    $default  reduce using rule 21 (command)
+    TO  shift, and go to state 83
 
 
 state 62
 
-   53 setClause: column . '=' expr
+   21 command: INSERT INTO NAME VALUES . valuelists
 
-    '='  shift, and go to state 86
+    '('  shift, and go to state 84
+
+    valuelists  go to state 85
 
 
 state 63
 
-   22 command: UPDATE NAME SET setClauselist . whereClauses
-   52 setClauselist: setClauselist . ',' setClause
+   26 whereClauses: WHERE . conditions
 
-    WHERE  shift, and go to state 60
-    ','    shift, and go to state 87
+    NAME  shift, and go to state 31
 
-    $default  reduce using rule 26 (whereClauses)
-
-    whereClauses  go to state 88
+    conditions  go to state 86
+    comparison  go to state 87
+    column      go to state 88
 
 
 state 64
 
-   51 setClauselist: setClause .
-
-    $default  reduce using rule 51 (setClauselist)
-
-
-state 65
-
-   32 tablelist: NAME .
-
-    $default  reduce using rule 32 (tablelist)
-
-
-state 66
-
-   24 command: SELECT '*' FROM tablelist . whereClauses
-   33 tablelist: tablelist . ',' NAME
-
-    WHERE  shift, and go to state 60
-    ','    shift, and go to state 89
-
-    $default  reduce using rule 26 (whereClauses)
-
-    whereClauses  go to state 90
-
-
-state 67
-
-   36 column: NAME '.' NAME .
-
-    $default  reduce using rule 36 (column)
-
-
-state 68
-
-   23 command: SELECT columnlist FROM tablelist . whereClauses
-   33 tablelist: tablelist . ',' NAME
-
-    WHERE  shift, and go to state 60
-    ','    shift, and go to state 89
-
-    $default  reduce using rule 26 (whereClauses)
-
-    whereClauses  go to state 91
-
-
-state 69
-
-   35 columnlist: columnlist ',' column .
-
-    $default  reduce using rule 35 (columnlist)
-
-
-state 70
-
-   60 attribute: PRIMARY . KEY '(' NAME ')'
-
-    KEY  shift, and go to state 92
-
-
-state 71
-
-   61 attribute: FOREIGN . KEY '(' NAME ')' REFERENCES NAME '(' NAME ')'
-
-    KEY  shift, and go to state 93
-
-
-state 72
-
-   56 attribute: NAME . type
-   57          | NAME . type NOT NULLC
-   58          | NAME . type DEFAULT value
-   59          | NAME . type NOT NULLC DEFAULT value
-
-    INTEGER      shift, and go to state 94
-    SMALLINT     shift, and go to state 95
-    CHARTYPE     shift, and go to state 96
-    DOUBLETYPE   shift, and go to state 97
-    FLOATTYPE    shift, and go to state 98
-    DATETYPE     shift, and go to state 99
-    NUMERICTYPE  shift, and go to state 100
-
-    type  go to state 101
-
-
-state 73
-
-    9 command: CREATE TABLE NAME '(' attributelist . ')'
-   55 attributelist: attributelist . ',' attribute
-
-    ')'  shift, and go to state 102
-    ','  shift, and go to state 103
-
-
-state 74
-
-   54 attributelist: attribute .
-
-    $default  reduce using rule 54 (attributelist)
-
-
-state 75
-
-   13 command: CREATE INDEX NAME ON NAME . '(' NAME ')'
-
-    '('  shift, and go to state 104
-
-
-state 76
-
-   16 command: ALTER TABLE NAME DROP PRIMARY . KEY
-
-    KEY  shift, and go to state 105
-
-
-state 77
-
-   17 command: ALTER TABLE NAME DROP FOREIGN . KEY '(' NAME ')'
-
-    KEY  shift, and go to state 106
-
-
-state 78
-
-   18 command: ALTER TABLE NAME DROP NAME .
-
-    $default  reduce using rule 18 (command)
-
-
-state 79
-
-   15 command: ALTER TABLE NAME ADD attribute .
-
-    $default  reduce using rule 15 (command)
-
-
-state 80
-
-   19 command: ALTER TABLE NAME RENAME TO . NAME
-
-    NAME  shift, and go to state 107
-
-
-state 81
-
-   69 valuelists: '(' . valuelist ')'
-
-    TEXT     shift, and go to state 108
-    INUM     shift, and go to state 109
-    FNUM     shift, and go to state 110
-    DATENUM  shift, and go to state 111
-
-    valuelist  go to state 112
-    value      go to state 113
-
-
-state 82
-
-   20 command: INSERT INTO NAME VALUES valuelists .
-   70 valuelists: valuelists . ',' '(' valuelist ')'
-
-    ','  shift, and go to state 114
-
-    $default  reduce using rule 20 (command)
-
-
-state 83
-
-   25 whereClauses: WHERE conditions .
-   28 conditions: conditions . AND comparison
-
-    AND  shift, and go to state 115
-
-    $default  reduce using rule 25 (whereClauses)
-
-
-state 84
-
-   27 conditions: comparison .
-
-    $default  reduce using rule 27 (conditions)
-
-
-state 85
-
-   29 comparison: column . op expr
-   30           | column . IS NULLC
-   31           | column . IS NOT NULLC
-
-    IS  shift, and go to state 116
-    EQ  shift, and go to state 117
-    GT  shift, and go to state 118
-    LT  shift, and go to state 119
-    GE  shift, and go to state 120
-    LE  shift, and go to state 121
-    NE  shift, and go to state 122
-
-    op  go to state 123
-
-
-state 86
-
-   53 setClause: column '=' . expr
-
-    NAME     shift, and go to state 30
-    TEXT     shift, and go to state 108
-    INUM     shift, and go to state 109
-    FNUM     shift, and go to state 110
-    DATENUM  shift, and go to state 111
-
-    column  go to state 124
-    expr    go to state 125
-    value   go to state 126
-
-
-state 87
-
-   52 setClauselist: setClauselist ',' . setClause
-
-    NAME  shift, and go to state 30
-
-    column     go to state 62
-    setClause  go to state 127
-
-
-state 88
-
-   22 command: UPDATE NAME SET setClauselist whereClauses .
+   22 command: DELETEC FROM NAME whereClauses .
 
     $default  reduce using rule 22 (command)
 
 
+state 65
+
+   54 setClause: column . '=' expr
+
+    '='  shift, and go to state 89
+
+
+state 66
+
+   23 command: UPDATE NAME SET setClauselist . whereClauses
+   53 setClauselist: setClauselist . ',' setClause
+
+    WHERE  shift, and go to state 63
+    ','    shift, and go to state 90
+
+    $default  reduce using rule 27 (whereClauses)
+
+    whereClauses  go to state 91
+
+
+state 67
+
+   52 setClauselist: setClause .
+
+    $default  reduce using rule 52 (setClauselist)
+
+
+state 68
+
+   33 tablelist: NAME .
+
+    $default  reduce using rule 33 (tablelist)
+
+
+state 69
+
+   25 command: SELECT '*' FROM tablelist . whereClauses
+   34 tablelist: tablelist . ',' NAME
+
+    WHERE  shift, and go to state 63
+    ','    shift, and go to state 92
+
+    $default  reduce using rule 27 (whereClauses)
+
+    whereClauses  go to state 93
+
+
+state 70
+
+   37 column: NAME '.' NAME .
+
+    $default  reduce using rule 37 (column)
+
+
+state 71
+
+   24 command: SELECT columnlist FROM tablelist . whereClauses
+   34 tablelist: tablelist . ',' NAME
+
+    WHERE  shift, and go to state 63
+    ','    shift, and go to state 92
+
+    $default  reduce using rule 27 (whereClauses)
+
+    whereClauses  go to state 94
+
+
+state 72
+
+   36 columnlist: columnlist ',' column .
+
+    $default  reduce using rule 36 (columnlist)
+
+
+state 73
+
+   61 attribute: PRIMARY . KEY '(' NAME ')'
+
+    KEY  shift, and go to state 95
+
+
+state 74
+
+   62 attribute: FOREIGN . KEY '(' NAME ')' REFERENCES NAME '(' NAME ')'
+
+    KEY  shift, and go to state 96
+
+
+state 75
+
+   57 attribute: NAME . type
+   58          | NAME . type NOT NULLC
+   59          | NAME . type DEFAULT value
+   60          | NAME . type NOT NULLC DEFAULT value
+
+    INTEGER      shift, and go to state 97
+    SMALLINT     shift, and go to state 98
+    CHARTYPE     shift, and go to state 99
+    DOUBLETYPE   shift, and go to state 100
+    FLOATTYPE    shift, and go to state 101
+    DATETYPE     shift, and go to state 102
+    NUMERICTYPE  shift, and go to state 103
+
+    type  go to state 104
+
+
+state 76
+
+    9 command: CREATE TABLE NAME '(' attributelist . ')'
+   56 attributelist: attributelist . ',' attribute
+
+    ')'  shift, and go to state 105
+    ','  shift, and go to state 106
+
+
+state 77
+
+   55 attributelist: attribute .
+
+    $default  reduce using rule 55 (attributelist)
+
+
+state 78
+
+   14 command: CREATE INDEX NAME ON NAME . '(' NAME ')'
+
+    '('  shift, and go to state 107
+
+
+state 79
+
+   17 command: ALTER TABLE NAME DROP PRIMARY . KEY
+
+    KEY  shift, and go to state 108
+
+
+state 80
+
+   18 command: ALTER TABLE NAME DROP FOREIGN . KEY '(' NAME ')'
+
+    KEY  shift, and go to state 109
+
+
+state 81
+
+   19 command: ALTER TABLE NAME DROP NAME .
+
+    $default  reduce using rule 19 (command)
+
+
+state 82
+
+   16 command: ALTER TABLE NAME ADD attribute .
+
+    $default  reduce using rule 16 (command)
+
+
+state 83
+
+   20 command: ALTER TABLE NAME RENAME TO . NAME
+
+    NAME  shift, and go to state 110
+
+
+state 84
+
+   70 valuelists: '(' . valuelist ')'
+
+    TEXT     shift, and go to state 111
+    INUM     shift, and go to state 112
+    FNUM     shift, and go to state 113
+    DATENUM  shift, and go to state 114
+
+    valuelist  go to state 115
+    value      go to state 116
+
+
+state 85
+
+   21 command: INSERT INTO NAME VALUES valuelists .
+   71 valuelists: valuelists . ',' '(' valuelist ')'
+
+    ','  shift, and go to state 117
+
+    $default  reduce using rule 21 (command)
+
+
+state 86
+
+   26 whereClauses: WHERE conditions .
+   29 conditions: conditions . AND comparison
+
+    AND  shift, and go to state 118
+
+    $default  reduce using rule 26 (whereClauses)
+
+
+state 87
+
+   28 conditions: comparison .
+
+    $default  reduce using rule 28 (conditions)
+
+
+state 88
+
+   30 comparison: column . op expr
+   31           | column . IS NULLC
+   32           | column . IS NOT NULLC
+
+    IS  shift, and go to state 119
+    EQ  shift, and go to state 120
+    GT  shift, and go to state 121
+    LT  shift, and go to state 122
+    GE  shift, and go to state 123
+    LE  shift, and go to state 124
+    NE  shift, and go to state 125
+
+    op  go to state 126
+
+
 state 89
 
-   33 tablelist: tablelist ',' . NAME
+   54 setClause: column '=' . expr
 
-    NAME  shift, and go to state 128
+    NAME     shift, and go to state 31
+    TEXT     shift, and go to state 111
+    INUM     shift, and go to state 112
+    FNUM     shift, and go to state 113
+    DATENUM  shift, and go to state 114
+
+    column  go to state 127
+    expr    go to state 128
+    value   go to state 129
 
 
 state 90
 
-   24 command: SELECT '*' FROM tablelist whereClauses .
+   53 setClauselist: setClauselist ',' . setClause
 
-    $default  reduce using rule 24 (command)
+    NAME  shift, and go to state 31
+
+    column     go to state 65
+    setClause  go to state 130
 
 
 state 91
 
-   23 command: SELECT columnlist FROM tablelist whereClauses .
+   23 command: UPDATE NAME SET setClauselist whereClauses .
 
     $default  reduce using rule 23 (command)
 
 
 state 92
 
-   60 attribute: PRIMARY KEY . '(' NAME ')'
+   34 tablelist: tablelist ',' . NAME
 
-    '('  shift, and go to state 129
+    NAME  shift, and go to state 131
 
 
 state 93
 
-   61 attribute: FOREIGN KEY . '(' NAME ')' REFERENCES NAME '(' NAME ')'
+   25 command: SELECT '*' FROM tablelist whereClauses .
 
-    '('  shift, and go to state 130
+    $default  reduce using rule 25 (command)
 
 
 state 94
 
-   62 type: INTEGER . '(' INUM ')'
+   24 command: SELECT columnlist FROM tablelist whereClauses .
 
-    '('  shift, and go to state 131
+    $default  reduce using rule 24 (command)
 
 
 state 95
 
-   63 type: SMALLINT .
-
-    $default  reduce using rule 63 (type)
-
-
-state 96
-
-   64 type: CHARTYPE . '(' INUM ')'
+   61 attribute: PRIMARY KEY . '(' NAME ')'
 
     '('  shift, and go to state 132
 
 
-state 97
+state 96
 
-   65 type: DOUBLETYPE .
-
-    $default  reduce using rule 65 (type)
-
-
-state 98
-
-   66 type: FLOATTYPE .
-
-    $default  reduce using rule 66 (type)
-
-
-state 99
-
-   67 type: DATETYPE .
-
-    $default  reduce using rule 67 (type)
-
-
-state 100
-
-   68 type: NUMERICTYPE . '(' INUM ',' INUM ')'
+   62 attribute: FOREIGN KEY . '(' NAME ')' REFERENCES NAME '(' NAME ')'
 
     '('  shift, and go to state 133
 
 
+state 97
+
+   63 type: INTEGER . '(' INUM ')'
+
+    '('  shift, and go to state 134
+
+
+state 98
+
+   64 type: SMALLINT .
+
+    $default  reduce using rule 64 (type)
+
+
+state 99
+
+   65 type: CHARTYPE . '(' INUM ')'
+
+    '('  shift, and go to state 135
+
+
+state 100
+
+   66 type: DOUBLETYPE .
+
+    $default  reduce using rule 66 (type)
+
+
 state 101
 
-   56 attribute: NAME type .
-   57          | NAME type . NOT NULLC
-   58          | NAME type . DEFAULT value
-   59          | NAME type . NOT NULLC DEFAULT value
+   67 type: FLOATTYPE .
 
-    NOT      shift, and go to state 134
-    DEFAULT  shift, and go to state 135
-
-    $default  reduce using rule 56 (attribute)
+    $default  reduce using rule 67 (type)
 
 
 state 102
+
+   68 type: DATETYPE .
+
+    $default  reduce using rule 68 (type)
+
+
+state 103
+
+   69 type: NUMERICTYPE . '(' INUM ',' INUM ')'
+
+    '('  shift, and go to state 136
+
+
+state 104
+
+   57 attribute: NAME type .
+   58          | NAME type . NOT NULLC
+   59          | NAME type . DEFAULT value
+   60          | NAME type . NOT NULLC DEFAULT value
+
+    NOT      shift, and go to state 137
+    DEFAULT  shift, and go to state 138
+
+    $default  reduce using rule 57 (attribute)
+
+
+state 105
 
     9 command: CREATE TABLE NAME '(' attributelist ')' .
 
     $default  reduce using rule 9 (command)
 
 
-state 103
-
-   55 attributelist: attributelist ',' . attribute
-
-    PRIMARY  shift, and go to state 70
-    FOREIGN  shift, and go to state 71
-    NAME     shift, and go to state 72
-
-    attribute  go to state 136
-
-
-state 104
-
-   13 command: CREATE INDEX NAME ON NAME '(' . NAME ')'
-
-    NAME  shift, and go to state 137
-
-
-state 105
-
-   16 command: ALTER TABLE NAME DROP PRIMARY KEY .
-
-    $default  reduce using rule 16 (command)
-
-
 state 106
 
-   17 command: ALTER TABLE NAME DROP FOREIGN KEY . '(' NAME ')'
+   56 attributelist: attributelist ',' . attribute
 
-    '('  shift, and go to state 138
+    PRIMARY  shift, and go to state 73
+    FOREIGN  shift, and go to state 74
+    NAME     shift, and go to state 75
+
+    attribute  go to state 139
 
 
 state 107
 
-   19 command: ALTER TABLE NAME RENAME TO NAME .
+   14 command: CREATE INDEX NAME ON NAME '(' . NAME ')'
 
-    $default  reduce using rule 19 (command)
+    NAME  shift, and go to state 140
 
 
 state 108
 
-   73 value: TEXT .
+   17 command: ALTER TABLE NAME DROP PRIMARY KEY .
 
-    $default  reduce using rule 73 (value)
+    $default  reduce using rule 17 (command)
 
 
 state 109
 
-   74 value: INUM .
-
-    $default  reduce using rule 74 (value)
-
-
-state 110
-
-   75 value: FNUM .
-
-    $default  reduce using rule 75 (value)
-
-
-state 111
-
-   76 value: DATENUM .
-
-    $default  reduce using rule 76 (value)
-
-
-state 112
-
-   69 valuelists: '(' valuelist . ')'
-   72 valuelist: valuelist . ',' value
-
-    ')'  shift, and go to state 139
-    ','  shift, and go to state 140
-
-
-state 113
-
-   71 valuelist: value .
-
-    $default  reduce using rule 71 (valuelist)
-
-
-state 114
-
-   70 valuelists: valuelists ',' . '(' valuelist ')'
+   18 command: ALTER TABLE NAME DROP FOREIGN KEY . '(' NAME ')'
 
     '('  shift, and go to state 141
 
 
+state 110
+
+   20 command: ALTER TABLE NAME RENAME TO NAME .
+
+    $default  reduce using rule 20 (command)
+
+
+state 111
+
+   74 value: TEXT .
+
+    $default  reduce using rule 74 (value)
+
+
+state 112
+
+   75 value: INUM .
+
+    $default  reduce using rule 75 (value)
+
+
+state 113
+
+   76 value: FNUM .
+
+    $default  reduce using rule 76 (value)
+
+
+state 114
+
+   77 value: DATENUM .
+
+    $default  reduce using rule 77 (value)
+
+
 state 115
 
-   28 conditions: conditions AND . comparison
+   70 valuelists: '(' valuelist . ')'
+   73 valuelist: valuelist . ',' value
 
-    NAME  shift, and go to state 30
-
-    comparison  go to state 142
-    column      go to state 85
+    ')'  shift, and go to state 142
+    ','  shift, and go to state 143
 
 
 state 116
 
-   30 comparison: column IS . NULLC
-   31           | column IS . NOT NULLC
+   72 valuelist: value .
 
-    NOT    shift, and go to state 143
-    NULLC  shift, and go to state 144
+    $default  reduce using rule 72 (valuelist)
 
 
 state 117
 
-   45 op: EQ .
+   71 valuelists: valuelists ',' . '(' valuelist ')'
 
-    $default  reduce using rule 45 (op)
+    '('  shift, and go to state 144
 
 
 state 118
 
-   46 op: GT .
+   29 conditions: conditions AND . comparison
 
-    $default  reduce using rule 46 (op)
+    NAME  shift, and go to state 31
+
+    comparison  go to state 145
+    column      go to state 88
 
 
 state 119
 
-   47 op: LT .
+   31 comparison: column IS . NULLC
+   32           | column IS . NOT NULLC
 
-    $default  reduce using rule 47 (op)
+    NOT    shift, and go to state 146
+    NULLC  shift, and go to state 147
 
 
 state 120
 
-   48 op: GE .
+   46 op: EQ .
 
-    $default  reduce using rule 48 (op)
+    $default  reduce using rule 46 (op)
 
 
 state 121
 
-   49 op: LE .
+   47 op: GT .
 
-    $default  reduce using rule 49 (op)
+    $default  reduce using rule 47 (op)
 
 
 state 122
 
-   50 op: NE .
+   48 op: LT .
 
-    $default  reduce using rule 50 (op)
+    $default  reduce using rule 48 (op)
 
 
 state 123
 
-   29 comparison: column op . expr
+   49 op: GE .
 
-    NAME     shift, and go to state 30
-    TEXT     shift, and go to state 108
-    INUM     shift, and go to state 109
-    FNUM     shift, and go to state 110
-    DATENUM  shift, and go to state 111
-
-    column  go to state 124
-    expr    go to state 145
-    value   go to state 126
+    $default  reduce using rule 49 (op)
 
 
 state 124
 
-   39 expr: column .
+   50 op: LE .
 
-    $default  reduce using rule 39 (expr)
+    $default  reduce using rule 50 (op)
 
 
 state 125
 
-   40 expr: expr . '+' expr
-   41     | expr . '-' expr
-   42     | expr . '*' expr
-   43     | expr . '/' expr
-   44     | expr . '%' expr
-   53 setClause: column '=' expr .
+   51 op: NE .
 
-    '+'  shift, and go to state 146
-    '-'  shift, and go to state 147
-    '*'  shift, and go to state 148
-    '/'  shift, and go to state 149
-    '%'  shift, and go to state 150
-
-    $default  reduce using rule 53 (setClause)
+    $default  reduce using rule 51 (op)
 
 
 state 126
 
-   38 expr: value .
+   30 comparison: column op . expr
 
-    $default  reduce using rule 38 (expr)
+    NAME     shift, and go to state 31
+    TEXT     shift, and go to state 111
+    INUM     shift, and go to state 112
+    FNUM     shift, and go to state 113
+    DATENUM  shift, and go to state 114
+
+    column  go to state 127
+    expr    go to state 148
+    value   go to state 129
 
 
 state 127
 
-   52 setClauselist: setClauselist ',' setClause .
+   40 expr: column .
 
-    $default  reduce using rule 52 (setClauselist)
+    $default  reduce using rule 40 (expr)
 
 
 state 128
 
-   33 tablelist: tablelist ',' NAME .
+   41 expr: expr . '+' expr
+   42     | expr . '-' expr
+   43     | expr . '*' expr
+   44     | expr . '/' expr
+   45     | expr . '%' expr
+   54 setClause: column '=' expr .
 
-    $default  reduce using rule 33 (tablelist)
+    '+'  shift, and go to state 149
+    '-'  shift, and go to state 150
+    '*'  shift, and go to state 151
+    '/'  shift, and go to state 152
+    '%'  shift, and go to state 153
+
+    $default  reduce using rule 54 (setClause)
 
 
 state 129
 
-   60 attribute: PRIMARY KEY '(' . NAME ')'
+   39 expr: value .
 
-    NAME  shift, and go to state 151
+    $default  reduce using rule 39 (expr)
 
 
 state 130
 
-   61 attribute: FOREIGN KEY '(' . NAME ')' REFERENCES NAME '(' NAME ')'
+   53 setClauselist: setClauselist ',' setClause .
 
-    NAME  shift, and go to state 152
+    $default  reduce using rule 53 (setClauselist)
 
 
 state 131
 
-   62 type: INTEGER '(' . INUM ')'
+   34 tablelist: tablelist ',' NAME .
 
-    INUM  shift, and go to state 153
+    $default  reduce using rule 34 (tablelist)
 
 
 state 132
 
-   64 type: CHARTYPE '(' . INUM ')'
+   61 attribute: PRIMARY KEY '(' . NAME ')'
 
-    INUM  shift, and go to state 154
+    NAME  shift, and go to state 154
 
 
 state 133
 
-   68 type: NUMERICTYPE '(' . INUM ',' INUM ')'
+   62 attribute: FOREIGN KEY '(' . NAME ')' REFERENCES NAME '(' NAME ')'
 
-    INUM  shift, and go to state 155
+    NAME  shift, and go to state 155
 
 
 state 134
 
-   57 attribute: NAME type NOT . NULLC
-   59          | NAME type NOT . NULLC DEFAULT value
+   63 type: INTEGER '(' . INUM ')'
 
-    NULLC  shift, and go to state 156
+    INUM  shift, and go to state 156
 
 
 state 135
 
-   58 attribute: NAME type DEFAULT . value
+   65 type: CHARTYPE '(' . INUM ')'
 
-    TEXT     shift, and go to state 108
-    INUM     shift, and go to state 109
-    FNUM     shift, and go to state 110
-    DATENUM  shift, and go to state 111
-
-    value  go to state 157
+    INUM  shift, and go to state 157
 
 
 state 136
 
-   55 attributelist: attributelist ',' attribute .
+   69 type: NUMERICTYPE '(' . INUM ',' INUM ')'
 
-    $default  reduce using rule 55 (attributelist)
+    INUM  shift, and go to state 158
 
 
 state 137
 
-   13 command: CREATE INDEX NAME ON NAME '(' NAME . ')'
+   58 attribute: NAME type NOT . NULLC
+   60          | NAME type NOT . NULLC DEFAULT value
 
-    ')'  shift, and go to state 158
+    NULLC  shift, and go to state 159
 
 
 state 138
 
-   17 command: ALTER TABLE NAME DROP FOREIGN KEY '(' . NAME ')'
+   59 attribute: NAME type DEFAULT . value
 
-    NAME  shift, and go to state 159
-
-
-state 139
-
-   69 valuelists: '(' valuelist ')' .
-
-    $default  reduce using rule 69 (valuelists)
-
-
-state 140
-
-   72 valuelist: valuelist ',' . value
-
-    TEXT     shift, and go to state 108
-    INUM     shift, and go to state 109
-    FNUM     shift, and go to state 110
-    DATENUM  shift, and go to state 111
+    TEXT     shift, and go to state 111
+    INUM     shift, and go to state 112
+    FNUM     shift, and go to state 113
+    DATENUM  shift, and go to state 114
 
     value  go to state 160
 
 
+state 139
+
+   56 attributelist: attributelist ',' attribute .
+
+    $default  reduce using rule 56 (attributelist)
+
+
+state 140
+
+   14 command: CREATE INDEX NAME ON NAME '(' NAME . ')'
+
+    ')'  shift, and go to state 161
+
+
 state 141
 
-   70 valuelists: valuelists ',' '(' . valuelist ')'
+   18 command: ALTER TABLE NAME DROP FOREIGN KEY '(' . NAME ')'
 
-    TEXT     shift, and go to state 108
-    INUM     shift, and go to state 109
-    FNUM     shift, and go to state 110
-    DATENUM  shift, and go to state 111
-
-    valuelist  go to state 161
-    value      go to state 113
+    NAME  shift, and go to state 162
 
 
 state 142
 
-   28 conditions: conditions AND comparison .
+   70 valuelists: '(' valuelist ')' .
 
-    $default  reduce using rule 28 (conditions)
+    $default  reduce using rule 70 (valuelists)
 
 
 state 143
 
-   31 comparison: column IS NOT . NULLC
+   73 valuelist: valuelist ',' . value
 
-    NULLC  shift, and go to state 162
+    TEXT     shift, and go to state 111
+    INUM     shift, and go to state 112
+    FNUM     shift, and go to state 113
+    DATENUM  shift, and go to state 114
+
+    value  go to state 163
 
 
 state 144
 
-   30 comparison: column IS NULLC .
+   71 valuelists: valuelists ',' '(' . valuelist ')'
 
-    $default  reduce using rule 30 (comparison)
+    TEXT     shift, and go to state 111
+    INUM     shift, and go to state 112
+    FNUM     shift, and go to state 113
+    DATENUM  shift, and go to state 114
+
+    valuelist  go to state 164
+    value      go to state 116
 
 
 state 145
 
-   29 comparison: column op expr .
-   40 expr: expr . '+' expr
-   41     | expr . '-' expr
-   42     | expr . '*' expr
-   43     | expr . '/' expr
-   44     | expr . '%' expr
+   29 conditions: conditions AND comparison .
 
-    '+'  shift, and go to state 146
-    '-'  shift, and go to state 147
-    '*'  shift, and go to state 148
-    '/'  shift, and go to state 149
-    '%'  shift, and go to state 150
-
-    $default  reduce using rule 29 (comparison)
+    $default  reduce using rule 29 (conditions)
 
 
 state 146
 
-   40 expr: expr '+' . expr
+   32 comparison: column IS NOT . NULLC
 
-    NAME     shift, and go to state 30
-    TEXT     shift, and go to state 108
-    INUM     shift, and go to state 109
-    FNUM     shift, and go to state 110
-    DATENUM  shift, and go to state 111
-
-    column  go to state 124
-    expr    go to state 163
-    value   go to state 126
+    NULLC  shift, and go to state 165
 
 
 state 147
 
-   41 expr: expr '-' . expr
+   31 comparison: column IS NULLC .
 
-    NAME     shift, and go to state 30
-    TEXT     shift, and go to state 108
-    INUM     shift, and go to state 109
-    FNUM     shift, and go to state 110
-    DATENUM  shift, and go to state 111
-
-    column  go to state 124
-    expr    go to state 164
-    value   go to state 126
+    $default  reduce using rule 31 (comparison)
 
 
 state 148
 
-   42 expr: expr '*' . expr
+   30 comparison: column op expr .
+   41 expr: expr . '+' expr
+   42     | expr . '-' expr
+   43     | expr . '*' expr
+   44     | expr . '/' expr
+   45     | expr . '%' expr
 
-    NAME     shift, and go to state 30
-    TEXT     shift, and go to state 108
-    INUM     shift, and go to state 109
-    FNUM     shift, and go to state 110
-    DATENUM  shift, and go to state 111
+    '+'  shift, and go to state 149
+    '-'  shift, and go to state 150
+    '*'  shift, and go to state 151
+    '/'  shift, and go to state 152
+    '%'  shift, and go to state 153
 
-    column  go to state 124
-    expr    go to state 165
-    value   go to state 126
+    $default  reduce using rule 30 (comparison)
 
 
 state 149
 
-   43 expr: expr '/' . expr
+   41 expr: expr '+' . expr
 
-    NAME     shift, and go to state 30
-    TEXT     shift, and go to state 108
-    INUM     shift, and go to state 109
-    FNUM     shift, and go to state 110
-    DATENUM  shift, and go to state 111
+    NAME     shift, and go to state 31
+    TEXT     shift, and go to state 111
+    INUM     shift, and go to state 112
+    FNUM     shift, and go to state 113
+    DATENUM  shift, and go to state 114
 
-    column  go to state 124
+    column  go to state 127
     expr    go to state 166
-    value   go to state 126
+    value   go to state 129
 
 
 state 150
 
-   44 expr: expr '%' . expr
+   42 expr: expr '-' . expr
 
-    NAME     shift, and go to state 30
-    TEXT     shift, and go to state 108
-    INUM     shift, and go to state 109
-    FNUM     shift, and go to state 110
-    DATENUM  shift, and go to state 111
+    NAME     shift, and go to state 31
+    TEXT     shift, and go to state 111
+    INUM     shift, and go to state 112
+    FNUM     shift, and go to state 113
+    DATENUM  shift, and go to state 114
 
-    column  go to state 124
+    column  go to state 127
     expr    go to state 167
-    value   go to state 126
+    value   go to state 129
 
 
 state 151
 
-   60 attribute: PRIMARY KEY '(' NAME . ')'
+   43 expr: expr '*' . expr
 
-    ')'  shift, and go to state 168
+    NAME     shift, and go to state 31
+    TEXT     shift, and go to state 111
+    INUM     shift, and go to state 112
+    FNUM     shift, and go to state 113
+    DATENUM  shift, and go to state 114
+
+    column  go to state 127
+    expr    go to state 168
+    value   go to state 129
 
 
 state 152
 
-   61 attribute: FOREIGN KEY '(' NAME . ')' REFERENCES NAME '(' NAME ')'
+   44 expr: expr '/' . expr
 
-    ')'  shift, and go to state 169
+    NAME     shift, and go to state 31
+    TEXT     shift, and go to state 111
+    INUM     shift, and go to state 112
+    FNUM     shift, and go to state 113
+    DATENUM  shift, and go to state 114
+
+    column  go to state 127
+    expr    go to state 169
+    value   go to state 129
 
 
 state 153
 
-   62 type: INTEGER '(' INUM . ')'
+   45 expr: expr '%' . expr
 
-    ')'  shift, and go to state 170
+    NAME     shift, and go to state 31
+    TEXT     shift, and go to state 111
+    INUM     shift, and go to state 112
+    FNUM     shift, and go to state 113
+    DATENUM  shift, and go to state 114
+
+    column  go to state 127
+    expr    go to state 170
+    value   go to state 129
 
 
 state 154
 
-   64 type: CHARTYPE '(' INUM . ')'
+   61 attribute: PRIMARY KEY '(' NAME . ')'
 
     ')'  shift, and go to state 171
 
 
 state 155
 
-   68 type: NUMERICTYPE '(' INUM . ',' INUM ')'
+   62 attribute: FOREIGN KEY '(' NAME . ')' REFERENCES NAME '(' NAME ')'
 
-    ','  shift, and go to state 172
+    ')'  shift, and go to state 172
 
 
 state 156
 
-   57 attribute: NAME type NOT NULLC .
-   59          | NAME type NOT NULLC . DEFAULT value
+   63 type: INTEGER '(' INUM . ')'
 
-    DEFAULT  shift, and go to state 173
-
-    $default  reduce using rule 57 (attribute)
+    ')'  shift, and go to state 173
 
 
 state 157
 
-   58 attribute: NAME type DEFAULT value .
-
-    $default  reduce using rule 58 (attribute)
-
-
-state 158
-
-   13 command: CREATE INDEX NAME ON NAME '(' NAME ')' .
-
-    $default  reduce using rule 13 (command)
-
-
-state 159
-
-   17 command: ALTER TABLE NAME DROP FOREIGN KEY '(' NAME . ')'
+   65 type: CHARTYPE '(' INUM . ')'
 
     ')'  shift, and go to state 174
 
 
+state 158
+
+   69 type: NUMERICTYPE '(' INUM . ',' INUM ')'
+
+    ','  shift, and go to state 175
+
+
+state 159
+
+   58 attribute: NAME type NOT NULLC .
+   60          | NAME type NOT NULLC . DEFAULT value
+
+    DEFAULT  shift, and go to state 176
+
+    $default  reduce using rule 58 (attribute)
+
+
 state 160
 
-   72 valuelist: valuelist ',' value .
-
-    $default  reduce using rule 72 (valuelist)
-
-
-state 161
-
-   70 valuelists: valuelists ',' '(' valuelist . ')'
-   72 valuelist: valuelist . ',' value
-
-    ')'  shift, and go to state 175
-    ','  shift, and go to state 140
-
-
-state 162
-
-   31 comparison: column IS NOT NULLC .
-
-    $default  reduce using rule 31 (comparison)
-
-
-state 163
-
-   40 expr: expr . '+' expr
-   40     | expr '+' expr .
-   41     | expr . '-' expr
-   42     | expr . '*' expr
-   43     | expr . '/' expr
-   44     | expr . '%' expr
-
-    '*'  shift, and go to state 148
-    '/'  shift, and go to state 149
-    '%'  shift, and go to state 150
-
-    $default  reduce using rule 40 (expr)
-
-
-state 164
-
-   40 expr: expr . '+' expr
-   41     | expr . '-' expr
-   41     | expr '-' expr .
-   42     | expr . '*' expr
-   43     | expr . '/' expr
-   44     | expr . '%' expr
-
-    '*'  shift, and go to state 148
-    '/'  shift, and go to state 149
-    '%'  shift, and go to state 150
-
-    $default  reduce using rule 41 (expr)
-
-
-state 165
-
-   40 expr: expr . '+' expr
-   41     | expr . '-' expr
-   42     | expr . '*' expr
-   42     | expr '*' expr .
-   43     | expr . '/' expr
-   44     | expr . '%' expr
-
-    $default  reduce using rule 42 (expr)
-
-
-state 166
-
-   40 expr: expr . '+' expr
-   41     | expr . '-' expr
-   42     | expr . '*' expr
-   43     | expr . '/' expr
-   43     | expr '/' expr .
-   44     | expr . '%' expr
-
-    $default  reduce using rule 43 (expr)
-
-
-state 167
-
-   40 expr: expr . '+' expr
-   41     | expr . '-' expr
-   42     | expr . '*' expr
-   43     | expr . '/' expr
-   44     | expr . '%' expr
-   44     | expr '%' expr .
-
-    $default  reduce using rule 44 (expr)
-
-
-state 168
-
-   60 attribute: PRIMARY KEY '(' NAME ')' .
-
-    $default  reduce using rule 60 (attribute)
-
-
-state 169
-
-   61 attribute: FOREIGN KEY '(' NAME ')' . REFERENCES NAME '(' NAME ')'
-
-    REFERENCES  shift, and go to state 176
-
-
-state 170
-
-   62 type: INTEGER '(' INUM ')' .
-
-    $default  reduce using rule 62 (type)
-
-
-state 171
-
-   64 type: CHARTYPE '(' INUM ')' .
-
-    $default  reduce using rule 64 (type)
-
-
-state 172
-
-   68 type: NUMERICTYPE '(' INUM ',' . INUM ')'
-
-    INUM  shift, and go to state 177
-
-
-state 173
-
-   59 attribute: NAME type NOT NULLC DEFAULT . value
-
-    TEXT     shift, and go to state 108
-    INUM     shift, and go to state 109
-    FNUM     shift, and go to state 110
-    DATENUM  shift, and go to state 111
-
-    value  go to state 178
-
-
-state 174
-
-   17 command: ALTER TABLE NAME DROP FOREIGN KEY '(' NAME ')' .
-
-    $default  reduce using rule 17 (command)
-
-
-state 175
-
-   70 valuelists: valuelists ',' '(' valuelist ')' .
-
-    $default  reduce using rule 70 (valuelists)
-
-
-state 176
-
-   61 attribute: FOREIGN KEY '(' NAME ')' REFERENCES . NAME '(' NAME ')'
-
-    NAME  shift, and go to state 179
-
-
-state 177
-
-   68 type: NUMERICTYPE '(' INUM ',' INUM . ')'
-
-    ')'  shift, and go to state 180
-
-
-state 178
-
-   59 attribute: NAME type NOT NULLC DEFAULT value .
+   59 attribute: NAME type DEFAULT value .
 
     $default  reduce using rule 59 (attribute)
 
 
+state 161
+
+   14 command: CREATE INDEX NAME ON NAME '(' NAME ')' .
+
+    $default  reduce using rule 14 (command)
+
+
+state 162
+
+   18 command: ALTER TABLE NAME DROP FOREIGN KEY '(' NAME . ')'
+
+    ')'  shift, and go to state 177
+
+
+state 163
+
+   73 valuelist: valuelist ',' value .
+
+    $default  reduce using rule 73 (valuelist)
+
+
+state 164
+
+   71 valuelists: valuelists ',' '(' valuelist . ')'
+   73 valuelist: valuelist . ',' value
+
+    ')'  shift, and go to state 178
+    ','  shift, and go to state 143
+
+
+state 165
+
+   32 comparison: column IS NOT NULLC .
+
+    $default  reduce using rule 32 (comparison)
+
+
+state 166
+
+   41 expr: expr . '+' expr
+   41     | expr '+' expr .
+   42     | expr . '-' expr
+   43     | expr . '*' expr
+   44     | expr . '/' expr
+   45     | expr . '%' expr
+
+    '*'  shift, and go to state 151
+    '/'  shift, and go to state 152
+    '%'  shift, and go to state 153
+
+    $default  reduce using rule 41 (expr)
+
+
+state 167
+
+   41 expr: expr . '+' expr
+   42     | expr . '-' expr
+   42     | expr '-' expr .
+   43     | expr . '*' expr
+   44     | expr . '/' expr
+   45     | expr . '%' expr
+
+    '*'  shift, and go to state 151
+    '/'  shift, and go to state 152
+    '%'  shift, and go to state 153
+
+    $default  reduce using rule 42 (expr)
+
+
+state 168
+
+   41 expr: expr . '+' expr
+   42     | expr . '-' expr
+   43     | expr . '*' expr
+   43     | expr '*' expr .
+   44     | expr . '/' expr
+   45     | expr . '%' expr
+
+    $default  reduce using rule 43 (expr)
+
+
+state 169
+
+   41 expr: expr . '+' expr
+   42     | expr . '-' expr
+   43     | expr . '*' expr
+   44     | expr . '/' expr
+   44     | expr '/' expr .
+   45     | expr . '%' expr
+
+    $default  reduce using rule 44 (expr)
+
+
+state 170
+
+   41 expr: expr . '+' expr
+   42     | expr . '-' expr
+   43     | expr . '*' expr
+   44     | expr . '/' expr
+   45     | expr . '%' expr
+   45     | expr '%' expr .
+
+    $default  reduce using rule 45 (expr)
+
+
+state 171
+
+   61 attribute: PRIMARY KEY '(' NAME ')' .
+
+    $default  reduce using rule 61 (attribute)
+
+
+state 172
+
+   62 attribute: FOREIGN KEY '(' NAME ')' . REFERENCES NAME '(' NAME ')'
+
+    REFERENCES  shift, and go to state 179
+
+
+state 173
+
+   63 type: INTEGER '(' INUM ')' .
+
+    $default  reduce using rule 63 (type)
+
+
+state 174
+
+   65 type: CHARTYPE '(' INUM ')' .
+
+    $default  reduce using rule 65 (type)
+
+
+state 175
+
+   69 type: NUMERICTYPE '(' INUM ',' . INUM ')'
+
+    INUM  shift, and go to state 180
+
+
+state 176
+
+   60 attribute: NAME type NOT NULLC DEFAULT . value
+
+    TEXT     shift, and go to state 111
+    INUM     shift, and go to state 112
+    FNUM     shift, and go to state 113
+    DATENUM  shift, and go to state 114
+
+    value  go to state 181
+
+
+state 177
+
+   18 command: ALTER TABLE NAME DROP FOREIGN KEY '(' NAME ')' .
+
+    $default  reduce using rule 18 (command)
+
+
+state 178
+
+   71 valuelists: valuelists ',' '(' valuelist ')' .
+
+    $default  reduce using rule 71 (valuelists)
+
+
 state 179
 
-   61 attribute: FOREIGN KEY '(' NAME ')' REFERENCES NAME . '(' NAME ')'
-
-    '('  shift, and go to state 181
-
-
-state 180
-
-   68 type: NUMERICTYPE '(' INUM ',' INUM ')' .
-
-    $default  reduce using rule 68 (type)
-
-
-state 181
-
-   61 attribute: FOREIGN KEY '(' NAME ')' REFERENCES NAME '(' . NAME ')'
+   62 attribute: FOREIGN KEY '(' NAME ')' REFERENCES . NAME '(' NAME ')'
 
     NAME  shift, and go to state 182
 
 
-state 182
+state 180
 
-   61 attribute: FOREIGN KEY '(' NAME ')' REFERENCES NAME '(' NAME . ')'
+   69 type: NUMERICTYPE '(' INUM ',' INUM . ')'
 
     ')'  shift, and go to state 183
 
 
+state 181
+
+   60 attribute: NAME type NOT NULLC DEFAULT value .
+
+    $default  reduce using rule 60 (attribute)
+
+
+state 182
+
+   62 attribute: FOREIGN KEY '(' NAME ')' REFERENCES NAME . '(' NAME ')'
+
+    '('  shift, and go to state 184
+
+
 state 183
 
-   61 attribute: FOREIGN KEY '(' NAME ')' REFERENCES NAME '(' NAME ')' .
+   69 type: NUMERICTYPE '(' INUM ',' INUM ')' .
 
-    $default  reduce using rule 61 (attribute)
+    $default  reduce using rule 69 (type)
+
+
+state 184
+
+   62 attribute: FOREIGN KEY '(' NAME ')' REFERENCES NAME '(' . NAME ')'
+
+    NAME  shift, and go to state 185
+
+
+state 185
+
+   62 attribute: FOREIGN KEY '(' NAME ')' REFERENCES NAME '(' NAME . ')'
+
+    ')'  shift, and go to state 186
+
+
+state 186
+
+   62 attribute: FOREIGN KEY '(' NAME ')' REFERENCES NAME '(' NAME ')' .
+
+    $default  reduce using rule 62 (attribute)

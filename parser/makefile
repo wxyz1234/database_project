@@ -6,6 +6,6 @@ Lexer.c:Lexer.l
 	mv lex.yy.c Lexer.cpp
 Parser.c:Parser.y
 	bison -vtd Parser.y -o Parser.c
-	mv Parser.c Parser.cpp
+	cp Parser.c Parser.cpp	
 clean:
-	rm -f Lexer.cpp Parser.cpp Parser.h Parser.output Lexer.o Parser.o Parser.exe
+	rm -f Lexer.cpp Parser.cpp Parser.h Parser.output Lexer.o Parser.o Parser.exe Parser.c

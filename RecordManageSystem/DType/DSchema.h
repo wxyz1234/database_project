@@ -130,7 +130,7 @@ public:
 				printf("DSchema Part %d 's Len is %d\n", i, ((DtypeSchemaInt*)a[i])->getlen());
 			}
 			if (tn == TypeName::Char) {
-				printf("DSchema Part %d 's Len is %d\n", i, ((DtypeSchemaChar*)a[i])->getlen());
+				printf("DSchema Part %d 's Len is %d\n", i, ((DtypeSchemaChar*)a[i])->getold_len());
 			}
 			if (tn == TypeName::Numeric) {
 				sumd = ((DtypeSchemaNumeric*)a[i])->getsumd();

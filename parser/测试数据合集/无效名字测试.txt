@@ -1,5 +1,16 @@
 SHOW DATABASES;
+SHOW DATABASE check;
 CREATE DATABASE check;
+USE DATABASE ch;
+DESC DATABASE ch;
+CREATE TABLE restaurant(
+  id INT(10) NOT NULL,
+  name CHAR(25) NOT NULL,
+  address CHAR(100),
+  phone CHAR(20),
+  rate FLOAT,
+  PRIMARY KEY (id)
+);
 USE DATABASE check;
 SHOW DATABASES;
 CREATE TABLE restaurant(
@@ -10,16 +21,7 @@ CREATE TABLE restaurant(
   rate FLOAT,
   PRIMARY KEY (id)
 );
-SHOW TABLE restaurant;
-DROP TABLE restaurant;
-CREATE TABLE restaurant(
-  id INT(10) NOT NULL,
-  name CHAR(25) NOT NULL,
-  address CHAR(100),
-  phone CHAR(20),
-  rate FLOAT,
-  PRIMARY KEY (id)
-);
+DROP TABLE customer;
 CREATE TABLE customer(
 	id INT(10) NOT NULL,
 	name CHAR(25) NOT NULL,
@@ -27,6 +29,7 @@ CREATE TABLE customer(
 	PRIMARY KEY (id)
 );
 SHOW TABLES;
+SHOW TABLE food;
 CREATE TABLE food(
 	id INT(10) NOT NULL,
 	restaurant_id INT(10),
@@ -36,9 +39,6 @@ CREATE TABLE food(
 	FOREIGN KEY (restaurant_id) REFERENCES restaurant(id)
 );
 SHOW TABLE food;
-SHOW DATABASE check;
-DESC DATABASE check;
-SHOW TABLE restaurant;
 CREATE TABLE orders(
 	id INT(10) NOT NULL,
 	customer_id INT(10) NOT NULL,
@@ -49,11 +49,14 @@ CREATE TABLE orders(
 	FOREIGN KEY (customer_id) REFERENCES customer(id),
 	FOREIGN KEY (food_id) REFERENCES food(id)
 );
-DROP TABLE orders;
-SHOW TABLES;
-DROP TABLE food;
-DESC DATABASE check;
-DROP TABLE restaurant;
 SHOW DATABASE check;
+DESC DATABASE check;
+SHOW TABLES;
+DROP TABLE restaurant;
+DROP TABLE order;
+DESC DATABASE check;
+DROP TABLE food;
 DROP TABLE customer;
 DROP DATABASE check;
+SHOW TABLES;
+DESC DATABASE check;
