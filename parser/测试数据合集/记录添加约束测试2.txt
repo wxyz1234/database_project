@@ -1,0 +1,39 @@
+CREATE DATABASE orderDB;
+USE orderDB;
+CREATE TABLE restaurant (
+  id INT(10) NOT NULL,
+  name CHAR(25) NOT NULL,
+  address CHAR(100),
+  phone CHAR(20),
+  rate FLOAT DEFAULT 5.00,
+  PRIMARY KEY (id)
+);
+CREATE TABLE customer(
+	id INT(10) NOT NULL,
+	name CHAR(25) NOT NULL,
+	gender CHAR(1) NOT NULL,
+	PRIMARY KEY (id)
+);
+CREATE TABLE food(
+	id INT(10) NOT NULL,
+	restaurant_id INT(10),
+	name CHAR(100) NOT NULL,
+	price FLOAT NOT NULL,
+	PRIMARY KEY (id),
+	FOREIGN KEY (restaurant_id) REFERENCES restaurant(id)
+);
+CREATE TABLE orders(
+	id INT(10) NOT NULL,
+	customer_id INT(10) NOT NULL,
+	food_id INT(10) NOT NULL,
+	date DATE,
+	quantity INT(10),
+	PRIMARY KEY (id),
+	FOREIGN KEY (customer_id) REFERENCES customer(id),
+	FOREIGN KEY (food_id) REFERENCES food(id)
+);
+
+INSERT INTO restaurant VALUES (1001,'apple pan the',NULL,NULL,NULL),(1002,'asahi ramen',NULL,'310-479-2231',NULL),(NULL,'baja fresh','3345 kimber dr.','805-498-4049',3.71),(1004,NULL,'9882 little santa monica blvd.','310-788-2306',4.81),(1005,'benita\'s frites','1433 third st. promenade','310-458-2889',3.8),(1006,'bernard\'s','515 s. olive st.','213-612-1580',3.64),(1007,'bistro 45','45 s. mentor ave.','818-795-2478',3.75),(1008,'brent\'s deli','19565 parthenia ave.','818-886-5679',3.8),(1009,'brighton coffee shop','9600 brighton way','310-276-7732',4.25),(1010,'bristol farms market cafe','1570 rosecrans ave. s.','310-643-5229',4),(1011,'bruno\'s','3838 centinela ave.',NULL,3),(1012,'cafe\'50s','838 lincoln blvd.','310-399-1955',4),(1013,'cafe blanc','9777 little santa monica blvd.','310-888-0108',5),(1014,'cassell\'s','3266 w. sixth st.','213-480-8668',3.83),(1015,'chez melange','1716 pch','310-540-1222',4.29),(1016,'diaghilev','1020 n. san vicente blvd.','310-854-1111',4.45),(1017,'don antonio\'s','1136 westwood blvd.','310-209-1422',3.67),(1018,'duke\'s','8909 sunset blvd.','310-652-3100',4.4),(1019,'falafel king','1059 broxton ave.','310-208-4444',3.4),(1020,'feast from the east','1949 westwood blvd.','310-475-0400',3.75);
+
+SHOW TABLES;
+DROP DATABASE orderDB;

@@ -28,7 +28,7 @@ private:
 		return 0;
 	}
 	int _openFile(const char* name, int fileID) {
-		int f = _open(name, O_RDWR);
+		int f = _open(name, O_RDWR | O_BINARY);
 		if (f == -1) {
 			return -1;
 		}
@@ -83,7 +83,7 @@ public:
 			return -1;
 		}
 		BufType b = buf + off;
-		error = _read(f, (void*) b, PAGE_SIZE);
+		error = _read(f, (void*) b, PAGE_SIZE);		
 		return 0;
 	}
 	/*

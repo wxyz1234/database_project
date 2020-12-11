@@ -6,6 +6,6 @@ Lexer.c:Lexer.l
 	mv lex.yy.c Lexer.cpp
 Parser.c:Parser.y
 	bison -vtd Parser.y -o Parser.c
-	cp Parser.c Parser.cpp	
+	PowerShell -Command "& {get-content Parser.c -encoding utf8 | set-content Parser.cpp -encoding utf8}"
 clean:
 	rm -f Lexer.cpp Parser.cpp Parser.h Parser.output Lexer.o Parser.o Parser.exe Parser.c

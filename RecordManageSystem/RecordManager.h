@@ -8,20 +8,21 @@
 #include "DType/DSchema.h"
 #include "DType/DList.h"
 #include "DType/TypeName.h"
+#include "utils/Myhash.h"
 #include <iostream>
 #include <stdio.h>
 using namespace std;
 const unsigned int maxunsignint = 4294967295;
 int Wei::wei[32];
 int Wei::shiwei[10];
+extern PrimaryData pd;
 class RecordManager {
 public:
 	BufFileManager* fm;
 	RecordManager() {
 		//整体初始化
-		Wei::init();
-		MyBitMap::initConst();   //新加的初始化
-		fm = new BufFileManager();		
+		Wei::init();		
+		fm = new BufFileManager();				
 	}
 	/*
 	文件保存信息：
@@ -122,8 +123,8 @@ public:
 		}
 		//扩展新页
 		filebuf[0] += 1;
-		i = PageNum + 1;
-		if (fm->readPage(fileID, 1 + i, pagebuf, 0) == -1) {
+		i = PageNum + 1;		
+		if (fm->readPage(fileID, i, pagebuf, 0) == -1) {
 			printf("ERROR\n");
 			delete[] filebuf, pagebuf, buf;
 			return PageLoc(-1, -1);
@@ -170,7 +171,7 @@ public:
 		fm->writePage(fileID, page.PageID, pagebuf, 0);
 		return true;
 	}
-	bool UpdataRecord(int fileID, PageLoc page, DList* data) {
+	bool UpdateRecord(int fileID, PageLoc page, DList* data) {
 		//更新记录
 		//信息转buf
 		BufType buf = new unsigned int[64];
@@ -210,6 +211,115 @@ public:
 		}
 		//buf信息转DList
 		data.readDataBuf(pagebuf + 2 + 64 * page.LocID);
+		data.makeNull();
+		return true;
+	}
+	bool PDUpdate(int fileID,int pdnum,int panum,DSchema* sh) {
+		//制作文件所有记录位置的列表
+		BufType pagebuf = new unsigned int[2048];
+		if (fm->readPage(fileID, 0, pagebuf, 0) == -1) {
+			printf("ERROR\n");			
+			delete[] pagebuf;
+			return false;
+		}
+		int pagenum = pagebuf[0];
+		int i, j, k, l;
+		DList* b=new DList(sh);				
+		for (i = 1; i <= pagenum; i++) {			
+			if (fm->readPage(fileID, i, pagebuf, 0) == -1) {
+				printf("ERROR\n");
+				delete b;
+				delete[] pagebuf;
+				return false;
+			}
+			k = Wei::wei[31]-1-pagebuf[1];
+			while (k > 0) {
+				j = k & (-k);
+				k -= j;
+				j = Wei::BitConvInt(j);											
+				b->readDataBuf(pagebuf + 2 + 64 * j);						
+				pd.a[pdnum]->Insert(b->getPart(panum)->getData());
+			}			
+		}		
+		delete b;
+		delete[] pagebuf;
+		return true;
+	}
+	bool ShowTable(const char* name, bool rev) {
+		//输出当前文件模式和所有记录
+		int fileID;
+		OpenFile(name, fileID);
+		//CheckPage(fileID, 1);
+		DSchema* sh = new DSchema();
+		GetSchema(fileID, *sh);
+		sh->writeDSchema();
+		DList* b = new DList(sh);
+		BufType pagebuf = new unsigned int[2048];
+		if (fm->readPage(fileID, 0, pagebuf, 0) == -1) {
+			printf("ERROR\n");
+			delete[] pagebuf;
+			delete sh;
+			delete b;
+			CloseFile(fileID);
+			return false;
+		}
+		int pagenum = pagebuf[0];
+		int i, j, k, l;
+		int ll[40];		
+		if (rev) {
+			for (i = pagenum; i >= 1; i--) {
+				if (fm->readPage(fileID, i, pagebuf, 0) == -1) {
+					printf("ERROR\n");
+					delete sh;
+					delete b;
+					CloseFile(fileID);
+					delete[] pagebuf;
+					return false;
+				}
+				k = Wei::wei[31] - 1 - pagebuf[1];
+				ll[0] = 0;
+				while (k > 0) {
+					j = k & (-k);
+					k -= j;
+					j = Wei::BitConvInt(j);					
+					ll[0] += 1;
+					ll[ll[0]] = j;
+				}
+				for (j = ll[0]; j >= 1; j--) {
+					b->readDataBuf(pagebuf + 2 + 64 * ll[j]);
+					b->writeDList();
+				}
+			}
+		}
+		else {
+			for (i = 1; i <= pagenum; i++) {
+				if (fm->readPage(fileID, i, pagebuf, 0) == -1) {
+					printf("ERROR\n");
+					delete sh;
+					delete b;
+					CloseFile(fileID);
+					delete[] pagebuf;
+					return false;
+				}
+				k = Wei::wei[31] - 1 - pagebuf[1];
+				ll[0] = 0;
+				while (k > 0) {
+					j = k & (-k);
+					k -= j;
+					j = Wei::BitConvInt(j);					
+					ll[0] += 1;
+					ll[ll[0]] = j;					
+				}
+				for (j = 1; j <= ll[0]; j++) {
+					b->readDataBuf(pagebuf + 2 + 64 * ll[j]);
+					b->writeDList();
+				}				
+			}
+		}
+		delete[] pagebuf;
+		delete sh;
+		delete b;
+		CloseFile(fileID);
 		return true;
 	}
 	bool GetSchema(int fileID, DSchema& schema) {

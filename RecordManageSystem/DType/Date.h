@@ -14,12 +14,17 @@ public:
 		month = i/100%100;
 		day = i%100;
 	}
+	DateType(const char* i) {
+		year = (i[0] - '0') * 1000 + (i[1] - '0') * 100 + (i[2] - '0') * 10 + (i[3] - '0');
+		month = (i[5] - '0') * 10 + (i[6] - '0');
+		day = (i[8] - '0') * 10 + (i[9] - '0');
+	}
 	DateType(int y, int m, int d)
 	{
 		year = y;
 		month = m;
 		day = d;
-	}
+	}	
 	bool equal(DateType* i) {
 		return ((i->getyear() == year) && (i->getmonth() == month) && (i->getday() == day));
 	}

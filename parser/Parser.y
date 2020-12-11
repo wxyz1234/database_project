@@ -5,12 +5,17 @@
 #include "../parser/Lexer.cpp"
 #include <string>
 #include "../RecordManageSystem/RecordManager.h"
+#include "../RecordManageSystem/utils/Myhash.h"
 
 void yyerror(const char *);
 int yylex(void); 
 int parseFile();
+
 std::string CurrentDatabase = "";
 RecordManager* rm = new RecordManager();
+PrimaryData pd;
+ForeignData fd;
+int sumRID;
 %}
 
 /*辅助定义节  定义文法相关的名称和属性,可选*/
@@ -119,10 +124,10 @@ command: CREATE DATABASE NAME{
 			delete $3;
 			Tree::run();
 		}
-	|	USE DATABASE NAME{
-			$$=new UseDatabaseTree($3);
+	|	USE NAME{
+			$$=new UseDatabaseTree($2);
 			Tree::setInstance($$);
-			delete $3;
+			delete $2;
 			Tree::run();
 		}
 	|	SHOW DATABASE NAME{
@@ -250,7 +255,7 @@ whereClauses:	WHERE conditions{
 			$$=new WhereClausesTree($2);
 		}
 	|	{
-			$$=nullptr;
+			$$=new WhereClausesTree();
 		}
 	;
 conditions:	comparison{
@@ -324,19 +329,19 @@ op:		EQ{
 			$$=opName::EQ;
 		}
 	|	GT{
-			$$=opName::EQ;
+			$$=opName::GT;
 		}
 	|	LT{
-			$$=opName::EQ;
+			$$=opName::LT;
 		}
 	|	GE{
-			$$=opName::EQ;
+			$$=opName::GE;
 		}
 	|	LE{
-			$$=opName::EQ;
+			$$=opName::LE;
 		}
 	|	NE{
-			$$=opName::EQ;
+			$$=opName::NE;
 		}
 	;
 setClauselist: setClause{
@@ -347,7 +352,7 @@ setClauselist: setClause{
 			$$->append($3);
 		}
 	;
-setClause:	column '=' expr{
+setClause:	column EQ expr{
 			$$=new setClauseTree($1,$3);
 		}
 	;
@@ -434,6 +439,10 @@ value:	TEXT{
 			$$=new valueTree(CharTypeName::INUM,$1);
 			delete $1;
 		}
+	|	'-' INUM{
+			$$=new valueTree(CharTypeName::INUM,std::string("-"+std::string($2)).c_str());
+			delete $2;
+		}
 	|	FNUM{
 			$$=new valueTree(CharTypeName::FNUM,$1);
 			delete $1;
@@ -441,6 +450,9 @@ value:	TEXT{
 	|	DATENUM{
 			$$=new valueTree(CharTypeName::DATENUM,$1);
 			delete $1;
+		}
+	|	NULLC{
+			$$=new valueTree(CharTypeName::NULLC);			
 		}
 	;
 

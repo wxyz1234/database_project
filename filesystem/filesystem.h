@@ -61,14 +61,14 @@ public:
 	 * 功能:关闭文件
 	 * 返回:操作成功，返回0
 	 */
-	int closeFile(int fileID) {
-		//fileID不能为0，不然会出错（空白区fileID都是0）
-		int fileid, pageid;
+	int closeFile(int fileID) {			
+		int fileid, pageid;		
 		for (int i = 0; i < CAP; ++i) {
 			bpm->getKey(i, fileid, pageid);
-			if (fileid==fileID)
-				bpm->writeBack(i);
-		}
+			if (fileid==fileID){
+				bpm->writeBack(i);				
+			}
+		}	
 		fm->closeFile(fileID);
 		return 0;
 	}

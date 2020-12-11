@@ -100,7 +100,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 18 "Parser.y"
+#line 23 "Parser.y"
 
 	Tree* tree;
 	char* string;

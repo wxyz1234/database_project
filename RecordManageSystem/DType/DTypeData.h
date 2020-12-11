@@ -12,7 +12,7 @@ class DtypeData {
 public:	
 	virtual TypeName getType() = 0;
 	virtual int getsize() = 0;
-	virtual void* getData() { return NULL; };
+	virtual void* getData() { return NULL; };	
 	virtual void setData(int* i) {};
 	virtual void setData(short* i) {};
 	virtual void setData(const char* i) {};
@@ -41,7 +41,7 @@ public:
 		}
 		else {
 			if (data != NULL)delete data;
-			data = i;
+			data = NULL;
 		}
 	}
 	void setData(int* i, bool& Nullchange) {
@@ -69,6 +69,9 @@ public:
 		k += getsize();
 		return k;
 	}
+	~DtypeDataInt() {
+		if (data != NULL)delete data;
+	}
 };
 
 class DtypeDataSmallInt :public DtypeData {
@@ -82,7 +85,7 @@ public:
 		}
 		else {
 			if (data != NULL)delete data;
-			data = i;
+			data = NULL;
 		}
 	}
 	void setData(short* i, bool& Nullchange) {
@@ -110,6 +113,9 @@ public:
 		k += getsize();
 		return k;
 	}
+	~DtypeDataSmallInt() {
+		if (data != NULL)delete data;
+	}
 };
 
 class DtypeDataChar :public DtypeData {
@@ -128,7 +134,7 @@ public:
 		}
 		else {
 			if (data != NULL)delete data;
-			data = (char*)i;
+			data = NULL;
 		}
 	}
 	void setData(char* i, bool& Nullchange) {
@@ -148,7 +154,7 @@ public:
 		return len / 4;
 	}
 	~DtypeDataChar() {
-		delete data;
+		if (data!=NULL)delete data;
 	}
 	int writeDataBuf(BufType buf) {
 		int k = 0;
@@ -175,7 +181,7 @@ public:
 		}
 		else {
 			if (data != NULL)delete data;
-			data = i;
+			data = NULL;
 		}
 	}
 	void setData(double* i, bool& Nullchange) {
@@ -203,6 +209,9 @@ public:
 		k += getsize();
 		return k;
 	}
+	~DtypeDataDouble() {
+		if (data != NULL)delete data;
+	}
 };
 
 class DtypeDataFloat :public DtypeData {
@@ -216,7 +225,7 @@ public:
 		}
 		else {
 			if (data != NULL)delete data;
-			data = i;
+			data = NULL;
 		}
 	}
 	void setData(float* i, bool& Nullchange) {
@@ -243,6 +252,9 @@ public:
 		setData((float*)buf);
 		k += getsize();
 		return k;
+	}
+	~DtypeDataFloat() {
+		if (data != NULL)delete data;
 	}
 };
 
@@ -289,6 +301,9 @@ public:
 		k += getsize();
 		return k;
 	}
+	~DtypeDataDate() {
+		if (data != NULL)delete data;
+	}
 };
 
 class DtypeDataNumeric :public DtypeData {
@@ -308,6 +323,15 @@ public:
 	}
 	TypeName getType() {
 		return TypeName::Numeric;
+	}
+	int getsumdotd() {
+		return sumd * 100 + dotd;
+	}
+	int getsumd() {
+		return sumd;
+	}
+	int getdotd() {
+		return dotd;
 	}
 	int getsize() {
 		return 3;
@@ -347,5 +371,8 @@ public:
 		k += getsize();
 		return k;
 	}	
+	~DtypeDataNumeric() {
+		if (data != NULL)delete data;
+	}
 };
 #endif

@@ -1,0 +1,4 @@
+USE orderDB;
+SHOW TABLES;
+DESC TABLE restaurant;
+DROP DATABASE orderDB;

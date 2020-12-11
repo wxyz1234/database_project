@@ -11,14 +11,22 @@ char *get_text(const char *text) {
     memcpy(buffer, text, (length + 1) * sizeof(char));
     return buffer;
 }
+char *get_text2(const char *text) {
+    int length = strlen(text);
+    char *buffer = new char[length - 1];
+    memcpy(buffer, text+1, (length -2) * sizeof(char));
+    buffer[length-2] = '\0';
+    return buffer;
+}
 %}
 
 /* 辅助定义节:可选，在此可以为正规式定义宏名字*/
+DATENUM (\'[0-9]{4}-[0-9]{2}-[0-9]{2}\')
 NAME ([a-zA-z][0-9a-zA-z_]*)
-TEXT (['][^\\\n\']*['])
-INUM ([-]{0,1}[0-9]+)
-FNUM ([-]{0,1}[0-9]*[.][0-9]*)
-DATENUM ([0-9]{4}-[0-9]{2}-[0-9]{2})
+SINQ (\\\')
+TEXT (\'({SINQ}|[^\\\n'])*\')
+INUM ([0-9]+)
+FNUM ([-]{0,1}[0-9]+[.][0-9]+)
 BLANKCHAR ([ \f\r\t\v\n]+)
 
 %%
@@ -77,11 +85,11 @@ NUMERIC { printf("NUMERICTYPE\n"); return NUMERICTYPE; }
 ">=" { printf("GE\n"); return GE; }
 "<=" { printf("LE\n"); return LE; }
 "<>" { printf("NE\n"); return NE; }
+{DATENUM} { yylval.string = get_text2(yytext); printf("DATENUM\n"); return DATENUM; }
 {NAME} { yylval.string = get_text(yytext); printf("NAME\n"); return NAME; }
-{TEXT} { yylval.string = get_text(yytext); printf("TEXT\n"); return TEXT; }
+{TEXT} { yylval.string = get_text2(yytext); printf("TEXT\n"); return TEXT; }
 {INUM} { yylval.string = get_text(yytext); printf("INUM\n"); return INUM; }
 {FNUM} { yylval.string = get_text(yytext); printf("FNUM\n"); return FNUM; }
-{DATENUM} { yylval.string = get_text(yytext); printf("DATENUM\n"); return DATENUM; }
 {BLANKCHAR} { /*printf("\n");*/ }
 %%
 
