@@ -70,26 +70,27 @@ DOUBLE { printf("DOUBLE\n"); return DOUBLETYPE; }
 FLOAT { printf("FLOAT\n"); return FLOATTYPE; }
 DATE { printf("DATETYPE\n"); return DATETYPE; }
 NUMERIC { printf("NUMERICTYPE\n"); return NUMERICTYPE; }
-"(" { printf("(\n"); return '('; }
-")" { printf(")\n"); return ')'; }
-";" { printf(";\n"); return ';'; }
-"," { printf(",\n"); return ','; }
-"+"	{ printf("+\n"); return '+'; }
-"-"	{ printf("-\n"); return '-'; }
-"*"	{ printf("*\n"); return '*'; }
-"/"	{ printf("/\n"); return '/'; }
-"%"	{ printf("%\n"); return '%'; }
-"=" { printf("EQ\n"); return EQ; }
-">" { printf("GT\n"); return GT; }
-"<" { printf("LT\n"); return LT; }
-">=" { printf("GE\n"); return GE; }
-"<=" { printf("LE\n"); return LE; }
-"<>" { printf("NE\n"); return NE; }
-{DATENUM} { yylval.string = get_text2(yytext); printf("DATENUM\n"); return DATENUM; }
-{NAME} { yylval.string = get_text(yytext); printf("NAME\n"); return NAME; }
-{TEXT} { yylval.string = get_text2(yytext); printf("TEXT\n"); return TEXT; }
-{INUM} { yylval.string = get_text(yytext); printf("INUM\n"); return INUM; }
-{FNUM} { yylval.string = get_text(yytext); printf("FNUM\n"); return FNUM; }
+"(" { /*printf("(\n");*/ return '('; }
+")" { /*printf(")\n");*/ return ')'; }
+";" { /*printf(";\n");*/ return ';'; }
+"," { /*printf(",\n");*/ return ','; }
+"." { /*printf(".\n");*/ return '.'; }
+"+"	{ /*printf("+\n");*/ return '+'; }
+"-"	{ /*printf("-\n");*/ return '-'; }
+"*"	{ /*printf("*\n");*/ return '*'; }
+"/"	{ /*printf("/\n");*/ return '/'; }
+"%"	{ /*printf("%\n");*/ return '%'; }
+"=" { /*printf("EQ\n");*/ return EQ; }
+">" { /*printf("GT\n");*/ return GT; }
+"<" { /*printf("LT\n");*/ return LT; }
+">=" { /*printf("GE\n");*/ return GE; }
+"<=" { /*printf("LE\n");*/ return LE; }
+"<>" { /*printf("NE\n");*/ return NE; }
+{DATENUM} { yylval.string = get_text2(yytext); /*printf("DATENUM\n");*/ return DATENUM; }
+{NAME} { yylval.string = get_text(yytext); /*printf("NAME\n");*/ return NAME; }
+{TEXT} { yylval.string = get_text2(yytext); /*printf("TEXT\n");*/ return TEXT; }
+{INUM} { yylval.string = get_text(yytext); /*printf("INUM\n");*/ return INUM; }
+{FNUM} { yylval.string = get_text(yytext); /*printf("FNUM\n");*/ return FNUM; }
 {BLANKCHAR} { /*printf("\n");*/ }
 %%
 

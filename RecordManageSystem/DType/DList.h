@@ -4,13 +4,12 @@
 #include "../DType/DSchema.h"
 #include "../utils/Wei.h"
 class DList {
-	friend class valuelistsTree;
+	friend class valuelistsTree;	
 protected:
 	DSchema* fa = NULL;
 	int RID;
 	int isNull;
-	int num;
-	bool Nullchange=true;
+	int num;	
 	DtypeData* a[20];
 public:
 	DList() {
@@ -71,15 +70,11 @@ public:
 			if (a[i]->getData() == NULL)
 				isNull |= Wei::wei[i];
 	}
-	int getNull() {
-		if (Nullchange) {
-			makeNull();
-			Nullchange = false;			
-		}
+	int getNull() {		
+		makeNull();			
 		return isNull;
 	}
-	void setNull(int i) {
-		Nullchange = false;
+	void setNull(int i) {		
 		isNull = i;
 	}
 	void writeDataBuf(BufType& buf) {		
@@ -100,6 +95,31 @@ public:
 		int i;
 		for (i = 0; i < num; i++) {
 			k += a[i]->readDataBuf(buf+k);
+			if ((isNull & Wei::wei[i]) > 0) {
+				switch (fa->getPart(i)->getType()) {
+				case TypeName::Int:
+					a[i]->setData((int*)NULL);
+					break;
+				case TypeName::SmallInt:
+					a[i]->setData((short*)NULL);
+					break;
+				case TypeName::Char:
+					a[i]->setData((char*)NULL);
+					break;
+				case TypeName::Double:
+					a[i]->setData((double*)NULL);
+					break;
+				case TypeName::Float:
+					a[i]->setData((float*)NULL);
+					break;
+				case TypeName::Date:
+					a[i]->setData((DateType*)NULL);
+					break;
+				case TypeName::Numeric:
+					a[i]->setData((NumericType*)NULL);
+					break;
+				}
+			}				
 		}
 	}
 	~DList() {				

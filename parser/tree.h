@@ -173,6 +173,7 @@ public:
                 float tmpfloat;
                 DateType tmpdate;
                 NumericType tmpnumeric;
+                
                 switch (sh->getPart(j)->getType()) {
                 case TypeName::Int:
                     if (a[i]->a[j]->k != CharTypeName::INUM) {
@@ -199,8 +200,10 @@ public:
                         break;
                     }
                     tmplen = ((DtypeSchemaChar*)sh->getPart(j))->getlen();
-                    tmpchar = new char[tmplen];
-                    memcpy(tmpchar, a[i]->a[j]->data.c_str(), tmplen);                    
+                    tmpchar = new char[tmplen];                    
+                    //a[i]->a[j]->data.c_str() 没有tmplen长                    
+                    memcpy(tmpchar, a[i]->a[j]->data.c_str(), a[i]->a[j]->data.length()+1);
+                    
                     b->a[j]->setData(tmpchar);
                     delete []tmpchar;
                     break;
@@ -455,7 +458,9 @@ public:
 };
 
 class columnTree :public Tree {
+    friend class setClauselistTree;
     friend class WhereClausesTree;
+    friend class columnlistTree;
     friend class exprTree;
 protected:
     std::string tname, aname;
@@ -470,7 +475,8 @@ public:
     }
 };
 class columnlistTree :public Tree {
-private:
+    friend class SelectTree;
+protected:
     std::vector<columnTree*> a;
 public:
     columnlistTree() {
@@ -478,6 +484,68 @@ public:
     }
     void append(columnTree* i) {
         a.push_back(i);
+    }
+    void show(std::vector<DList*> &dl) {
+        int i, j, k;
+        columnTree* col;
+        TypeName tn;
+        for (k = 0; k < a.size(); k++) {
+            col = a[k];
+            for (j = 0; j < dl.size(); j++)
+                if ((strcmp(col->tname.c_str(), dl[j]->getfa()->getName()) == 0) || ((col->tname == "") && (dl.size() == 1))) {                
+                    for (i = 0; i < dl[j]->getfa()->getnum(); i++) {
+                        if (strcmp(col->aname.c_str(), dl[j]->getfa()->getTypeName(i)) == 0) {
+                            tn = dl[j]->getfa()->getPart(i)->getType();
+                            if (dl[j]->getPart(i)->getData() == NULL) {
+                                printf("Table: %s ,Attr: %s ,Data is NULL\n", col->tname.c_str(), col->aname.c_str());
+                                break;
+                            }
+                            printf("Table: %s ,Attr: %s ,Data is ",col->tname.c_str(),col->aname.c_str());
+                            DateType* tmp;
+                            NumericType* tmp2;
+                            int sumd, dotd, len;
+                            switch (tn) {
+                            case TypeName::Int:
+                                len = ((DtypeSchemaInt*)dl[j]->getfa()->getPart(i))->getlen();
+                                sumd = *((int*)dl[j]->getPart(i)->getData());
+                                if (sumd < 0) {
+                                    printf("-");
+                                    sumd = -sumd;
+                                }
+                                for (int j = len - 1; j >= 0; j--)printf("%d", sumd / Wei::shiwei[j] % 10);
+                                printf("\n");
+                                break;
+                            case TypeName::SmallInt:
+                                printf("%d\n", *((short*)dl[j]->getPart(i)->getData()));
+                                break;
+                            case TypeName::Char:
+                                printf("%s\n", ((char*)dl[j]->getPart(i)->getData()));
+                                break;
+                            case TypeName::Double:
+                                printf("%f\n", *((double*)dl[j]->getPart(i)->getData()));
+                                break;
+                            case TypeName::Float:
+                                printf("%f\n", *((float*)dl[j]->getPart(i)->getData()));
+                                break;
+                            case TypeName::Date:
+                                tmp = ((DateType*)dl[j]->getPart(i)->getData());
+                                printf("Date:%d\\%d\\%d\n", tmp->getyear(), tmp->getmonth(), tmp->getday());
+                                break;
+                            case TypeName::Numeric:
+                                tmp2 = ((NumericType*)dl[j]->getPart(i)->getData());
+                                sumd = ((DtypeSchemaNumeric*)dl[j]->getfa()->getPart(i))->getsumd();
+                                dotd = ((DtypeSchemaNumeric*)dl[j]->getfa()->getPart(i))->getdotd();
+                                printf("Numeric:%s\n", tmp2->getd(sumd, dotd));
+                                break;
+                            default:
+                                printf("Type ERROR\n");
+                            }
+                            break;
+                        }                        
+                    }    
+                    break;
+                }
+        }
     }
     ~columnlistTree() {
         for (auto i : a) {
@@ -506,6 +574,65 @@ public:
         op = y;
         expr1 = x1;
         expr2 = x2;
+    }
+    bool checkdata(std::vector<DSchema*> &ds, typeTree* ty) {
+        int i,j;
+        DateType tmpdate;
+        switch (k) {
+        case exprType::VALUE:
+            switch (value->k) {
+            case CharTypeName::INUM:
+                return (ty->name == TypeName::Int || ty->name == TypeName::SmallInt || ty->name == TypeName::Double || ty->name == TypeName::Float);
+                break;
+            case CharTypeName::FNUM:
+                return (ty->name == TypeName::Double || ty->name == TypeName::Float || ty->name == TypeName::Numeric);
+                break;
+            case CharTypeName::TEXT:
+                return (ty->name == TypeName::Char);
+                break;
+            case CharTypeName::DATENUM:
+                tmpdate = DateType(value->data.c_str());
+                if (!tmpdate.islegal())
+                    return false;
+                return (ty->name == TypeName::Date);
+                break;
+            case CharTypeName::NULLC:
+                return true;
+                break;
+            }
+            break;
+        case exprType::COLUMN:                        
+            for (j = 0; j < ds.size(); j++)
+                if ((strcmp(col->tname.c_str(),ds[j]->getName())==0)||((col->tname == "")&&(ds.size()==1)))
+                    for (i = 0; i < ds[j]->getnum(); i++) {
+                        if (strcmp(col->aname.c_str(), ds[j]->getTypeName(i)) == 0) {
+                            if (ty->name == TypeName::Char)
+                                return (ds[j]->getPart(i)->getType() == ty->name && ((DtypeSchemaChar*)ds[j]->getPart(i))->getlen() == ty->p1);
+                            if (ty->name == TypeName::Numeric)
+                                return (ds[j]->getPart(i)->getType() == ty->name && ((DtypeSchemaNumeric*)ds[j]->getPart(i))->getsumd() == ty->p1 && ((DtypeSchemaNumeric*)ds[j]->getPart(i))->getdotd() == ty->p2);
+                            return (ds[j]->getPart(i)->getType() == ty->name);
+                        }
+            }
+            return false;
+            break;
+        case exprType::EXPR2:
+            switch (op) {
+            case clacopName::ADD:
+            case clacopName::MINUS:
+            case clacopName::MULTI:
+            case clacopName::DIV:
+                if (ty->name != TypeName::Int && ty->name != TypeName::SmallInt && ty->name != TypeName::Double && ty->name != TypeName::Float)
+                    return false;
+                return (expr1->checkdata(ds, ty) && expr2->checkdata(ds, ty));
+                break;
+            case clacopName::MODC:
+                if (ty->name != TypeName::Int && ty->name != TypeName::SmallInt)
+                    return false;
+                return (expr1->checkdata(ds, ty) && expr2->checkdata(ds, ty));
+                break;
+            }
+            break;
+        }
     }
     bool checkdata(DSchema* sh, typeTree* ty) {
         int i;
@@ -563,6 +690,292 @@ public:
                 return (expr1->checkdata(sh, ty) && expr2->checkdata(sh, ty));
                 break;
             }
+            break;
+        }
+    }
+    bool makedata(std::vector<DList*> &dl, DtypeData* ans, typeTree* ty) {
+        int i,j;
+        DtypeData* tmp;
+        int tmpint;
+        short tmpshort;
+        int tmplen;
+        char* tmpchar;
+        double tmpdouble;
+        float tmpfloat;
+        DateType tmpdate;
+        NumericType tmpnumeric;
+        switch (k) {
+        case exprType::VALUE:
+            switch (value->k) {
+            case CharTypeName::INUM:
+                switch (ty->name) {
+                case(TypeName::Int):
+                    tmpint = atoi(value->data.c_str());
+                    ans->setData(&tmpint);
+                    break;
+                case (TypeName::SmallInt):
+                    tmpshort = atoi(value->data.c_str());
+                    ans->setData(&tmpshort);
+                    break;
+                case(TypeName::Double):
+                    tmpdouble = atof(value->data.c_str());
+                    ans->setData(&tmpdouble);
+                    break;
+                case (TypeName::Float):
+                    tmpfloat = atof(value->data.c_str());
+                    ans->setData(&tmpfloat);
+                    break;
+                }
+                break;
+            case CharTypeName::FNUM:
+                switch (ty->name) {
+                case(TypeName::Double):
+                    tmpdouble = atof(value->data.c_str());
+                    ans->setData(&tmpdouble);
+                    break;
+                case (TypeName::Float):
+                    tmpfloat = atof(value->data.c_str());
+                    ans->setData(&tmpfloat);
+                    break;
+                case (TypeName::Numeric):
+                    tmpnumeric = NumericType();
+                    tmpnumeric.setd(value->data.c_str(), ty->p1, ty->p2);
+                    ans->setData(&tmpnumeric);
+                    break;
+                }
+                break;
+            case CharTypeName::TEXT:
+                tmplen = ty->p1;
+                tmpchar = new char[tmplen];
+                memcpy(tmpchar, value->data.c_str(), tmplen);
+                ans->setData(tmpchar);
+                delete[]tmpchar;
+                break;
+            case CharTypeName::DATENUM:
+                tmpdate = DateType(value->data.c_str());
+                ans->setData(&tmpdate);
+                break;
+            case CharTypeName::NULLC:
+                switch (ty->name) {
+                case (TypeName::Int):
+                    ans->setData((int*)NULL);
+                    break;
+                case (TypeName::SmallInt):
+                    ans->setData((short*)NULL);
+                    break;
+                case (TypeName::Char):
+                    ans->setData((char*)NULL);
+                    break;
+                case (TypeName::Double):
+                    ans->setData((double*)NULL);
+                    break;
+                case (TypeName::Float):
+                    ans->setData((float*)NULL);
+                    break;
+                case (TypeName::Date):
+                    ans->setData((DateType*)NULL);
+                    break;
+                case (TypeName::Numeric):
+                    ans->setData((NumericType*)NULL);
+                    break;
+                }
+                break;
+            }
+            return true;
+            break;
+        case exprType::COLUMN:
+            for (j = 0; j < dl.size(); j++)
+                if ((strcmp(col->tname.c_str(), dl[j]->getfa()->getName()) == 0) || ((col->tname == "") && (dl.size() == 1)))
+                    for (i = 0; i < dl[j]->getfa()->getnum(); i++) {
+                        if (strcmp(col->aname.c_str(), dl[j]->getfa()->getTypeName(i)) == 0) {
+                            switch (ty->name) {
+                            case TypeName::Int:
+                                ans->setData(((int*)dl[j]->getPart(i)->getData()));
+                                break;
+                            case TypeName::SmallInt:
+                                ans->setData(((short*)dl[j]->getPart(i)->getData()));
+                                break;
+                            case TypeName::Char:
+                                ans->setData(((char*)dl[j]->getPart(i)->getData()));
+                                break;
+                            case TypeName::Double:
+                                ans->setData(((double*)dl[j]->getPart(i)->getData()));
+                                break;
+                            case TypeName::Float:
+                                ans->setData(((float*)dl[j]->getPart(i)->getData()));
+                                break;
+                            case TypeName::Date:
+                                ans->setData(((DateType*)dl[j]->getPart(i)->getData()));
+                                break;
+                            case TypeName::Numeric:
+                                ans->setData(((NumericType*)dl[j]->getPart(i)->getData()));
+                                break;
+                            }
+                            return true;
+                        }
+                    }
+            break;
+        case exprType::EXPR2:
+            switch (ty->name) {
+            case TypeName::Int:
+                tmp = new DtypeDataInt();
+                break;
+            case TypeName::SmallInt:
+                tmp = new DtypeDataSmallInt();
+                break;
+            case TypeName::Char:
+                tmp = new DtypeDataChar(((DtypeDataChar*)ans)->get_len());
+                break;
+            case TypeName::Double:
+                tmp = new DtypeDataDouble();
+                break;
+            case TypeName::Float:
+                tmp = new DtypeDataFloat();
+                break;
+            case TypeName::Date:
+                tmp = new DtypeDataDate();
+                break;
+            case TypeName::Numeric:
+                tmp = new DtypeDataNumeric(((DtypeDataNumeric*)ans)->getsumdotd());
+                break;
+            }
+            if (!expr1->makedata(dl, ans, ty)) {
+                delete tmp;
+                return false;
+            }
+            if (!expr2->makedata(dl, tmp, ty)) {
+                delete tmp;
+                return false;
+            }
+            if (ans->getData() == NULL || tmp->getData() == NULL) {
+                switch (ty->name) {
+                case (TypeName::Int):
+                    ans->setData((int*)NULL);
+                    break;
+                case (TypeName::SmallInt):
+                    ans->setData((short*)NULL);
+                    break;
+                case (TypeName::Char):
+                    ans->setData((char*)NULL);
+                    break;
+                case (TypeName::Double):
+                    ans->setData((double*)NULL);
+                    break;
+                case (TypeName::Float):
+                    ans->setData((float*)NULL);
+                    break;
+                case (TypeName::Date):
+                    ans->setData((DateType*)NULL);
+                    break;
+                case (TypeName::Numeric):
+                    ans->setData((NumericType*)NULL);
+                    break;
+                }
+                delete tmp;
+                return false;
+            }
+            switch (op) {
+            case clacopName::ADD:
+                switch (ty->name) {
+                case TypeName::Int:
+                    *((int*)ans->getData()) += *((int*)tmp->getData());
+                    break;
+                case TypeName::SmallInt:
+                    *((short*)ans->getData()) += *((short*)tmp->getData());
+                    break;
+                case TypeName::Double:
+                    *((double*)ans->getData()) += *((double*)tmp->getData());
+                    break;
+                case TypeName::Float:
+                    *((float*)ans->getData()) += *((float*)tmp->getData());
+                    break;
+                }
+                break;
+            case clacopName::MINUS:
+                switch (ty->name) {
+                case TypeName::Int:
+                    *((int*)ans->getData()) -= *((int*)tmp->getData());
+                    break;
+                case TypeName::SmallInt:
+                    *((short*)ans->getData()) -= *((short*)tmp->getData());
+                    break;
+                case TypeName::Double:
+                    *((double*)ans->getData()) -= *((double*)tmp->getData());
+                    break;
+                case TypeName::Float:
+                    *((float*)ans->getData()) -= *((float*)tmp->getData());
+                    break;
+                }
+                break;
+            case clacopName::MULTI:
+                switch (ty->name) {
+                case TypeName::Int:
+                    *((int*)ans->getData()) *= *((int*)tmp->getData());
+                    break;
+                case TypeName::SmallInt:
+                    *((short*)ans->getData()) *= *((short*)tmp->getData());
+                    break;
+                case TypeName::Double:
+                    *((double*)ans->getData()) *= *((double*)tmp->getData());
+                    break;
+                case TypeName::Float:
+                    *((float*)ans->getData()) *= *((float*)tmp->getData());
+                    break;
+                }
+                break;
+            case clacopName::DIV:
+                switch (ty->name) {
+                case TypeName::Int:
+                    if ((*((int*)tmp->getData())) == 0) {
+                        delete tmp;
+                        return false;
+                    }
+                    *((int*)ans->getData()) /= *((int*)tmp->getData());
+                    break;
+                case TypeName::SmallInt:
+                    if ((*((int*)tmp->getData())) == 0) {
+                        delete tmp;
+                        return false;
+                    }
+                    *((short*)ans->getData()) /= *((short*)tmp->getData());
+                    break;
+                case TypeName::Double:
+                    if ((*((int*)tmp->getData())) == 0) {
+                        delete tmp;
+                        return false;
+                    }
+                    *((double*)ans->getData()) /= *((double*)tmp->getData());
+                    break;
+                case TypeName::Float:
+                    if ((*((int*)tmp->getData())) == 0) {
+                        delete tmp;
+                        return false;
+                    }
+                    *((float*)ans->getData()) /= *((float*)tmp->getData());
+                    break;
+                }
+                break;
+            case clacopName::MODC:
+                switch (ty->name) {
+                case TypeName::Int:
+                    if ((*((int*)tmp->getData())) == 0) {
+                        delete tmp;
+                        return false;
+                    }
+                    *((int*)ans->getData()) %= *((int*)tmp->getData());
+                    break;
+                case TypeName::SmallInt:
+                    if ((*((int*)tmp->getData())) == 0) {
+                        delete tmp;
+                        return false;
+                    }
+                    *((short*)ans->getData()) %= *((short*)tmp->getData());
+                    break;
+                }
+                break;
+            }
+            delete tmp;
+            return true;
             break;
         }
     }
@@ -658,58 +1071,30 @@ public:
             break;
         case exprType::COLUMN:
             for (i = 0; i < b->getfa()->getnum(); i++) {
-                if (strcmp(col->aname.c_str(), b->getfa()->getTypeName(i)) == 0) {
-                    if ((b->getNull() & Wei::wei[i]) == 0) {
-                        switch (ty->name) {
-                        case TypeName::Int:
-                            ans->setData(((int*)b->getPart(i)->getData()));
-                            break;
-                        case TypeName::SmallInt:
-                            ans->setData(((short*)b->getPart(i)->getData()));
-                            break;
-                        case TypeName::Char:
-                            ans->setData(((char*)b->getPart(i)->getData()));
-                            break;
-                        case TypeName::Double:
-                            ans->setData(((double*)b->getPart(i)->getData()));
-                            break;
-                        case TypeName::Float:
-                            ans->setData(((float*)b->getPart(i)->getData()));
-                            break;
-                        case TypeName::Date:
-                            ans->setData(((DateType*)b->getPart(i)->getData()));
-                            break;
-                        case TypeName::Numeric:
-                            ans->setData(((NumericType*)b->getPart(i)->getData()));
-                            break;
-                        }
-                    }
-                    else {
-                        switch (ty->name) {
-                        case (TypeName::Int):
-                            ans->setData((int*)NULL);
-                            break;
-                        case (TypeName::SmallInt):
-                            ans->setData((short*)NULL);
-                            break;
-                        case (TypeName::Char):
-                            ans->setData((char*)NULL);
-                            break;
-                        case (TypeName::Double):
-                            ans->setData((double*)NULL);
-                            break;
-                        case (TypeName::Float):
-                            ans->setData((float*)NULL);
-                            break;
-                        case (TypeName::Date):
-                            ans->setData((DateType*)NULL);
-                            break;
-                        case (TypeName::Numeric):
-                            ans->setData((NumericType*)NULL);
-                            break;
-                        }
-                    }
-                    
+                if (strcmp(col->aname.c_str(), b->getfa()->getTypeName(i)) == 0) {                    
+                    switch (ty->name) {
+                    case TypeName::Int:
+                        ans->setData(((int*)b->getPart(i)->getData()));
+                        break;
+                    case TypeName::SmallInt:
+                        ans->setData(((short*)b->getPart(i)->getData()));
+                        break;
+                    case TypeName::Char:
+                        ans->setData(((char*)b->getPart(i)->getData()));
+                        break;
+                    case TypeName::Double:
+                        ans->setData(((double*)b->getPart(i)->getData()));
+                        break;
+                    case TypeName::Float:
+                        ans->setData(((float*)b->getPart(i)->getData()));
+                        break;
+                    case TypeName::Date:
+                        ans->setData(((DateType*)b->getPart(i)->getData()));
+                        break;
+                    case TypeName::Numeric:
+                        ans->setData(((NumericType*)b->getPart(i)->getData()));
+                        break;
+                    }                    
                     return true;
                 }
             }
@@ -936,6 +1321,61 @@ public:
     WhereClausesTree() {
         a = nullptr;
     }
+    bool checklist(std::vector<DSchema*> &ds) {
+        if (a == nullptr)return true;
+        int i, j, n;
+        n = a->a.size();
+        typeTree* ty;
+        TypeName tyname;
+        bool flag;
+        int k = -1;
+        for (i = 0; i < n; i++) {
+            if ((a->a[i]->col->tname != "") ||((a->a[i]->col->tname=="")&& ds.size() ==1)) {
+                bool flag = false;
+                for (j = 0; j < ds.size(); j++)
+                    if ((strcmp(a->a[i]->col->tname.c_str(), ds[j]->getName()) == 0) || ((strcmp(a->a[i]->col->tname.c_str(), "") == 0) && (ds.size() == 1))) {
+                        k = j;
+                        flag = true;
+                        break;
+                    }
+                if (!flag)
+                    return false;
+            }
+            else 
+                return false;
+            flag = false;
+            for (j = 0; j < ds[k]->getnum(); j++) {
+                if (strcmp(ds[k]->getTypeName(j), a->a[i]->col->aname.c_str()) == 0) {
+                    tyname = ds[k]->getPart(j)->getType();
+                    if (tyname == TypeName::Char) {
+                        ty = new typeTree(TypeName::Char, ((DtypeSchemaChar*)ds[k]->getPart(j))->getlen());
+                    }
+                    else
+                        if (tyname == TypeName::Numeric) {
+                            ty = new typeTree(TypeName::Numeric, ((DtypeSchemaNumeric*)ds[k]->getPart(j))->getsumd(), ((DtypeSchemaNumeric*)ds[k]->getPart(j))->getdotd());
+                        }
+                        else ty = new typeTree(tyname);
+
+                    flag = true;
+                    break;
+                }
+            }
+            if (!flag)
+                return false;
+            if (a->a[i]->op == opName::GT || a->a[i]->op == opName::LT || a->a[i]->op == opName::LE || a->a[i]->op == opName::LE)
+                if (ty->name == TypeName::Char || ty->name == TypeName::Date || ty->name == TypeName::Numeric) {
+                    delete ty;
+                    return false;
+                }
+            if (a->a[i]->expr != nullptr)
+                if (!a->a[i]->expr->checkdata(ds, ty)) {
+                    delete ty;
+                    return false;
+                }
+            delete ty;
+        }
+        return true;        
+    }
     bool check(DSchema* sh) {
         if (a == nullptr)return true;
         int i, j, n;
@@ -978,6 +1418,420 @@ public:
         }
         return true;
     }
+    bool checklist(std::vector<DList*>& dl) {
+        if (a == nullptr)return true;
+        int i, j, l, n;
+        n = a->a.size();
+        typeTree* ty;
+        TypeName tyname;
+        DtypeData* data1, * data2;   
+        bool flag;
+        for (i = 0; i < n; i++) {            
+            flag = false;
+            for (l = 0; l < dl.size(); l++) {            
+                if ((strcmp(dl[l]->getfa()->getName(), a->a[i]->col->tname.c_str())==0)||((strcmp(a->a[i]->col->tname.c_str(),"")==0)&&(dl.size()==1))) {
+                    for (j = 0; j < dl[l]->getfa()->getnum(); j++) {
+                        if (strcmp(dl[l]->getfa()->getTypeName(j), a->a[i]->col->aname.c_str()) == 0) {
+                            tyname = dl[l]->getfa()->getPart(j)->getType();
+                            switch (tyname) {
+                            case TypeName::Int:
+                                data1 = (DtypeDataInt*)(dl[l]->getPart(j));
+                                break;
+                            case TypeName::SmallInt:
+                                data1 = (DtypeDataSmallInt*)(dl[l]->getPart(j));
+                                break;
+                            case TypeName::Char:
+                                data1 = (DtypeDataChar*)(dl[l]->getPart(j));
+                                break;
+                            case TypeName::Double:
+                                data1 = (DtypeDataDouble*)(dl[l]->getPart(j));
+                                break;
+                            case TypeName::Float:
+                                data1 = (DtypeDataFloat*)(dl[l]->getPart(j));
+                                break;
+                            case TypeName::Date:
+                                data1 = (DtypeDataDate*)(dl[l]->getPart(j));
+                                break;
+                            case TypeName::Numeric:
+                                data1 = (DtypeDataNumeric*)(dl[l]->getPart(j));
+                                break;
+                            }
+                            flag = true;
+                            break;
+                        }
+                    }                                        
+                }
+                if (flag)break;
+            } 
+            if (!flag) 
+                return false;
+            switch (tyname) {
+            case TypeName::Int:
+                data2 = new DtypeDataInt();
+                ty = new typeTree(TypeName::Int);
+                break;
+            case TypeName::SmallInt:
+                data2 = new DtypeDataSmallInt();
+                ty = new typeTree(TypeName::SmallInt);
+                break;
+            case TypeName::Char:
+                data2 = new DtypeDataChar(((DtypeSchemaChar*)dl[l]->getfa()->getPart(j))->getlen());
+                ty = new typeTree(TypeName::Char, ((DtypeSchemaChar*)dl[l]->getfa()->getPart(j))->getlen());
+                break;
+            case TypeName::Double:
+                data2 = new DtypeDataDouble();
+                ty = new typeTree(TypeName::Double);
+                break;
+            case TypeName::Float:
+                data2 = new DtypeDataFloat();
+                ty = new typeTree(TypeName::Float);
+                break;
+            case TypeName::Date:
+                data2 = new DtypeDataDate();
+                ty = new typeTree(TypeName::Date);
+                break;
+            case TypeName::Numeric:
+                data2 = new DtypeDataNumeric(((DtypeSchemaNumeric*)dl[l]->getfa()->getPart(j))->getsumdotd());
+                ty = new typeTree(TypeName::Numeric, ((DtypeSchemaNumeric*)dl[l]->getfa()->getPart(j))->getsumd(), ((DtypeSchemaNumeric*)dl[l]->getfa()->getPart(j))->getdotd());
+                break;
+            }
+            if (a->a[i]->expr != nullptr) {
+                if (!a->a[i]->expr->makedata(dl, data2, ty)) {
+                    delete data2, ty;
+                    return false;
+                }
+            }
+            else {
+                switch (ty->name) {
+                case (TypeName::Int):
+                    data2->setData((int*)NULL);
+                    break;
+                case (TypeName::SmallInt):
+                    data2->setData((short*)NULL);
+                    break;
+                case (TypeName::Char):
+                    data2->setData((char*)NULL);
+                    break;
+                case (TypeName::Double):
+                    data2->setData((double*)NULL);
+                    break;
+                case (TypeName::Float):
+                    data2->setData((float*)NULL);
+                    break;
+                case (TypeName::Date):
+                    data2->setData((DateType*)NULL);
+                    break;
+                case (TypeName::Numeric):
+                    data2->setData((NumericType*)NULL);
+                    break;
+                }
+            }
+            switch (a->a[i]->op) {
+            case opName::EQ:
+                switch (ty->name) {
+                case (TypeName::Int):
+                    if (*((int*)data1->getData()) != *((int*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::SmallInt):
+                    if (*((short*)data1->getData()) != *((short*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Char):
+                    if (strcmp((char*)data1->getData(), (char*)data2->getData()) != 0) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Double):
+                    if (*((double*)data1->getData()) != *((double*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Float):
+                    if (*((float*)data1->getData()) != *((float*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Date):
+                    if (!((DateType*)data1->getData())->equal((DateType*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Numeric):
+                    if (!((NumericType*)data1->getData())->equal((NumericType*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                }
+                break;
+            case opName::GT:
+                switch (ty->name) {
+                case (TypeName::Int):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((int*)data1->getData()) <= *((int*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::SmallInt):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((short*)data1->getData()) <= *((short*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Double):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((double*)data1->getData()) <= *((double*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Float):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((float*)data1->getData()) <= *((float*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                default:
+                    printf("op ERROR!\n");
+                    delete data2, ty;
+                    return false;
+                    break;
+                }
+                break;
+            case opName::LT:
+                switch (ty->name) {
+                case (TypeName::Int):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((int*)data1->getData()) >= *((int*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::SmallInt):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((short*)data1->getData()) >= *((short*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Double):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((double*)data1->getData()) >= *((double*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Float):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((float*)data1->getData()) >= *((float*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                default:
+                    printf("op ERROR!\n");
+                    delete data2, ty;
+                    return false;
+                    break;
+                }
+                break;
+            case opName::GE:
+                switch (ty->name) {
+                case (TypeName::Int):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((int*)data1->getData()) < *((int*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::SmallInt):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((short*)data1->getData()) < *((short*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Double):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((double*)data1->getData()) < *((double*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Float):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((float*)data1->getData()) < *((float*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                default:
+                    printf("op ERROR!\n");
+                    delete data2, ty;
+                    return false;
+                    break;
+                }
+                break;
+            case opName::LE:
+                switch (ty->name) {
+                case (TypeName::Int):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((int*)data1->getData()) > * ((int*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::SmallInt):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((short*)data1->getData()) > * ((short*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Double):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((double*)data1->getData()) > * ((double*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Float):
+                    if (data1->getData() == NULL || data2->getData() == NULL) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    if (*((float*)data1->getData()) > * ((float*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                default:
+                    printf("op ERROR!\n");
+                    delete data2, ty;
+                    return false;
+                    break;
+                }
+                break;
+            case opName::NE:
+                switch (ty->name) {
+                case (TypeName::Int):
+                    if (*((int*)data1->getData()) == *((int*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::SmallInt):
+                    if (*((short*)data1->getData()) == *((short*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Char):
+                    if (strcmp((char*)data1->getData(), (char*)data2->getData()) == 0) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Double):
+                    if (*((double*)data1->getData()) == *((double*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Float):
+                    if (*((float*)data1->getData()) == *((float*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Date):
+                    if (((DateType*)data1->getData())->equal((DateType*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                case (TypeName::Numeric):
+                    if (((NumericType*)data1->getData())->equal((NumericType*)data2->getData())) {
+                        delete data2, ty;
+                        return false;
+                    }
+                    break;
+                }
+                break;
+            case opName::INULL:
+                if (data1->getData() != NULL) {
+                    delete data2, ty;
+                    return false;
+                }
+                break;
+            case opName::NNULL:
+                if (data1->getData() == NULL) {
+                    delete data2, ty;
+                    return false;
+                }
+                break;
+            }
+            delete data2, ty;
+        }
+        return true;
+    }
     bool check(DList* b) {
         if (a == nullptr)return true;
         int i, j, n;
@@ -988,64 +1842,30 @@ public:
         for (i = 0; i < n; i++) {
             for (j = 0; j < b->getfa()->getnum(); j++) {
                 if (strcmp(b->getfa()->getTypeName(j), a->a[i]->col->aname.c_str()) == 0) {
-                    tyname = b->getfa()->getPart(j)->getType();
-                    if ((b->getNull() & Wei::wei[j]) == 0) {
-                        switch (tyname) {
-                        case TypeName::Int:
-                            data1 = (DtypeDataInt*)(b->getPart(j));                            
-                            break;
-                        case TypeName::SmallInt:
-                            data1 = (DtypeDataSmallInt*)(b->getPart(j));                            
-                            break;
-                        case TypeName::Char:
-                            data1 = (DtypeDataChar*)(b->getPart(j));                            
-                            break;
-                        case TypeName::Double:
-                            data1 = (DtypeDataDouble*)(b->getPart(j));                            
-                            break;
-                        case TypeName::Float:
-                            data1 = (DtypeDataFloat*)(b->getPart(j));                            
-                            break;
-                        case TypeName::Date:
-                            data1 = (DtypeDataDate*)(b->getPart(j));                            
-                            break;
-                        case TypeName::Numeric:
-                            data1 = (DtypeDataNumeric*)(b->getPart(j));                            
-                            break;
-                        }
-                    }
-                    else {
-                        switch (tyname) {
-                        case TypeName::Int:
-                            data1 = (DtypeDataInt*)(b->getPart(j));
-                            data1->setData((int*)NULL);
-                            break;
-                        case TypeName::SmallInt:
-                            data1 = (DtypeDataSmallInt*)(b->getPart(j));
-                            data1->setData((short*)NULL);
-                            break;
-                        case TypeName::Char:
-                            data1 = (DtypeDataChar*)(b->getPart(j));
-                            data1->setData((char*)NULL);
-                            break;
-                        case TypeName::Double:
-                            data1 = (DtypeDataDouble*)(b->getPart(j));
-                            data1->setData((double*)NULL);
-                            break;
-                        case TypeName::Float:
-                            data1 = (DtypeDataFloat*)(b->getPart(j));
-                            data1->setData((float*)NULL);
-                            break;
-                        case TypeName::Date:
-                            data1 = (DtypeDataDate*)(b->getPart(j));
-                            data1->setData((DateType*)NULL);
-                            break;
-                        case TypeName::Numeric:
-                            data1 = (DtypeDataNumeric*)(b->getPart(j));
-                            data1->setData((NumericType*)NULL);
-                            break;
-                        }
-                    }
+                    tyname = b->getfa()->getPart(j)->getType();                    
+                    switch (tyname) {
+                    case TypeName::Int:
+                        data1 = (DtypeDataInt*)(b->getPart(j));                            
+                        break;
+                    case TypeName::SmallInt:
+                        data1 = (DtypeDataSmallInt*)(b->getPart(j));                            
+                        break;
+                    case TypeName::Char:
+                        data1 = (DtypeDataChar*)(b->getPart(j));                            
+                        break;
+                    case TypeName::Double:
+                        data1 = (DtypeDataDouble*)(b->getPart(j));                            
+                        break;
+                    case TypeName::Float:
+                        data1 = (DtypeDataFloat*)(b->getPart(j));                            
+                        break;
+                    case TypeName::Date:
+                        data1 = (DtypeDataDate*)(b->getPart(j));                            
+                        break;
+                    case TypeName::Numeric:
+                        data1 = (DtypeDataNumeric*)(b->getPart(j));                            
+                        break;
+                    }                                        
                     break;
                 }
             }
@@ -1114,71 +1934,43 @@ public:
             case opName::EQ:                
                 switch (ty->name) {
                 case (TypeName::Int):
-                    if (*((int*)data1->getData()) == *((int*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((int*)data1->getData()) != *((int*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
                     break;
                 case (TypeName::SmallInt):
-                    if (*((short*)data1->getData()) == *((short*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((short*)data1->getData()) != *((short*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
                     break;
                 case (TypeName::Char):
-                    if (strcmp((char*)data1->getData(),(char*)data2->getData())==0) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (strcmp((char*)data1->getData(),(char*)data2->getData())!=0) {
                         delete data2, ty;
                         return false;
                     }
                     break;
                 case (TypeName::Double):
-                    if (*((double*)data1->getData()) == *((double*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((double*)data1->getData()) != *((double*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
                     break;
                 case (TypeName::Float):
-                    if (*((float*)data1->getData()) == *((float*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((float*)data1->getData()) != *((float*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
                     break;
                 case (TypeName::Date):
-                    if (((DateType*)data1->getData())->equal((DateType*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (!((DateType*)data1->getData())->equal((DateType*)data2->getData())) {                        
                         delete data2, ty;
                         return false;
                     }
                     break;
                 case (TypeName::Numeric):
-                    if (((NumericType*)data1->getData())->equal((NumericType*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (!((NumericType*)data1->getData())->equal((NumericType*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1192,11 +1984,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((int*)data1->getData()) > *((int*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((int*)data1->getData()) <= *((int*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1206,11 +1994,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((short*)data1->getData()) > *((short*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((short*)data1->getData()) <= *((short*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1220,11 +2004,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((double*)data1->getData()) > *((double*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((double*)data1->getData()) <= *((double*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1234,11 +2014,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((float*)data1->getData()) > *((float*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((float*)data1->getData()) <= *((float*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1257,11 +2033,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((int*)data1->getData()) < * ((int*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((int*)data1->getData()) >= * ((int*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1271,11 +2043,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((short*)data1->getData()) < * ((short*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((short*)data1->getData()) >= * ((short*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1285,11 +2053,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((double*)data1->getData()) < * ((double*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((double*)data1->getData()) >= * ((double*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1299,11 +2063,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((float*)data1->getData()) < * ((float*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((float*)data1->getData()) >= * ((float*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1322,11 +2082,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((int*)data1->getData()) >= * ((int*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((int*)data1->getData()) < * ((int*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1336,11 +2092,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((short*)data1->getData()) >= * ((short*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((short*)data1->getData()) < * ((short*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1350,11 +2102,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((double*)data1->getData()) >= * ((double*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((double*)data1->getData()) < * ((double*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1364,11 +2112,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((float*)data1->getData()) >= * ((float*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((float*)data1->getData()) < * ((float*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1387,11 +2131,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((int*)data1->getData()) <= * ((int*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((int*)data1->getData()) > * ((int*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1401,11 +2141,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((short*)data1->getData()) <= * ((short*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((short*)data1->getData()) > * ((short*)data2->getData())) {
                         delete data2, ty;
                         return false;
                     }
@@ -1415,11 +2151,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((double*)data1->getData()) <= * ((double*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((double*)data1->getData()) > * ((double*)data2->getData())) {                        
                         delete data2, ty;
                         return false;
                     }
@@ -1429,11 +2161,7 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    if (*((float*)data1->getData()) <= * ((float*)data2->getData())) {
-                        //delete data2, ty;
-                        //return true;
-                    }
-                    else {
+                    if (*((float*)data1->getData()) > * ((float*)data2->getData())) {                        
                         delete data2, ty;
                         return false;
                     }
@@ -1452,19 +2180,11 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    else {
-                        //delete data2, ty;
-                        //return true;
-                    }
                     break;
                 case (TypeName::SmallInt):
                     if (*((short*)data1->getData()) == *((short*)data2->getData())) {
                         delete data2, ty;
                         return false;
-                    }
-                    else {
-                        //delete data2, ty;
-                        //return true;
                     }
                     break;
                 case (TypeName::Char):
@@ -1472,19 +2192,11 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    else {
-                        //delete data2, ty;
-                        //return true;
-                    }
                     break;
                 case (TypeName::Double):
                     if (*((double*)data1->getData()) == *((double*)data2->getData())) {
                         delete data2, ty;
                         return false;
-                    }
-                    else {
-                        //delete data2, ty;
-                        //return true;
                     }
                     break;
                 case (TypeName::Float):
@@ -1492,19 +2204,11 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    else {
-                        //delete data2, ty;
-                        //return true;
-                    }
                     break;
                 case (TypeName::Date):
                     if (((DateType*)data1->getData())->equal((DateType*)data2->getData())) {
                         delete data2, ty;
                         return false;
-                    }
-                    else {
-                        //delete data2, ty;
-                        //return true;
                     }
                     break;
                 case (TypeName::Numeric):
@@ -1512,29 +2216,17 @@ public:
                         delete data2, ty;
                         return false;
                     }
-                    else {
-                        //delete data2, ty;
-                        //return true;
-                    }
                     break;
                 }
                 break;
             case opName::INULL:
-                if (data1->getData() == NULL) {
-                    //delete data2, ty;
-                    //return true;
-                }
-                else {
+                if (data1->getData() != NULL) {
                     delete data2, ty;
                     return false;
                 }
                 break;
             case opName::NNULL:
-                if (data1->getData() != NULL) {
-                    //delete data2, ty;
-                    //return true;
-                }
-                else {
+                if (data1->getData() == NULL) {                    
                     delete data2, ty;
                     return false;
                 }
@@ -1550,7 +2242,8 @@ public:
 };
 
 class setClauseTree :public Tree {
-private:
+    friend class setClauselistTree;
+protected:
     exprTree* expr;
     columnTree* col;
 public:
@@ -1570,8 +2263,120 @@ public:
     setClauselistTree() {
         a.clear();
     }
-    void change(DList* b) {
-        //
+    bool check(DSchema* sh) {        
+        int i, j, n;
+        n = a.size();
+        typeTree* ty;
+        TypeName tyname;
+        bool flag;
+        for (i = 0; i < n; i++) {
+            if (strcmp(a[i]->col->tname.c_str(), "") != 0 && strcmp(a[i]->col->tname.c_str(), sh->getName()) != 0)
+                return false;
+            flag = false;
+            for (j = 0; j < sh->getnum(); j++) {
+                if (strcmp(sh->getTypeName(j), a[i]->col->aname.c_str()) == 0) {
+                    if (sh->getPart(j)->getKey()->getKey() != KeyName::Null)
+                        return false;
+                    tyname = sh->getPart(j)->getType();
+                    if (tyname == TypeName::Char) {
+                        ty = new typeTree(TypeName::Char, ((DtypeSchemaChar*)sh->getPart(j))->getlen());
+                    }
+                    else
+                        if (tyname == TypeName::Numeric) {
+                            ty = new typeTree(TypeName::Numeric, ((DtypeSchemaNumeric*)sh->getPart(j))->getsumd(), ((DtypeSchemaNumeric*)sh->getPart(j))->getdotd());
+                        }
+                        else ty = new typeTree(tyname);
+
+                    flag = true;
+                    break;
+                }
+            }
+            if (!flag)return false;            
+            if (!a[i]->expr->checkdata(sh, ty)) {
+                delete ty;
+                return false;
+            }
+            delete ty;
+        }
+        return true;
+    }
+    void change(DList* b) {        
+        int i, j, n;
+        n = a.size();
+        typeTree* ty;
+        TypeName tyname;
+        DtypeData* data2;
+        int chnum;
+        for (i = 0; i < n; i++) {
+            for (j = 0; j < b->getfa()->getnum(); j++) {
+                if (strcmp(b->getfa()->getTypeName(j), a[i]->col->aname.c_str()) == 0) {
+                    tyname = b->getfa()->getPart(j)->getType();
+                    chnum = j;
+                    break;
+                }
+            }
+            switch (tyname) {
+            case TypeName::Int:
+                data2 = new DtypeDataInt();
+                ty = new typeTree(TypeName::Int);
+                break;
+            case TypeName::SmallInt:
+                data2 = new DtypeDataSmallInt();
+                ty = new typeTree(TypeName::SmallInt);
+                break;
+            case TypeName::Char:
+                data2 = new DtypeDataChar(((DtypeSchemaChar*)b->getfa()->getPart(j))->getlen());
+                ty = new typeTree(TypeName::Char, ((DtypeSchemaChar*)b->getfa()->getPart(j))->getlen());
+                break;
+            case TypeName::Double:
+                data2 = new DtypeDataDouble();
+                ty = new typeTree(TypeName::Double);
+                break;
+            case TypeName::Float:
+                data2 = new DtypeDataFloat();
+                ty = new typeTree(TypeName::Float);
+                break;
+            case TypeName::Date:
+                data2 = new DtypeDataDate();
+                ty = new typeTree(TypeName::Date);
+                break;
+            case TypeName::Numeric:
+                data2 = new DtypeDataNumeric(((DtypeSchemaNumeric*)b->getfa()->getPart(j))->getsumdotd());
+                ty = new typeTree(TypeName::Numeric, ((DtypeSchemaNumeric*)b->getfa()->getPart(j))->getsumd(), ((DtypeSchemaNumeric*)b->getfa()->getPart(j))->getdotd());
+                break;
+            }
+            if (!a[i]->expr->makedata(b, data2, ty)) {
+                delete data2, ty;
+                continue;
+            }
+            if ((!b->getfa()->getPart(chnum)->getAllowNull()) && (data2->getData() == NULL))
+                continue;
+            switch (tyname) {
+            case TypeName::Int:
+                b->getPart(chnum)->setData((int*)data2->getData());
+                break;
+            case TypeName::SmallInt:
+                b->getPart(chnum)->setData((short*)data2->getData());
+                break;
+            case TypeName::Char:
+                b->getPart(chnum)->setData((char*)data2->getData());
+                break;
+            case TypeName::Double:
+                b->getPart(chnum)->setData((double*)data2->getData());
+                break;
+            case TypeName::Float:
+                b->getPart(chnum)->setData((float*)data2->getData());
+                break;
+            case TypeName::Date:
+                if (!((DateType*)data2->getData())->islegal())
+                    break;
+                b->getPart(chnum)->setData((DateType*)data2->getData());
+                break;
+            case TypeName::Numeric:
+                b->getPart(chnum)->setData((NumericType*)data2->getData());
+                break;
+            }
+        }
     }
     void append(setClauseTree* i) {
         a.push_back(i);
@@ -2032,10 +2837,15 @@ public:
 };
 class DropPrimaryTree :public Tree {
 private:
-    std::string name;
+    std::string tname, aname;
 public:
     DropPrimaryTree(char* i) {
-        name = i;
+        tname = i;
+        aname = nullptr;
+    }
+    DropPrimaryTree(char* t, char* a) {
+        tname = t;
+        aname = a;
     }
     void visit() {
         //执行
@@ -2106,7 +2916,40 @@ public:
         newname = n;
     }
     void visit() {
-        //执行
+        //模式重命名
+        //查找当前数据库特定表和表的具体数据
+        if (_access(std::string("../data/" + CurrentDatabase + "/").c_str(), 0) == -1 || CurrentDatabase == "") {
+            printf("CurrentDatabase is not exist!\n");
+            return;
+        }
+        string a = "../data/" + CurrentDatabase + "/" + oldname;        
+        WIN32_FIND_DATA FindFileData;
+        HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
+        if (file == INVALID_HANDLE_VALUE) {
+            printf("There is no Table %s.\n", oldname.c_str());
+        }
+        else {
+            int fileID;
+            rm->OpenFile(a.c_str(), fileID);
+            DSchema* sh = new DSchema();
+            rm->GetSchema(fileID, *sh);   
+            sh->setName(newname.c_str());
+            BufType buf = new unsigned int[2048];
+            if (rm->fm->readPage(fileID, 0, buf, 0) == -1) {
+                printf("Rename readPage ERROR");
+                return;
+            }            
+            sh->writeSchemaBuf(buf + 2);
+            if (rm->fm->writePage(fileID, 0, buf, 0) == -1) {
+                printf("Rename writePage ERROR");
+                return;
+            }
+            delete[] buf;
+            delete sh;            
+            rm->CloseFile(fileID);
+            rename(std::string("../data/" + CurrentDatabase + "/" + oldname).c_str(), std::string("../data/" + CurrentDatabase + "/" + newname).c_str());
+        }
+        FindClose(file);
     }
 };
 
@@ -2180,7 +3023,7 @@ public:
             DSchema* sh = new DSchema();            
             rm->GetSchema(fileID, *sh);            
             if (!wherecl->check(sh)) {                
-                printf("Where Type Fault!Stop!\n");
+                printf("Where Check Fault!Stop!\n");
                 delete sh;                
                 rm->CloseFile(fileID);
                 FindClose(file);
@@ -2267,36 +3110,94 @@ public:
         wherecl = w;
     }
     void visit() {        
-        //执行
+        //更新记录
+        if (_access(std::string("../data/" + CurrentDatabase + "/").c_str(), 0) == -1 || CurrentDatabase == "") {
+            printf("CurrentDatabase is not exist!\n");
+            return;
+        }
+        string a = "../data/" + CurrentDatabase + "/" + name;
+        WIN32_FIND_DATA FindFileData;
+        HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
+        if (file == INVALID_HANDLE_VALUE) {
+            printf("There is no Table %s.\n", name.c_str());
+        }
+        else {
+            //遍历所有记录
+            int fileID;
+            rm->OpenFile(a.c_str(), fileID);
+            DSchema* sh = new DSchema();
+            rm->GetSchema(fileID, *sh);
+            if (!wherecl->check(sh)) {
+                printf("Where Check Fault!Stop!\n");
+                delete sh;
+                rm->CloseFile(fileID);
+                FindClose(file);
+                return;
+            }
+            if (!setcl->check(sh)) {
+                printf("Set Check Fault!Stop!\n");
+                delete sh;
+                rm->CloseFile(fileID);
+                FindClose(file);
+                return;
+            }
+            DList* b = new DList(sh);
+            BufType pagebuf = new unsigned int[2048];
+            if (rm->fm->readPage(fileID, 0, pagebuf, 0) == -1) {
+                printf("ERROR\n");
+                delete[] pagebuf;
+                delete sh;
+                delete b;
+                rm->CloseFile(fileID);
+                FindClose(file);
+                return;
+            }
+            int pagenum = pagebuf[0];
+            int i, j, k;
+            int ll[40];
+            for (i = 1; i <= pagenum; i++) {
+                if (rm->fm->readPage(fileID, i, pagebuf, 0) == -1) {
+                    printf("ERROR\n");
+                    delete[] pagebuf;
+                    delete sh;
+                    delete b;
+                    rm->CloseFile(fileID);
+                    FindClose(file);
+                    return;
+                }
+                k = Wei::wei[31] - 1 - pagebuf[1];
+                ll[0] = 0;
+                while (k > 0) {
+                    j = k & (-k);
+                    k -= j;
+                    j = Wei::BitConvInt(j);
+                    ll[0] += 1;
+                    ll[ll[0]] = j;
+                }
+                for (j = 1; j <= ll[0]; j++) {
+                    b->readDataBuf(pagebuf + 2 + 64 * ll[j]);
+                    if (wherecl->check(b)) {
+                        setcl->change(b);
+                        rm->UpdateRecord(fileID, PageLoc(i, ll[j]), b);
+                    }
+                }
+            }
+            delete[] pagebuf;
+            delete sh;
+            delete b;
+            rm->CloseFile(fileID);
+        }
+        FindClose(file);
     }
     ~UpdateTree() {
         delete setcl;
         if (wherecl != nullptr)delete wherecl;
     }
 };
-class SelectTree :public Tree {
-private:
-    columnlistTree* collist;
-    tablelistTree* tablelist;
-    WhereClausesTree* wherecl;    
-public:
-    SelectTree(columnlistTree* cl, tablelistTree* tl,WhereClausesTree* w) {
-        collist = cl;
-        tablelist = tl;
-        wherecl = w;
-    }
-    void visit() {
-        //执行
-    }
-    ~SelectTree() {
-        if (collist != nullptr)delete collist;
-        delete tablelist;
-        if (wherecl != nullptr)delete wherecl;
-    }
-};
 
 class tablelistTree :public Tree {
-private:
+    friend class SelectTree;
+protected:
     std::vector<std::string> a;
 public:
     tablelistTree() {
@@ -2304,6 +3205,204 @@ public:
     }
     void append(char* i) {
         a.push_back(std::string(i));
+    }
+};
+class SelectTree :public Tree {
+private:
+    columnlistTree* collist;
+    tablelistTree* tablelist;
+    WhereClausesTree* wherecl;
+
+    std::vector<HANDLE> fl;
+    std::vector<DSchema*> ds;
+    std::vector<DList*> dl;
+    std::vector<int> fid;
+    std::vector<BufType> pbl;
+    std::vector<int> pagenum;
+    bool flag;
+public:
+    SelectTree(columnlistTree* cl, tablelistTree* tl, WhereClausesTree* w) {
+        collist = cl;
+        tablelist = tl;
+        wherecl = w;
+    }
+    void visit() {
+        //select查找具体数据
+        if (_access(std::string("../data/" + CurrentDatabase + "/").c_str(), 0) == -1 || CurrentDatabase == "") {
+            printf("CurrentDatabase is not exist!\n");
+            return;
+        }
+        int tnum = tablelist->a.size();
+        int i;
+        for (i = 0; i < tnum; i++) {
+            string a = "../data/" + CurrentDatabase + "/" + tablelist->a[i];
+            WIN32_FIND_DATA FindFileData;
+            HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
+            if (file == INVALID_HANDLE_VALUE) {
+                printf("There is no Table %s.\n", tablelist->a[i].c_str());
+            }
+            else {
+            }
+            FindClose(file);
+        }
+        fl.clear();
+        ds.clear();
+        fid.clear();
+        for (i = 0; i < tnum; i++) {
+            string a = "../data/" + CurrentDatabase + "/" + tablelist->a[i];
+            WIN32_FIND_DATA FindFileData;
+            HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
+            int fileID;
+            rm->OpenFile(a.c_str(), fileID);
+            DSchema* sh = new DSchema();
+            rm->GetSchema(fileID, *sh);
+            fl.push_back(file);
+            ds.push_back(sh);
+            fid.push_back(fileID);
+        }
+        if (!wherecl->checklist(ds)) {
+            printf("Where Check Fault!Stop!\n");
+            for (i = 0; i < tnum; i++) {
+                delete ds[i];
+                rm->CloseFile(fid[i]);
+                FindClose(fl[i]);
+            }
+            return;
+        }
+        dl.clear();
+        pbl.clear();
+        pagenum.clear();
+        flag = true;
+        for (i = 0; i < tnum; i++) {
+            DList* b = new DList(ds[i]);
+            dl.push_back(b);
+            BufType pagebuf = new unsigned int[2048];
+            if (rm->fm->readPage(fid[i], 0, pagebuf, 0) == -1) {
+                printf("READPAGE FILE %d PAGE 0 ERROR\n", i);
+                flag = false;
+            }          
+            pbl.push_back(pagebuf);
+            pagenum.push_back(pagebuf[0]);            
+        }
+        if (!flag) {
+            for (i = 0; i < tnum; i++) {
+                delete ds[i];
+                rm->CloseFile(fid[i]);
+                FindClose(fl[i]);
+                delete[] pbl[i];
+                delete dl[i];
+            }
+            return;
+        }
+
+        flag = true;
+        makeRecordList(0);
+
+        for (i = 0; i < tnum; i++) {
+            delete ds[i];
+            rm->CloseFile(fid[i]);
+            FindClose(fl[i]);
+            delete[] pbl[i];
+            delete dl[i];
+        }
+    }
+    void showall(std::vector<DList*> dl) {
+        int i, j;
+        TypeName tn;        
+        int nk;
+        for (j = 0; j < dl.size(); j++) {            
+            nk = dl[j]->getNull();
+            printf("Table %s:\n",dl[j]->getfa()->getName());
+            for (i = 0; i < dl[j]->getfa()->getnum(); i++) {
+                if ((nk & Wei::wei[i]) > 0) {
+                    printf("DList 's part %d is NULL\n", i);
+                    continue;
+                }                    
+                printf("DList 's part %d is ", i);
+                tn = dl[j]->getfa()->getPart(i)->getType();
+                DateType* tmp;
+                NumericType* tmp2;
+                int sumd, dotd, len;
+                switch (tn) {
+                case TypeName::Int:
+                    len = ((DtypeSchemaInt*)dl[j]->getfa()->getPart(i))->getlen();
+                    sumd = *((int*)dl[j]->getPart(i)->getData());
+                    if (sumd < 0) {
+                        printf("-");
+                        sumd = -sumd;
+                    }
+                    for (int j = len - 1; j >= 0; j--)printf("%d", sumd / Wei::shiwei[j] % 10);
+                    printf("\n");
+                    break;
+                case TypeName::SmallInt:
+                    printf("%d\n", *((short*)dl[j]->getPart(i)->getData()));
+                    break;
+                case TypeName::Char:
+                    printf("%s\n", ((char*)dl[j]->getPart(i)->getData()));
+                    break;
+                case TypeName::Double:
+                    printf("%f\n", *((double*)dl[j]->getPart(i)->getData()));
+                    break;
+                case TypeName::Float:
+                    printf("%f\n", *((float*)dl[j]->getPart(i)->getData()));
+                    break;
+                case TypeName::Date:
+                    tmp = ((DateType*)dl[j]->getPart(i)->getData());
+                    printf("Date:%d\\%d\\%d\n", tmp->getyear(), tmp->getmonth(), tmp->getday());
+                    break;
+                case TypeName::Numeric:
+                    tmp2 = ((NumericType*)dl[j]->getPart(i)->getData());
+                    sumd = ((DtypeSchemaNumeric*)dl[j]->getfa()->getPart(i))->getsumd();
+                    dotd = ((DtypeSchemaNumeric*)dl[j]->getfa()->getPart(i))->getdotd();
+                    printf("Numeric:%s\n", tmp2->getd(sumd, dotd));
+                    break;
+                default:
+                    printf("Type ERROR\n");
+                }
+            }
+        }
+    }
+    void makeRecordList(int d) {
+        if (d == tablelist->a.size()) {            
+            if (wherecl->checklist(dl)) {
+                if (collist == nullptr) {
+                    showall(dl);
+                }
+                else {
+                    collist->show(dl);
+                }                
+            }            
+            return;
+        }        
+        
+        int i, j, k;
+        int ll[40];
+
+        for (i = 1; i <= pagenum[d]; i++) {
+            if (rm->fm->readPage(fid[d], i, pbl[d], 0) == -1) {
+                printf("READPAGE FILE %d PAGE %d ERROR\n", d, i);
+                flag = false;
+                return;
+            }
+            k = Wei::wei[31] - 1 - pbl[d][1];
+            ll[0] = 0;
+            while (k > 0) {
+                j = k & (-k);
+                k -= j;
+                j = Wei::BitConvInt(j);
+                ll[0] += 1;
+                ll[ll[0]] = j;
+            }
+            for (j = 1; j <= ll[0]; j++) {
+                dl[d]->readDataBuf(pbl[d] + 2 + 64 * ll[j]);
+                makeRecordList(d + 1);
+            }
+        }
+    }
+    ~SelectTree() {
+        if (collist != nullptr)delete collist;
+        delete tablelist;
+        if (wherecl != nullptr)delete wherecl;
     }
 };
 

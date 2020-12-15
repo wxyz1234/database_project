@@ -210,8 +210,7 @@ public:
 			return false;
 		}
 		//bufĞÅÏ¢×ªDList
-		data.readDataBuf(pagebuf + 2 + 64 * page.LocID);
-		data.makeNull();
+		data.readDataBuf(pagebuf + 2 + 64 * page.LocID);		
 		return true;
 	}
 	bool PDUpdate(int fileID,int pdnum,int panum,DSchema* sh) {

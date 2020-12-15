@@ -77,7 +77,7 @@ int sumRID;
 %token IS NOT NULLC DEFAULT PRIMARY FOREIGN KEY
 %token REFERENCES RENAME TO ON AND SET
 %token INTEGER  SMALLINT  CHARTYPE  DOUBLETYPE  FLOATTYPE  DATETYPE  NUMERICTYPE
-%token '(' ')' ';' ',' '+' '-' '*' '/' '%'
+%token '(' ')' ';' ',' '+' '-' '*' '/' '%' '.'
 %token EQ GT LT GE LE NE
 %token <string> NAME TEXT INUM FNUM DATENUM
 
@@ -202,10 +202,16 @@ command: CREATE DATABASE NAME{
 			delete $3;
 			Tree::run();
 		}	
-	|	ALTER TABLE NAME DROP FOREIGN KEY '(' NAME ')'{
-			$$=new DropForeignTree($3,$8);
+	|	ALTER TABLE NAME DROP PRIMARY KEY NAME {
+			$$=new DropPrimaryTree($3,$7);
 			Tree::setInstance($$);			
-			delete $3,$8;
+			delete $3,$7;
+			Tree::run();
+		}
+	|	ALTER TABLE NAME DROP FOREIGN KEY NAME {
+			$$=new DropForeignTree($3,$7);
+			Tree::setInstance($$);			
+			delete $3,$7;
 			Tree::run();
 		}
 	|	ALTER TABLE NAME DROP NAME{
