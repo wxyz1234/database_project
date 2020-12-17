@@ -119,10 +119,8 @@ typedef union YYSTYPE
 
 	CreateIndexTree *CreateIndextree;
 	DropIndexTree *DropIndextree;
-
-	AddPrimaryTree *AddPrimarytree;
-	DropPrimaryTree *DropPrimarytree;
-	AddForeignTree *AddForeigntree;
+	
+	DropPrimaryTree *DropPrimarytree;	
 	DropForeignTree *DropForeigntree;
 	AddAttributeTree *AddAttributetree;
 	DropAttributeTree *DropAttributetree;
@@ -155,7 +153,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 159 "Parser.h"
+#line 157 "Parser.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

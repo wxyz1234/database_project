@@ -38,10 +38,8 @@ int sumRID;
 
 	CreateIndexTree *CreateIndextree;
 	DropIndexTree *DropIndextree;
-
-	AddPrimaryTree *AddPrimarytree;
-	DropPrimaryTree *DropPrimarytree;
-	AddForeignTree *AddForeigntree;
+	
+	DropPrimaryTree *DropPrimarytree;	
 	DropForeignTree *DropForeigntree;
 	AddAttributeTree *AddAttributetree;
 	DropAttributeTree *DropAttributetree;
@@ -75,7 +73,7 @@ int sumRID;
 %token DATABASE DATABASES TABLE TABLES INDEX
 %token ALTER INSERT INTO VALUES DELETEC FROM UPDATE SELECT WHERE
 %token IS NOT NULLC DEFAULT PRIMARY FOREIGN KEY
-%token REFERENCES RENAME TO ON AND SET
+%token REFERENCES RENAME TO ON AND SET CONSTRAINT
 %token INTEGER  SMALLINT  CHARTYPE  DOUBLETYPE  FLOATTYPE  DATETYPE  NUMERICTYPE
 %token '(' ')' ';' ',' '+' '-' '*' '/' '%' '.'
 %token EQ GT LT GE LE NE
@@ -145,6 +143,12 @@ command: CREATE DATABASE NAME{
 			$$=new ShowDatabaseDescTree($3);
 			Tree::setInstance($$);
 			delete $3;
+			Tree::run();
+		}
+	|	DESC NAME{
+			$$=new ShowTableDescTree($2);
+			Tree::setInstance($$);
+			delete $2;
 			Tree::run();
 		}
 

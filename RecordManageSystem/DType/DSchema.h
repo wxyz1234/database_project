@@ -8,7 +8,8 @@ using namespace std;
 class DSchema {
 	friend void makeDSchema(DSchema& sh);
 	friend class attributeTree;
-	friend class attributelistTree;
+	friend class attributelistTree;	
+	friend class AddAttributeTree;
 protected:
 	char* name;
 	int num;
@@ -36,6 +37,16 @@ public:
 	}	
 	DtypeSchema* getPart(int i) {
 		return a[i];
+	}
+	void DropAttr(int k) {
+		int i;
+		delete[] typeName[k];
+		delete a[k];
+		num--;
+		for (i = k; i < num; i++) {
+			a[i] = a[i + 1];
+			typeName[i] = typeName[i + 1];
+		}		
 	}
 	void addnum() {
 		num++;

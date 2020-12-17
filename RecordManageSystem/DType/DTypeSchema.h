@@ -12,6 +12,7 @@ class DtypeSchema {
 	friend class DSchema;
 	friend class attributeTree;
 	friend class attributelistTree;
+	friend class AddAttributeTree;
 protected:
 	bool AllowNull,HaveDefault;
 	DKey* key;	

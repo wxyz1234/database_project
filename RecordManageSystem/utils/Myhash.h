@@ -182,6 +182,8 @@ class PrimaryData {
 	friend class UseDatabaseTree;
 	friend class RecordManager;
 	friend class DeleteTree;
+	friend class DropPrimaryTree;
+	friend class AddAttributeTree;
 protected:
 	int num=0;
 	std::vector<Myhash*>a;
@@ -217,6 +219,9 @@ class ForeignData {
 	friend class DeleteTree;
 	friend class UpdateTree;
 	friend class DeleteTree;
+	friend class DropPrimaryTree;
+	friend class DropForeignTree;
+	friend class AddAttributeTree;
 protected:
 	int num=0;
 	std::string filename[30];

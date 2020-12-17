@@ -63,6 +63,7 @@ TO { printf("TO\n"); return TO; }
 ON { printf("ON\n"); return ON; }
 AND { printf("AND\n"); return AND; }
 SET { printf("SET\n"); return SET; }
+CONSTRAINT { printf("CONSTRAINT\n"); return CONSTRAINT; }
 INT { printf("INTEGER\n"); return INTEGER; }
 SMALLINT { printf("SMALLINT\n"); return SMALLINT; }
 CHAR { printf("CHAR\n"); return CHARTYPE; }

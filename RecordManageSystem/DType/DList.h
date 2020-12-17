@@ -4,7 +4,8 @@
 #include "../DType/DSchema.h"
 #include "../utils/Wei.h"
 class DList {
-	friend class valuelistsTree;	
+	friend class valuelistsTree;
+	friend class attributeTree;
 protected:
 	DSchema* fa = NULL;
 	int RID;
@@ -24,6 +25,13 @@ public:
 	DSchema* getfa() {
 		return fa;
 	}	
+	void DropAttr(int k) {
+		int i;		
+		delete a[k];
+		num--;
+		for (i = k; i < num; i++) 
+			a[i] = a[i + 1];					
+	}
 	void setfa(DSchema* i) {
 		fa = i;
 		num = fa->getnum();
