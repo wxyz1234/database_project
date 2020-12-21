@@ -16,7 +16,7 @@ public:
 	DList() {
 		RID = 0;
 		isNull = 0;
-	}
+	}	
 	DList(DSchema* i) {
 		RID = 0;
 		isNull = 0;
@@ -26,8 +26,7 @@ public:
 		return fa;
 	}	
 	void DropAttr(int k) {
-		int i;		
-		delete a[k];
+		int i;				
 		num--;
 		for (i = k; i < num; i++) 
 			a[i] = a[i + 1];					
@@ -67,6 +66,9 @@ public:
 	}
 	int getRID() {
 		return RID;
+	}
+	int getnum() {
+		return num;
 	}
 	DtypeData* getPart(int i) {
 		return a[i];

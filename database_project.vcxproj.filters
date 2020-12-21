@@ -68,9 +68,6 @@
     <ClInclude Include="recordmanagesystem\dtype\Date.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="recordmanagesystem\dtype\DKey.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="recordmanagesystem\dtype\DList.h">
       <Filter>Header Files</Filter>
     </ClInclude>

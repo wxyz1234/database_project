@@ -73,7 +73,7 @@ DATE { printf("DATETYPE\n"); return DATETYPE; }
 NUMERIC { printf("NUMERICTYPE\n"); return NUMERICTYPE; }
 "(" { /*printf("(\n");*/ return '('; }
 ")" { /*printf(")\n");*/ return ')'; }
-";" { /*printf(";\n");*/ return ';'; }
+";" { printf(";\n"); return ';'; }
 "," { /*printf(",\n");*/ return ','; }
 "." { /*printf(".\n");*/ return '.'; }
 "+"	{ /*printf("+\n");*/ return '+'; }

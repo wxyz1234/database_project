@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <windows.h>
-#include "../RecordManageSystem/DType/DKey.h"
 #include "../RecordManageSystem/DType/TypeName.h"
 #include "../RecordManageSystem/DType/DSchema.h"
 #include "../RecordManageSystem/DType/DTypeSchema.h"
@@ -250,47 +249,87 @@ public:
                     b->a[j]->setData(&tmpnumeric);                    
                     break;
                 }
-                if (flag)break;
-                //主键外键约束
-                int k;
-                if (sh->getPart(j)->getKey()->getKey()==KeyName::Primary) {
-                    for (k = 0; k < pd.num; k++)
-                        if (pd.filename[k] == std::string(sh->getName()) && pd.attrname[k] == std::string(sh->getTypeName(j)))
-                            break;
-                    if (pd.a[k]->Find(b->a[j]->getData())) {
-                        printf("Primary Key Repeated!\n");
-                        flag = true;
-                        break;
-                    }
-                }
-                if (sh->getPart(j)->getKey()->getKey() == KeyName::Foreign) {
-                    for (k = 0; k < pd.num; k++)
-                        if (pd.filename[k] == std::string(((DForeign*)sh->getPart(j)->getKey())->getFile()) && pd.attrname[k] == std::string(((DForeign*)sh->getPart(j)->getKey())->getName()))
-                            break;
-                    if (!pd.a[k]->Find(b->a[j]->getData())) {
-                        printf("Foreign Key Not Found!\n");
-                        flag = true;
-                        break;
-                    }
-                }
+                if (flag)break;                
             }                        
             if (flag)continue;                        
+            //主键外键约束
+            int k = -1;
+            int l, pdnum, p;
+            int anum[3]; 
+            int anum2[3];
+            for (k = 0; k < pd.num; k++)                    
+                if (pd.filename[k] == std::string(sh->getName()))                            
+                    break;
+            if (k!=-1){
+                for (l = 0; l < pd.unnum[k]; l++)
+                    for (j = 0; j < sh->getnum(); j++)
+                        if (pd.attrname[k][l] == std::string(sh->getTypeName(j))) {
+                            anum[l] = j;
+                            break;
+                        }                
+                if (pd.unnum[k] == 1)
+                    if (pd.a[k]->Find(1,b->getPart(anum[0]))) {
+                        printf("Primary Key Repeated!\n");
+                        flag = true;
+                        continue;
+                    }
+                if (pd.unnum[k] == 2)
+                    if (pd.a[k]->Find(2, b->getPart(anum[0]),b->getPart(anum[1]))) {
+                        printf("Primary Key Repeated!\n");
+                        flag = true;
+                        continue;
+                    }
+                if (pd.unnum[k] == 3)
+                    if (pd.a[k]->Find(3, b->getPart(anum[0]), b->getPart(anum[1]), b->getPart(anum[2]))) {
+                        printf("Primary Key Repeated!\n");
+                        flag = true;
+                        continue;
+                    }
+                pdnum = k;
+            }            
+            for (k = 0; k < fd.num; k++)
+                if (fd.filename[k] == std::string(sh->getName())){                    
+                    for (p = 0; p < pd.num; p++)
+                        if (fd.reffilename[k] == pd.filename[p])
+                            break;
+                    for (l = 0; l < fd.unnum[k]; l++)
+                        for (j = 0; j < sh->getnum(); j++)
+                            if (fd.attrname[k][l] == std::string(sh->getTypeName(j))) {
+                                anum2[l] = j;
+                                break;
+                            }
+                    if (fd.unnum[k] == 1)
+                        if (!pd.a[p]->Find(1,b->a[anum2[0]])) {
+                            printf("Foreign Key Not Found!\n");
+                            flag = true;
+                            break;
+                        }
+                    if (fd.unnum[k] == 2)
+                        if (!pd.a[p]->Find(2, b->a[anum2[0]], b->a[anum2[1]])) {
+                            printf("Foreign Key Not Found!\n");
+                            flag = true;
+                            break;
+                        }
+                    if (fd.unnum[k] == 3)
+                        if (!pd.a[p]->Find(1, b->a[anum2[0]], b->a[anum2[1]], b->a[anum2[2]])) {
+                            printf("Foreign Key Not Found!\n");
+                            flag = true;
+                            break;
+                        }
+                }
+            if (flag)continue;
             b->makeNull();
             sumRID++;
             b->setRID(sumRID);
 
             //主键添加
             rm->InsertRecord(fileID, b);
-            for (j = 0; j < pd.num; j++) 
-                if (pd.filename[j]==std::string(name)){
-                    int k;
-                    for (k = 0; k < sh->getnum(); k++)
-                        if (sh->getPart(k)->getKey()->getKey() == KeyName::Primary) {
-                            pd.a[j]->Insert(b->a[k]->getData());
-                            break;
-                        }
-                    break;
-                }
+            if (pd.unnum[pdnum] == 1)
+                pd.a[pdnum]->Insert(b->getPart(anum[0]));
+            if (pd.unnum[pdnum] == 2)
+                pd.a[pdnum]->Insert(b->getPart(anum[0]), b->getPart(anum[1]));
+            if (pd.unnum[pdnum] == 3)
+                pd.a[pdnum]->Insert( b->getPart(anum[0]), b->getPart(anum[1]), b->getPart(anum[2]));
         }
         delete b;
     }
@@ -344,18 +383,20 @@ protected:
     valueTree* def;
     bool allownull, hasdefault = false;
     typeTree* type;
-    KeyName k;
+    bool isPrimary,isForeign;
 public:
-    attributeTree(char* na, typeTree* ty, bool an, bool hd, valueTree* de = NULL) {
-        k = KeyName::Null;
+    attributeTree(bool pr, bool fo, char* na, typeTree* ty, bool an, bool hd, valueTree* de = NULL) {
+        isPrimary = pr;
+        isForeign = fo;
         name = na;
         type = ty;
         allownull = an;
         hasdefault = hd;
         if (hasdefault)def = de;
     }
-    attributeTree(KeyName i, char* na, char* n1 = NULL, char* n2 = NULL) {
-        k = i;
+    attributeTree(bool pr, bool fo, char* na, char* n1 = NULL, char* n2 = NULL) {
+        isPrimary = pr;
+        isForeign = fo;
         name = na;
         if (n1 != NULL)na1 = n1;
         else na1 = "";
@@ -363,7 +404,7 @@ public:
         else na2 = "";
     }
     ~attributeTree() {
-        if (k == KeyName::Null) {
+        if (!isPrimary && !isForeign) {
             delete type;
             if (hasdefault)delete def;
         }
@@ -404,7 +445,8 @@ public:
         if (hasdefault){
             data->a[data->num]->setDefault(def->data.c_str());                    
         }
-        data->a[data->num]->setKey(KeyName::Null);
+        data->a[data->num]->setisPrimary(false);
+        data->a[data->num]->setisForeign(false);
         data->num++;
     }
     void addpart(DList* b) {
@@ -436,7 +478,7 @@ public:
         }        
         if (hasdefault) {
             int j = b->num;
-            switch (b->fa->getPart(j)->getType()) {
+            switch (type->name) {
             case TypeName::Int:
                 b->a[j]->setData((int*)b->fa->getPart(j)->getDef()->getData());
                 break;
@@ -460,6 +502,32 @@ public:
                 break;
             }            
         }
+        else {
+            int j = b->num;
+            switch (type->name) {
+            case TypeName::Int:
+                b->a[j]->setData((int*)NULL);
+                break;
+            case TypeName::SmallInt:
+                b->a[j]->setData((short*)NULL);
+                break;
+            case TypeName::Char:
+                b->a[j]->setData((char*)NULL);
+                break;
+            case TypeName::Double:
+                b->a[j]->setData((double*)NULL);
+                break;
+            case TypeName::Float:
+                b->a[j]->setData((float*)NULL);
+                break;
+            case TypeName::Date:
+                b->a[j]->setData((DateType*)NULL);
+                break;
+            case TypeName::Numeric:
+                b->a[j]->setData((NumericType*)NULL);
+                break;
+            }
+        }            
         b->num++;
     }
 };
@@ -482,20 +550,19 @@ public:
         bool flag;
         data->setName(name);
         for (i = 0; i < a.size(); i++) {
-            if (a[i]->k == KeyName::Null) {
+            if (!a[i]->isPrimary && !a[i]->isForeign) {
                 a[i]->addpart(data);
             }
             else {
                 flag = true;
                 for (j=0;j<data->num;j++)
                     if (data->typeName[j] == a[i]->name) {
-                        if (a[i]->k == KeyName::Primary) {
-                            data->a[j]->key = new DPrimary();
-                        }
-                        if (a[i]->k == KeyName::Foreign) {
-                            data->a[j]->key = new DForeign();
-                            data->a[j]->key->setFile(a[i]->na1.c_str());
-                            data->a[j]->key->setName(a[i]->na2.c_str());
+                        data->a[j]->setisPrimary(a[i]->isPrimary);
+                        data->a[j]->setisForeign(a[i]->isForeign);                        
+                        if (a[i]->isForeign) {                                                        
+                            data->a[j]->initfilename();
+                            data->a[j]->setFile(a[i]->na1.c_str());
+                            data->a[j]->setName(a[i]->na2.c_str());
                         }                            
                         flag = false;
                         break;
@@ -520,6 +587,8 @@ class columnTree :public Tree {
     friend class WhereClausesTree;
     friend class columnlistTree;
     friend class exprTree;
+    friend class AddPrimaryTree;    
+    friend class AddForeignTree;
 protected:
     std::string tname, aname;
 public:
@@ -534,6 +603,8 @@ public:
 };
 class columnlistTree :public Tree {
     friend class SelectTree;
+    friend class AddPrimaryTree;
+    friend class AddForeignTree;
 protected:
     std::vector<columnTree*> a;
 public:
@@ -549,8 +620,10 @@ public:
         TypeName tn;
         for (k = 0; k < a.size(); k++) {
             col = a[k];
+            if ((col->tname == "") && (dl.size() == 1))
+                col->tname = dl[0]->getfa()->getName();
             for (j = 0; j < dl.size(); j++)
-                if ((strcmp(col->tname.c_str(), dl[j]->getfa()->getName()) == 0) || ((col->tname == "") && (dl.size() == 1))) {                
+                if (strcmp(col->tname.c_str(), dl[j]->getfa()->getName()) == 0) {                
                     for (i = 0; i < dl[j]->getfa()->getnum(); i++) {
                         if (strcmp(col->aname.c_str(), dl[j]->getfa()->getTypeName(i)) == 0) {
                             tn = dl[j]->getfa()->getPart(i)->getType();
@@ -2333,7 +2406,7 @@ public:
             flag = false;
             for (j = 0; j < sh->getnum(); j++) {
                 if (strcmp(sh->getTypeName(j), a[i]->col->aname.c_str()) == 0) {
-                    if (sh->getPart(j)->getKey()->getKey() != KeyName::Null)
+                    if (sh->getPart(j)->getisPrimary() || sh->getPart(j)->getisForeign())
                         return false;
                     tyname = sh->getPart(j)->getType();
                     if (tyname == TypeName::Char) {
@@ -2519,6 +2592,7 @@ public:
         //主键外键重新初始化
         pd.clean();
         fd.clean();
+        /*
         string a = "../data/" + name + "/*";
         WIN32_FIND_DATA FindFileData;
         HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
@@ -2532,14 +2606,14 @@ public:
                     DSchema* sh = new DSchema();
                     rm->GetSchema(fileID, *sh);
                     for (int i = 0; i < sh->getnum();i++) {
-                        if (sh->getPart(i)->getKey()->getKey() == KeyName::Primary) {
+                        if (sh->getPart(i)->getisPrimary()) {
                             pd.add(FindFileData.cFileName,sh->getTypeName(i),sh->getPart(i));
                             //主键具体数值更新
                             if (!rm->PDUpdate(fileID, pd.num - 1, i, sh)) {
                                 printf("Read Table %s Error!\n", FindFileData.cFileName);
                             }
                         }
-                        if (sh->getPart(i)->getKey()->getKey() == KeyName::Foreign) {
+                        if (sh->getPart(i)->getisForeign()) {
                             fd.add(FindFileData.cFileName, sh->getTypeName(i), sh->getPart(i)->getKey());
                         }                    
                     }
@@ -2548,7 +2622,7 @@ public:
             } while (FindNextFile(file, &FindFileData));
         }                    
         FindClose(file);
-
+        */
         printf("Use Database %s success.\n",name.c_str());
     }
 };
@@ -2670,13 +2744,14 @@ public:
         }        
         attribute->visit(name.c_str());
         //外键约束检查
+        /*
         int i,j;
         bool flag=true;
         for (i = 0; i < attribute->data->getnum(); i++) 
-            if (attribute->data->getPart(i)->getKey()->getKey() == KeyName::Foreign) {
+            if (attribute->data->getPart(i)->getisForeign()) {
                 flag = false;
                 for (j=0;j<pd.num;j++)
-                    if ((pd.filename[j] == std::string(attribute->data->getPart(i)->getKey()->getFile())) && (pd.attrname[j] == std::string(attribute->data->getPart(i)->getKey()->getName()))) 
+                    if ((pd.filename[j] == std::string(attribute->data->getPart(i)->getFile())) && (pd.attrname[j] == std::string(attribute->data->getPart(i)->getName()))) 
                         if (pd.a[j]->sameType(attribute->data->getPart(i))) {
                             flag = true;
                             break;
@@ -2687,15 +2762,18 @@ public:
             printf("Add Foreign Key Failed!\n");
             return;
         }
+        */
         //主键外键添加
+        /*
         for (int i = 0; i < attribute->data->getnum(); i++) {
-            if (attribute->data->getPart(i)->getKey()->getKey() == KeyName::Primary) {
+            if (attribute->data->getPart(i)->getisPrimary()) {
                 pd.add(name.c_str(), attribute->data->getTypeName(i), attribute->data->getPart(i));                
             }
-            if (attribute->data->getPart(i)->getKey()->getKey() == KeyName::Foreign) {
+            if (attribute->data->getPart(i)->getisForeign()) {
                 fd.add(name.c_str(), attribute->data->getTypeName(i), attribute->data->getPart(i)->getKey());
             }
         }
+        */
 
         //printf("create table way:%s\n", std::string("../data/" + CurrentDatabase + "/" + name).c_str());
         rm->CreateFileF(std::string("../data/" + CurrentDatabase + "/" + name).c_str(), attribute->data);
@@ -2737,8 +2815,14 @@ public:
             while (i < pd.num) {
                 if (pd.filename[i] == name) {
                     pd.num--;
-                    pd.filename[i] = pd.filename[fd.num];
-                    pd.attrname[i] = pd.attrname[fd.num];
+                    pd.filename[i] = pd.filename[pd.num];
+                    pd.unnum[i] = pd.unnum[pd.num];
+                    pd.pdname[i] = pd.pdname[pd.num];
+                    pd.attrname[i][0] = pd.attrname[pd.num][0];
+                    if (pd.unnum[i]>1)
+                        pd.attrname[i][1] = pd.attrname[pd.num][1];
+                    if (pd.unnum[i] > 2)
+                        pd.attrname[i][2] = pd.attrname[pd.num][2];
                     delete pd.a[i];
                     pd.a[i] = pd.a[pd.num];
                     pd.a.pop_back();                    
@@ -2750,9 +2834,19 @@ public:
                 if (fd.filename[i] == name) {
                     fd.num--;
                     fd.filename[i] = fd.filename[fd.num];
-                    fd.attrname[i] = fd.attrname[fd.num];
                     fd.reffilename[i] = fd.reffilename[fd.num];
-                    fd.refattrname[i] = fd.refattrname[fd.num];                    
+                    fd.unnum[i] = fd.unnum[fd.num];
+                    fd.fdname[i] = fd.fdname[fd.num];
+                    fd.attrname[i][0] = fd.attrname[fd.num][0];
+                    fd.refattrname[i][0] = fd.refattrname[fd.num][0];
+                    if (fd.unnum[i] > 1) {
+                        fd.attrname[i][1] = fd.attrname[fd.num][1];
+                        fd.refattrname[i][1] = fd.refattrname[fd.num][1];
+                    }
+                    if (fd.unnum[i] > 2) {
+                        fd.attrname[i][2] = fd.attrname[fd.num][2];
+                        fd.refattrname[i][2] = fd.refattrname[fd.num][2];
+                    }
                 }
                 else i++;
             }
@@ -2881,17 +2975,431 @@ public:
     }
 };
 
+class AddPrimaryTree :public Tree {
+private:
+    columnlistTree* collist;
+    std::string tname,name;    
+public:
+    AddPrimaryTree(char* t, columnlistTree* col,char* na) {
+        tname = t;
+        name = na;
+        collist = col;
+    }
+    void visit() {
+        //添加主键约束    
+        if (_access(std::string("../data/" + CurrentDatabase + "/").c_str(), 0) == -1 || CurrentDatabase == "") {
+            printf("CurrentDatabase is not exist!\n");
+            return;
+        }
+        string a = "../data/" + CurrentDatabase + "/" + tname;
+        WIN32_FIND_DATA FindFileData;
+        HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
+        if (file == INVALID_HANDLE_VALUE) {
+            printf("There is no Table %s.\n", tname.c_str());
+            return;
+        }       
+        if (collist->a.size() > 3) {
+            printf("There is too many Primary Keys.\n");
+            return;
+        }
+        for (int i = 0; i < pd.num; i++)
+            if (pd.filename[i] == tname)
+            {
+                printf("There is Primary Key in the same table.");
+                return;
+            }
+        int fileID;
+        rm->OpenFile(a.c_str(), fileID);
+        DSchema* sh = new DSchema();
+        rm->GetSchema(fileID, *sh);
+        int i, j, k;
+        int ll[40];
+        int anum[3];        
+        int n = collist->a.size();
+        for (j = 0; j < n; j++) {
+            anum[j] = -1;
+            for (i = 0; i < sh->getnum(); i++) {
+                if (collist->a[j]->tname != "")
+                    break;
+                if (strcmp(sh->getTypeName(i), collist->a[j]->aname.c_str()) == 0) {
+                    anum[j] = i;
+                    break;
+                }
+            }                
+            if (anum[j] == -1)
+            {
+                printf("Wrong Attribute Name!\n");
+                delete sh;
+                rm->CloseFile(fileID);
+                FindClose(file);
+                return;
+            }
+            if (sh->getPart(anum[j])->getisPrimary()) {
+                printf("Attribute is Already Primary Key!\n");
+                delete sh;
+                rm->CloseFile(fileID);
+                FindClose(file);
+                return;
+            }
+        }       
+        BufType filebuf = new unsigned int[2048];
+        if (rm->fm->readPage(fileID, 0, filebuf, 0) == -1) {
+            printf("AddPrimary readPage ERROR\n");
+            delete[] filebuf;
+            delete sh;
+            rm->CloseFile(fileID);
+            FindClose(file);
+            return;
+        }
+        int pagenum;
+        pagenum = filebuf[0];
+        BufType pagebuf = new unsigned int[2048];
+        DList* b = new DList(sh);
+        Myhash* ha = new Myhash();       
+        ha->setunnum(n);
+        for (j = 0; j < n; j++) {
+            ha->setType(sh->getPart(anum[j])->getType(),j);
+            if (sh->getPart(anum[j])->getType() == TypeName::Int) {
+                ha->setlen(((DtypeSchemaInt*)sh->getPart(anum[j]))->getlen(),j);
+            }
+            if (sh->getPart(anum[j])->getType() == TypeName::Char) {
+                ha->setlen(((DtypeSchemaChar*)sh->getPart(anum[j]))->getlen(),j);
+            }
+            if (sh->getPart(anum[j])->getType() == TypeName::Numeric) {
+                ha->setsumd(((DtypeSchemaNumeric*)sh->getPart(anum[j]))->getsumd(),j);
+                ha->setdotd(((DtypeSchemaNumeric*)sh->getPart(anum[j]))->getdotd(),j);
+            }
+        }
+        
+        for (i = 1; i <= pagenum; i++) {
+            if (rm->fm->readPage(fileID, i, pagebuf, 0) == -1) {
+                printf("AddPrimary readPage ERROR\n\n");
+                delete ha;
+                delete[] filebuf;
+                delete[] pagebuf;
+                delete sh;
+                delete b;
+                rm->CloseFile(fileID);
+                FindClose(file);
+                return;
+            }
+            k = Wei::wei[31] - 1 - pagebuf[1];
+            ll[0] = 0;
+            while (k > 0) {
+                j = k & (-k);
+                k -= j;
+                j = Wei::BitConvInt(j);
+                ll[0] += 1;
+                ll[ll[0]] = j;
+            }
+            for (j = 1; j <= ll[0]; j++) {
+                b->readDataBuf(pagebuf + 2 + 64 * ll[j]);
+                if (n == 1) {
+                    if (ha->Find(1, b->getPart(anum[0]))) {
+                        printf("Primary Data Conflict!\n");
+                        delete ha;
+                        delete[] pagebuf;
+                        delete[] filebuf;
+                        delete sh;
+                        delete b;
+                        rm->CloseFile(fileID);
+                        FindClose(file);
+                        return;
+                    }
+                    else {
+                        ha->Insert(b->getPart(anum[0]));
+                    }
+                }
+                if (n == 2) {
+                    if (ha->Find(2, b->getPart(anum[0]), b->getPart(anum[1]))) {
+                        printf("Primary Data Conflict!\n");
+                        delete ha;
+                        delete[] pagebuf;
+                        delete[] filebuf;
+                        delete sh;
+                        delete b;
+                        rm->CloseFile(fileID);
+                        FindClose(file);
+                        return;
+                    }
+                    else {
+                        ha->Insert(b->getPart(anum[0]), b->getPart(anum[1]));
+                    }
+                }
+                if (n == 3) {
+                    if (ha->Find(3, b->getPart(anum[0]), b->getPart(anum[1]), b->getPart(anum[2]))) {
+                        printf("Primary Data Conflict!\n");
+                        delete ha;
+                        delete[] pagebuf;
+                        delete[] filebuf;
+                        delete sh;
+                        delete b;
+                        rm->CloseFile(fileID);
+                        FindClose(file);
+                        return;
+                    }
+                    else {
+                        ha->Insert(b->getPart(anum[0]), b->getPart(anum[1]), b->getPart(anum[2]));
+                    }
+                }
+            }
+        }
+        for (j = 0; j < n; j++) {            
+            sh->a[anum[j]]->isPrimary = true;
+        }
+        
+        sh->writeSchemaBuf(filebuf + 2);
+        if (rm->fm->writePage(fileID, 0, filebuf, 0) == -1) {
+            printf("AddPrimary writePage ERROR\n");
+            delete ha;
+            delete[] pagebuf;
+            delete[] filebuf;
+            delete sh;
+            delete b;
+            rm->CloseFile(fileID);
+            FindClose(file);
+            return;
+        }
+        pd.unnum[pd.num] = n;
+        pd.filename[pd.num] = tname;
+        pd.pdname[pd.num] = name;
+        for (j = 0; j < n; j++)
+            pd.attrname[pd.num][j] = sh->getTypeName(anum[j]);
+        pd.a.push_back(ha);
+        pd.num++;
+
+        delete[] pagebuf;
+        delete[] filebuf;
+        delete sh;
+        delete b;
+        rm->CloseFile(fileID);
+    }
+};
+class AddForeignTree :public Tree {
+private:
+    columnlistTree *collist,*refcollist;
+    std::string tname, reftname, name;
+
+public:
+    AddForeignTree(char* t, columnlistTree* col,char* reft, columnlistTree* refcol,char* na) {
+        tname = t;
+        reftname = reft;
+        name = na;
+        collist = col;
+        refcollist = refcol;
+    }
+    void visit() {
+        //添加外键约束
+        if (collist->a.size() != refcollist->a.size()) {
+            printf("Attribute Num Fault!\n");            
+            return;
+        }
+        if (_access(std::string("../data/" + CurrentDatabase + "/").c_str(), 0) == -1 || CurrentDatabase == "") {
+            printf("CurrentDatabase is not exist!\n");
+            return;
+        }
+        string a = "../data/" + CurrentDatabase + "/" + tname;
+        WIN32_FIND_DATA FindFileData;
+        HANDLE file = FindFirstFile(a.c_str(), &FindFileData);
+        if (file == INVALID_HANDLE_VALUE) {
+            printf("There is no Table %s.\n", name.c_str());
+            FindClose(file);
+            return;
+        }
+        int fileID;
+        rm->OpenFile(a.c_str(), fileID);
+        DSchema* sh = new DSchema();
+        rm->GetSchema(fileID, *sh);
+        int i, j, k;
+        int ll[40];
+        int anum[3];
+        int n = collist->a.size();
+        for (j = 0; j < n; j++)
+            anum[j] = -1;
+        int pdnum = -1;
+        for (j = 0; j < n; j++)
+            for (i = 0; i < sh->getnum(); i++)
+                if (strcmp(sh->getTypeName(i), collist->a[j]->aname.c_str()) == 0) {
+                    anum[j] = i;
+                    break;
+                }
+        for (i = 0; i < pd.num; i++)
+            if (pd.filename[i] == reftname) {
+                if (pd.unnum[i] != refcollist->a.size()) {
+                    printf("Reference Attribute Num Fault!\n");
+                    delete sh;
+                    rm->CloseFile(fileID);
+                    FindClose(file);
+                    return;
+                }
+                for (j = 0; j < pd.unnum[i]; j++) {
+                    if (refcollist->a[j]->tname != "") {
+                        printf("Attribute Name Fault!\n");
+                        delete sh;
+                        rm->CloseFile(fileID);
+                        FindClose(file);
+                        return;
+                    }
+                    if (pd.attrname[i][j] != refcollist->a[j]->aname) {
+                        printf("Reference Attribute Name Fault!\n");
+                        delete sh;
+                        rm->CloseFile(fileID);
+                        FindClose(file);
+                        return;
+                    }
+                }                    
+                pdnum = i;
+                break;
+            }       
+        for (j = 0; j < n; j++)
+            if (anum[j] == -1) {
+                printf("Wrong Attribute Name!\n");
+                delete sh;
+                rm->CloseFile(fileID);
+                FindClose(file);
+                return;
+            }
+        if (pdnum == -1)
+        {
+            printf("Wrong Attribute Name!\n");
+            delete sh;
+            rm->CloseFile(fileID);
+            FindClose(file);
+            return;
+        }
+        for (i = 0; i < n; i++)
+            if (sh->getPart(anum[i])->getisForeign()) {
+                printf("Attribute is Already Foreign Key!\n");
+                delete sh;
+                rm->CloseFile(fileID);
+                FindClose(file);
+                return;
+            }
+        for (i = 0; i < n; i++)
+            if (!pd.a[pdnum]->sameType(sh->getPart(anum[i]),i)) {
+                printf("Attribute Type is not Matching!\n");
+                delete sh;
+                rm->CloseFile(fileID);
+                FindClose(file);
+                return;
+            }
+        BufType filebuf = new unsigned int[2048];
+        if (rm->fm->readPage(fileID, 0, filebuf, 0) == -1) {
+            printf("AddForeign readPage ERROR\n");
+            delete[] filebuf;
+            delete sh;
+            rm->CloseFile(fileID);
+            FindClose(file);
+            return;
+        }
+        int pagenum;
+        pagenum = filebuf[0];
+        BufType pagebuf = new unsigned int[2048];
+        DList* b = new DList(sh);
+        for (i = 1; i <= pagenum; i++) {
+            if (rm->fm->readPage(fileID, i, pagebuf, 0) == -1) {
+                printf("AddForeign readPage ERROR\n\n");
+                delete[] filebuf;
+                delete[] pagebuf;
+                delete sh;
+                delete b;
+                rm->CloseFile(fileID);
+                FindClose(file);
+                return;
+            }
+            k = Wei::wei[31] - 1 - pagebuf[1];
+            ll[0] = 0;
+            while (k > 0) {
+                j = k & (-k);
+                k -= j;
+                j = Wei::BitConvInt(j);
+                ll[0] += 1;
+                ll[ll[0]] = j;
+            }
+            for (j = 1; j <= ll[0]; j++) {
+                b->readDataBuf(pagebuf + 2 + 64 * ll[j]);
+                if (n == 1)
+                    if (!pd.a[pdnum]->Find(1, b->getPart(anum[0]))) {
+                        printf("Foreign Data Conflict!\n");
+                        delete[] pagebuf;
+                        delete[] filebuf;
+                        delete sh;
+                        delete b;
+                        rm->CloseFile(fileID);
+                        FindClose(file);
+                        return;
+                    }
+                if (n == 2)
+                    if (!pd.a[pdnum]->Find(2, b->getPart(anum[0]), b->getPart(anum[1]))) {
+                        printf("Foreign Data Conflict!\n");
+                        delete[] pagebuf;
+                        delete[] filebuf;
+                        delete sh;
+                        delete b;
+                        rm->CloseFile(fileID);
+                        FindClose(file);
+                        return;
+                    }
+                if (n == 3)
+                    if (!pd.a[pdnum]->Find(1, b->getPart(anum[0]), b->getPart(anum[2]), b->getPart(anum[3]))) {
+                        printf("Foreign Data Conflict!\n");
+                        delete[] pagebuf;
+                        delete[] filebuf;
+                        delete sh;
+                        delete b;
+                        rm->CloseFile(fileID);
+                        FindClose(file);
+                        return;
+                    }
+            }
+        }      
+        for (i = 0; i < n; i++){
+            sh->a[anum[i]]->setisForeign(true);
+            sh->a[anum[i]]->initfilename();
+            sh->a[anum[i]]->setFile(tname.c_str());
+            sh->a[anum[i]]->setName(collist->a[i]->aname.c_str());
+        }
+        
+        sh->writeSchemaBuf(filebuf + 2);
+        if (rm->fm->writePage(fileID, 0, filebuf, 0) == -1) {
+            printf("AddForeign writePage ERROR\n");
+            delete[] pagebuf;
+            delete[] filebuf;
+            delete sh;
+            delete b;
+            rm->CloseFile(fileID);
+            FindClose(file);
+            return;
+        }
+        fd.filename[fd.num] = tname;
+        fd.unnum[fd.num] = n;
+        fd.reffilename[fd.num] = reftname;
+        for (i = 0; i < n; i++) {
+            fd.attrname[fd.num][i] = collist->a[i]->aname;            
+            fd.refattrname[fd.num][i] = refcollist->a[i]->aname;
+        }            
+        fd.fdname[fd.num] = name;
+        fd.num++;
+
+        delete[] pagebuf;
+        delete[] filebuf;
+        delete sh;
+        delete b;
+        rm->CloseFile(fileID);
+    }
+};
+
 class DropPrimaryTree :public Tree {
 private:
-    std::string tname, aname;
+    std::string tname, pdname;
 public:
     DropPrimaryTree(char* i) {
         tname = i;
-        aname = "";
+        pdname = "";
     }
     DropPrimaryTree(char* t, char* a) {
         tname = t;
-        aname = a;
+        pdname = a;
     }
     void visit() {
         //删除主键
@@ -2907,49 +3415,61 @@ public:
         }
         else {
             int fileID;
-            int i;
-            int k = -1;
+            int i, j, k;
+            k = -1;
+            int n = 0;
             rm->OpenFile(a.c_str(), fileID);
             DSchema* sh = new DSchema();
             rm->GetSchema(fileID, *sh);
-            if (aname == "") {
-                for (i = 0; i < sh->getnum(); i++)
-                    if (sh->getPart(i)->getKey()->getKey() == KeyName::Primary) {
-                        aname = sh->getTypeName(i);
+            if (pdname == "") {
+                for (i = 0; i < pd.num; i++)
+                    if (pd.filename[i] == tname) {
                         k = i;
+                        pdname = pd.pdname[i];
                         break;
                     }
-            }else
-                for(i = 0; i < sh->getnum(); i++)
-                    if (sh->getPart(i)->getKey()->getKey() == KeyName::Primary && strcmp(aname.c_str(), sh->getTypeName(i))==0) {                        
-                        k = i;
+            }
+            else
+                for (i = 0; i < pd.num; i++)
+                    if (pd.filename[i] == tname && pdname == pd.pdname[i]) {
+                        k = i;                        
                         break;
-                    }
+                    }                
 
             if (k == -1) {
-                printf("There is no Primary Key %s in Table %s\n", aname.c_str(), tname.c_str());
+                printf("There is no Primary Key %s in Table %s\n", pdname.c_str(), tname.c_str());
                 delete sh;
                 rm->CloseFile(fileID);
                 FindClose(file);
                 return;
-            }
+            }            
             for (i = 0; i < fd.num; i++)
-                if (fd.reffilename[i] == tname && fd.refattrname[i] == aname) {
+                if (fd.reffilename[i] == tname) {                    
                     printf("There is Other Foreign Key reference to this Key!\n");
                     delete sh;
                     rm->CloseFile(fileID);
                     FindClose(file);
                     return;
                 }
-            sh->getPart(k)->setKey(KeyName::Null);
-            for (i=0;i<pd.num;i++)
-                if (pd.filename[i] == tname && pd.attrname[i] == aname) {
-                    delete pd.a[i];
-                    pd.filename[i] = pd.filename[pd.num];
-                    pd.attrname[i] = pd.attrname[pd.num];
-                    pd.num--;
-                    break;
-                }
+            int anum[3];
+            for (j = 0; j < pd.unnum[k]; j++)
+                for (i = 0; i < sh->getnum(); i++)
+                    if (pd.attrname[k][j] == std::string(sh->getTypeName(i)))
+                        anum[j] = i;
+            for (i = 0; i < pd.unnum[k]; i++)
+                sh->getPart(anum[i])->setisPrimary(false);            
+
+            pd.num--;
+            delete pd.a[k];
+            pd.a[k] = pd.a[pd.num];
+            pd.a.pop_back();
+            pd.filename[k] = pd.filename[pd.num];
+            pd.unnum[k] = pd.unnum[pd.num];
+            pd.attrname[k][0] = pd.attrname[pd.num][0];
+            pd.attrname[k][1] = pd.attrname[pd.num][1];
+            pd.attrname[k][2] = pd.attrname[pd.num][2];
+            pd.pdname[k] = pd.pdname[pd.num];                                                
+
             BufType buf = new unsigned int[2048];
             if (rm->fm->readPage(fileID, 0, buf, 0) == -1) {
                 printf("DropPrimary readPage ERROR\n");
@@ -2977,11 +3497,11 @@ public:
 };
 class DropForeignTree :public Tree {
 private:
-    std::string tname,aname;
+    std::string tname,fdname;
 public:
     DropForeignTree(char* t,char* a) {
         tname = t;
-        aname = a;
+        fdname = a;
     }
     void visit() {
         //删除外键
@@ -2997,36 +3517,49 @@ public:
         }
         else {
             int fileID;
-            int i;
-            int k = -1;
+            int i, j, k;
+            k = -1;
+            int anum[3];
             rm->OpenFile(a.c_str(), fileID);
             DSchema* sh = new DSchema();
             rm->GetSchema(fileID, *sh);            
-            for (i = 0; i < sh->getnum(); i++)
-                if (sh->getPart(i)->getKey()->getKey() == KeyName::Foreign && strcmp(aname.c_str(), sh->getTypeName(i)) == 0) {
+            for (i = 0; i < fd.num; i++)
+                if (fdname == fd.fdname[i]) {
                     k = i;
                     break;
                 }
             if (k == -1) {
-                printf("There is no Foreign Key %s in Table %s\n", aname.c_str(), tname.c_str());
+                printf("There is no Foreign Key %s in Table %s\n", fdname.c_str(), tname.c_str());
                 delete sh;
                 rm->CloseFile(fileID);
                 FindClose(file);
                 return;
-            }
-            sh->getPart(k)->setKey(KeyName::Null);
-            for (i = 0; i < fd.num; i++)
-                if (fd.filename[i] == tname && fd.attrname[i] == aname) {                    
-                    fd.filename[i] = fd.filename[fd.num];
-                    fd.attrname[i] = fd.attrname[fd.num];
-                    fd.reffilename[i] = fd.reffilename[fd.num];
-                    fd.refattrname[i] = fd.refattrname[fd.num];
-                    fd.num--;
-                    break;
-                }
+            }            
+            for (j = 0; j < fd.unnum[k]; j++)
+                for (i = 0; i < sh->getnum(); i++)
+                    if (sh->getPart(i)->getisForeign() && strcmp(fd.attrname[k][j].c_str(), sh->getTypeName(i)) == 0) {
+                        anum[j] = i;
+                        break;
+                    }            
+            for (j = 0; j < fd.unnum[k]; j++) {                
+                sh->getPart(anum[j])->clearfileattr();                
+                sh->getPart(anum[j])->setisForeign(false);
+            }       
+
+            fd.num--;
+            fd.filename[k] = fd.filename[fd.num];
+            fd.fdname[k] = fd.fdname[fd.num];
+            fd.reffilename[k] = fd.reffilename[fd.num];
+            fd.unnum[k] = fd.unnum[k];
+            for (i = 0; i < fd.unnum[k]; i++)
+            {
+                fd.attrname[k][i] = fd.attrname[fd.num][i];
+                fd.refattrname[k][i] = fd.refattrname[fd.num][i];
+            }                        
+
             BufType buf = new unsigned int[2048];
             if (rm->fm->readPage(fileID, 0, buf, 0) == -1) {
-                printf("DropPrimary readPage ERROR\n");
+                printf("DropForeign readPage ERROR\n");
                 delete[] buf;
                 delete sh;
                 rm->CloseFile(fileID);
@@ -3035,7 +3568,7 @@ public:
             }
             sh->writeSchemaBuf(buf + 2);
             if (rm->fm->writePage(fileID, 0, buf, 0) == -1) {
-                printf("DropPrimary writePage ERROR\n");
+                printf("DropForeign writePage ERROR\n");
                 delete[] buf;
                 delete sh;
                 rm->CloseFile(fileID);
@@ -3059,7 +3592,7 @@ public:
         attribute = a;
     }
     void visit() {   
-        //添加属性/主键外键约束
+        //添加属性
         if (_access(std::string("../data/" + CurrentDatabase + "/").c_str(), 0) == -1 || CurrentDatabase == "") {
             printf("CurrentDatabase is not exist!\n");
             return;
@@ -3072,105 +3605,14 @@ public:
             FindClose(file);
             return;
         }        
-        if (attribute->k == KeyName::Null) {
+        if (!attribute->isPrimary && !attribute->isForeign) {
             //添加普通属性
             int fileID;
             rm->OpenFile(a.c_str(), fileID);
             DSchema* sh = new DSchema();
 
-            rm->GetSchema(fileID, *sh);
-            attribute->addpart(sh);
+            rm->GetSchema(fileID, *sh);            
 
-            BufType pagebuf = new unsigned int[2048];
-            if (rm->fm->readPage(fileID, 0, pagebuf, 0) == -1) {
-                printf("AddAttribute readPage ERROR\n");
-                delete[] pagebuf;
-                delete sh;
-                rm->CloseFile(fileID);
-                FindClose(file);
-                return;
-            }
-            int pagenum;
-            pagenum = pagebuf[0];
-            sh->writeSchemaBuf(pagebuf + 2);
-            if (rm->fm->writePage(fileID, 0, pagebuf, 0) == -1) {
-                printf("AddAttribute writePage ERROR\n");
-                delete[] pagebuf;
-                delete sh;
-                rm->CloseFile(fileID);
-                FindClose(file);
-                return;
-            }
-
-            DList* b = new DList(sh);
-            int i, j, k;
-            int ll[40];
-            BufType buf = new unsigned int[64];
-            for (i = 1; i <= pagenum; i++) {
-                if (rm->fm->readPage(fileID, i, pagebuf, 0) == -1) {
-                    printf("AddAttribute readPage ERROR\n\n");
-                    delete[] buf;
-                    delete[] pagebuf;                    
-                    delete sh;
-                    delete b;
-                    rm->CloseFile(fileID);
-                    FindClose(file);
-                    return;
-                }
-                k = Wei::wei[31] - 1 - pagebuf[1];
-                ll[0] = 0;
-                while (k > 0) {
-                    j = k & (-k);
-                    k -= j;
-                    j = Wei::BitConvInt(j);
-                    ll[0] += 1;
-                    ll[ll[0]] = j;
-                }
-                for (j = 1; j <= ll[0]; j++) {
-                    b->readDataBuf(pagebuf + 2 + 64 * ll[j]);
-                    attribute->addpart(b);
-                    b->writeDataBuf(buf);
-                    memcpy(pagebuf + 2 + 64 * ll[j], buf, 256);
-                }
-            }
-            delete[] buf;
-            delete[] pagebuf;
-            delete sh;
-            delete b;
-            rm->CloseFile(fileID);
-        }
-        if (attribute->k == KeyName::Primary) {
-            //添加主键约束
-            printf("AddAttribute Primary Key.\n");
-            FindClose(file);
-            return;
-            int fileID;
-            rm->OpenFile(a.c_str(), fileID);
-            DSchema* sh = new DSchema();
-            rm->GetSchema(fileID, *sh);
-            int i, j, k;
-            int ll[40];
-            int anum = -1;            
-            for (i = 0; i < sh->getnum(); i++)
-                if (strcmp(sh->getTypeName(i), attribute->name.c_str()) == 0) {
-                    anum = i;
-                    break;
-                }
-            if (anum == -1)
-            {
-                printf("Wrong Attribute Name!\n");
-                delete sh;
-                rm->CloseFile(fileID);
-                FindClose(file);
-                return;
-            }
-            if (sh->getPart(anum)->getKey()->getKey() != KeyName::Null) {
-                printf("Attribute is Already Primary Key or Foreign Key!\n");
-                delete sh;
-                rm->CloseFile(fileID);
-                FindClose(file);
-                return;
-            }
             BufType filebuf = new unsigned int[2048];
             if (rm->fm->readPage(fileID, 0, filebuf, 0) == -1) {
                 printf("AddAttribute readPage ERROR\n");
@@ -3181,34 +3623,15 @@ public:
                 return;
             }
             int pagenum;
-            pagenum = filebuf[0];
-            BufType pagebuf = new unsigned int[2048];
-            DList* b = new DList(sh);
-            Myhash* ha = new Myhash();
-            ha->setType(sh->getPart(anum)->getType());
-            if (sh->getPart(anum)->getType() == TypeName::Int) {
-                ha->setlen(((DtypeSchemaInt*)sh->getPart(anum))->getlen());
-            }
-            if (sh->getPart(anum)->getType() == TypeName::Char) {
-                ha->setlen(((DtypeSchemaChar*)sh->getPart(anum))->getlen());
-            }
-            if (sh->getPart(anum)->getType() == TypeName::Numeric) {
-                ha->setsumd(((DtypeSchemaNumeric*)sh->getPart(anum))->getsumd());
-                ha->setdotd(((DtypeSchemaNumeric*)sh->getPart(anum))->getdotd());
-            }
+            pagenum = filebuf[0];            
 
+            DList* b;
+            int i, j, k;
+            int ll[40];
+            BufType pagebuf = new unsigned int[2048];
+            BufType buf = new unsigned int[64];
             for (i = 1; i <= pagenum; i++) {
-                if (rm->fm->readPage(fileID, i, pagebuf, 0) == -1) {
-                    printf("AddAttribute readPage ERROR\n\n");
-                    delete ha;
-                    delete[] filebuf;
-                    delete[] pagebuf;
-                    delete sh;
-                    delete b;
-                    rm->CloseFile(fileID);
-                    FindClose(file);
-                    return;
-                }
+                rm->fm->readPage(fileID, i, pagebuf, 0);
                 k = Wei::wei[31] - 1 - pagebuf[1];
                 ll[0] = 0;
                 while (k > 0) {
@@ -3219,164 +3642,35 @@ public:
                     ll[ll[0]] = j;
                 }
                 for (j = 1; j <= ll[0]; j++) {
-                    b->readDataBuf(pagebuf + 2 + 64 * ll[j]);
-                    if (ha->Find(b->getPart(anum))) {
-                        printf("Primary Data Conflict!\n");
-                        delete ha;
-                        delete[] pagebuf;
-                        delete[] filebuf;
-                        delete sh;
-                        delete b;
-                        rm->CloseFile(fileID);
-                        FindClose(file);
-                        return;
-                    }
-                    else {
-                        ha->Insert(b->getPart(anum));
-                    }
+                    b = new DList(sh);
+                    b->readDataBuf(pagebuf + 2 + 64 * ll[j]);                    
+                    attribute->addpart(b);
+                    b->writeDataBuf(buf);
+                    delete b;
+                    memcpy(pagebuf + 2 + 64 * ll[j], buf, 256);
                 }
+                rm->fm->writePage(fileID, i, pagebuf, 0);
             }
-            delete sh->a[anum]->key;
-            sh->a[anum]->key = new DPrimary();            
+            attribute->addpart(sh);
             sh->writeSchemaBuf(filebuf + 2);
-            if (rm->fm->writePage(fileID, 0, filebuf, 0) == -1) {
-                printf("AddAttribute writePage ERROR\n");
-                delete ha;
-                delete[] pagebuf;
-                delete[] filebuf;
-                delete sh;
-                delete b;
-                rm->CloseFile(fileID);
-                FindClose(file);
-                return;
-            }
-            pd.filename[fd.num] = name;
-            pd.attrname[fd.num] = attribute->name;
-            pd.a.push_back(ha);
-            pd.num++;
-            
-            delete[] pagebuf;
+            rm->fm->writePage(fileID, 0, filebuf, 0);
+            delete[] buf;
             delete[] filebuf;
-            delete sh;
-            delete b;
+            delete[] pagebuf;
+            delete sh;            
             rm->CloseFile(fileID);
         }
-        if (attribute->k == KeyName::Foreign) {
+        if (attribute->isPrimary) {
+            //添加主键约束
+            printf("Can't AddAttribute Primary Key.\n");
+            FindClose(file);
+            return;
+        }
+        if (attribute->isForeign) {
             //添加外键约束
             printf("AddAttribute Foreign Key.\n");
             FindClose(file);
             return;
-            int fileID;
-            rm->OpenFile(a.c_str(), fileID);
-            DSchema* sh = new DSchema();
-            rm->GetSchema(fileID, *sh);
-            int i, j, k;
-            int ll[40];
-            int anum = -1;
-            int pdnum = -1;
-            for (i = 0; i < sh->getnum(); i++)
-                if (strcmp(sh->getTypeName(i), attribute->name.c_str()) == 0) {
-                    anum = i;
-                    break;
-                }                       
-            for (i = 0; i < pd.num; i++)
-                if (pd.filename[i] == attribute->na1 && pd.attrname[i] == attribute->na2)
-                    pdnum = -1;
-            if (anum == -1 || pdnum == -1)
-            {
-                printf("Wrong Attribute Name!\n");
-                delete sh;
-                rm->CloseFile(fileID);
-                FindClose(file);
-                return;
-            }
-            if (sh->getPart(anum)->getKey()->getKey() != KeyName::Null) {
-                printf("Attribute is Already Primary Key or Foreign Key!\n");
-                delete sh;
-                rm->CloseFile(fileID);
-                FindClose(file);
-                return;
-            }
-            if (!pd.a[pdnum]->sameType(sh->getPart(anum))) {
-                printf("Attribute Type is not Matching!\n");
-                delete sh;
-                rm->CloseFile(fileID);
-                FindClose(file);
-                return;
-            }
-            BufType filebuf = new unsigned int[2048];            
-            if (rm->fm->readPage(fileID, 0, filebuf, 0) == -1) {
-                printf("AddAttribute readPage ERROR\n");
-                delete[] filebuf;
-                delete sh;
-                rm->CloseFile(fileID);
-                FindClose(file);
-                return;
-            }
-            int pagenum;
-            pagenum = filebuf[0];
-            BufType pagebuf = new unsigned int[2048];            
-            DList* b = new DList(sh);
-            for (i = 1; i <= pagenum; i++) {
-                if (rm->fm->readPage(fileID, i, pagebuf, 0) == -1) {
-                    printf("AddAttribute readPage ERROR\n\n");                    
-                    delete[] filebuf;
-                    delete[] pagebuf;
-                    delete sh;
-                    delete b;
-                    rm->CloseFile(fileID);
-                    FindClose(file);
-                    return;
-                }
-                k = Wei::wei[31] - 1 - pagebuf[1];
-                ll[0] = 0;
-                while (k > 0) {
-                    j = k & (-k);
-                    k -= j;
-                    j = Wei::BitConvInt(j);
-                    ll[0] += 1;
-                    ll[ll[0]] = j;
-                }
-                for (j = 1; j <= ll[0]; j++) {
-                    b->readDataBuf(pagebuf + 2 + 64 * ll[j]);
-                    if (!pd.a[pdnum]->Find(b->getPart(anum))) {
-                        printf("Foreign Data Conflict!\n");
-                        delete[] pagebuf;
-                        delete[] filebuf;
-                        delete sh;
-                        delete b;
-                        rm->CloseFile(fileID);
-                        FindClose(file);
-                        return;
-                    }
-                }
-            }
-            delete sh->a[anum]->key;
-            sh->a[anum]->key = new DForeign();
-            sh->a[anum]->key->setFile(attribute->na1.c_str());
-            sh->a[anum]->key->setName(attribute->na2.c_str());
-            sh->writeSchemaBuf(filebuf + 2);
-            if (rm->fm->writePage(fileID, 0, filebuf, 0) == -1) {
-                printf("AddAttribute writePage ERROR\n");
-                delete[] pagebuf;
-                delete[] filebuf;
-                delete sh;
-                delete b;
-                rm->CloseFile(fileID);
-                FindClose(file);
-                return;
-            }
-            fd.filename[fd.num] = name;
-            fd.attrname[fd.num] = attribute->name;
-            fd.reffilename[fd.num] = attribute->na1;
-            fd.refattrname[fd.num] = attribute->na1;
-            fd.num++;
-
-            delete[] pagebuf;
-            delete[] filebuf;
-            delete sh;
-            delete b;
-            rm->CloseFile(fileID);
         }        
         FindClose(file);
     }
@@ -3426,49 +3720,33 @@ public:
                 FindClose(file);
                 return;
             }            
-            if (sh->getPart(k)->getKey()->getKey() != KeyName::Null) {
+            if (sh->getPart(k)->getisPrimary() || sh->getPart(k)->getisForeign()) {
                 printf("Can't Drop Primary Key or Foreign Key!\n");
                 delete sh;
                 rm->CloseFile(fileID);
                 FindClose(file);
                 return;
-            }     
-            sh->DropAttr(k);
+            }                 
+            int attrnum = k;
 
-            BufType pagebuf = new unsigned int[2048];
-            if (rm->fm->readPage(fileID, 0, pagebuf, 0) == -1) {
+            BufType filebuf = new unsigned int[2048];
+            if (rm->fm->readPage(fileID, 0, filebuf, 0) == -1) {
                 printf("DropAttribute readPage ERROR\n");
-                delete[] pagebuf;
+                delete[] filebuf;
                 delete sh;
                 rm->CloseFile(fileID);
                 FindClose(file);
                 return;
             }
             int pagenum;
-            pagenum = pagebuf[0];
-            sh->writeSchemaBuf(pagebuf + 2);
-            if (rm->fm->writePage(fileID, 0, pagebuf, 0) == -1) {
-                printf("DropAttribute writePage ERROR\n");
-                delete[] pagebuf;
-                delete sh;
-                rm->CloseFile(fileID);
-                FindClose(file);
-                return;
-            }
+            pagenum = filebuf[0];            
             
-            DList* b = new DList(sh);            
+            DList* b;
             int ll[40];
+            BufType pagebuf = new unsigned int[2048];
             BufType buf = new unsigned int[64];
             for (i = 1; i <= pagenum; i++) {
-                if (rm->fm->readPage(fileID, i, pagebuf, 0) == -1) {
-                    printf("DropAttribute readPage ERROR\n\n");
-                    delete[] pagebuf;
-                    delete sh;
-                    delete b;
-                    rm->CloseFile(fileID);
-                    FindClose(file);
-                    return;
-                }
+                rm->fm->readPage(fileID, i, pagebuf, 0);
                 k = Wei::wei[31] - 1 - pagebuf[1];
                 ll[0] = 0;
                 while (k > 0) {
@@ -3478,17 +3756,23 @@ public:
                     ll[0] += 1;
                     ll[ll[0]] = j;
                 }
-                for (j = 1; j <= ll[0]; j++) {
-                    b->readDataBuf(pagebuf + 2 + 64 * ll[j]);
-                    b->DropAttr(k);                    
+                for (j = 1; j <= ll[0]; j++) {    
+                    b = new DList(sh);
+                    b->readDataBuf(pagebuf + 2 + 64 * ll[j]);                    
+                    b->DropAttr(attrnum);
                     b->writeDataBuf(buf);
+                    delete b;
                     memcpy(pagebuf + 2 + 64 * ll[j], buf, 256);                                        
                 }            
+                rm->fm->writePage(fileID, i, pagebuf, 0);
             }
+            sh->DropAttr(attrnum);
+            sh->writeSchemaBuf(filebuf + 2);
+            rm->fm->writePage(fileID, 0, filebuf, 0);
             delete[] buf;
+            delete[] filebuf;
             delete[] pagebuf;
-            delete sh;
-            delete b;
+            delete sh;            
             rm->CloseFile(fileID);
         }
         FindClose(file);
@@ -3634,20 +3918,18 @@ public:
             int i, j, k;
             int ll[40];
 
-            int pk, pdnum;
-            for (pk = 0; pk < sh->getnum(); pk++)
-                if (sh->getPart(pk)->getKey()->getKey() == KeyName::Primary)
+            int pdnum;            
+            pdnum = -1;
+            for (pdnum = 0; pdnum < pd.num; pdnum++)
+                if (pd.filename[pdnum] == name)
                     break;
-            if (sh->getPart(pk)->getKey()->getKey() != KeyName::Primary)
-                pk = -1;
-            if (pk != -1) {
-                for (pdnum = 0; pdnum < pd.num; pdnum++)
-                    if (pd.filename[pdnum] == name && pd.attrname[pdnum] == sh->getTypeName(pk))
+            int anum[3];
+            for (i = 0; i < pd.unnum[pdnum]; i++) 
+                for (j = 0; j < sh->getnum(); j++)
+                    if (strcmp(sh->getTypeName(j), pd.attrname[pdnum][i].c_str()) == 0) {
+                        anum[i] = j;
                         break;
-            }
-            else {
-                pdnum = -1;
-            }
+                    }                                    
 
             for (i = 1; i <= pagenum; i++) {
                 if (rm->fm->readPage(fileID, i, pagebuf, 0) == -1) {
@@ -3672,8 +3954,14 @@ public:
                     b->readDataBuf(pagebuf + 2 + 64 * ll[j]);
                     if (wherecl->check(b)) {
                         rm->DeleteRecord(fileID, PageLoc(i, ll[j]));                        
-                        if (pdnum != -1)
-                            pd.a[pdnum]->Delete(b->getPart(pk)->getData());
+                        if (pdnum != -1) {
+                            if (pd.unnum[pdnum] == 1)
+                                pd.a[pdnum]->Delete(b->getPart(anum[0]));
+                            if (pd.unnum[pdnum] == 2)
+                                pd.a[pdnum]->Delete(b->getPart(anum[0]), b->getPart(anum[1]));
+                            if (pd.unnum[pdnum] == 3)
+                                pd.a[pdnum]->Delete(b->getPart(anum[0]), b->getPart(anum[1]), b->getPart(anum[2]));
+                        }                            
                     }                        
                 }
             }

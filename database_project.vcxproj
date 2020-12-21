@@ -148,7 +148,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="recordmanagesystem\dtype\Date.h" />
-    <ClInclude Include="recordmanagesystem\dtype\DKey.h" />
     <ClInclude Include="recordmanagesystem\dtype\DList.h" />
     <ClInclude Include="recordmanagesystem\dtype\DSchema.h" />
     <ClInclude Include="recordmanagesystem\dtype\DTypeData.h" />

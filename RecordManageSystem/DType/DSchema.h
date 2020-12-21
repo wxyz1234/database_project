@@ -2,7 +2,6 @@
 #define DSCHEMA
 #include "../DType/DTypeSchema.h"
 #include <string.h>
-//#include "../../parser/tree.h"
 
 using namespace std;
 class DSchema {
@@ -10,6 +9,8 @@ class DSchema {
 	friend class attributeTree;
 	friend class attributelistTree;	
 	friend class AddAttributeTree;
+	friend class AddPrimaryTree;
+	friend class AddForeignTree;
 protected:
 	char* name;
 	int num;
@@ -149,10 +150,11 @@ public:
 				printf("DSchema Part %d 's sumd is %d\n", i, sumd);
 				printf("DSchema Part %d 's dotd is %d\n", i, dotd);
 			}
-			printf("DSchema Part %d 's Key is %s\n", i, s2[int(a[i]->getKey()->getKey())]);
-			if (a[i]->getKey()->getKey() == KeyName::Foreign) {
-				printf("DSchema Part %d 's Key 's Filename is %s\n", i, ((DForeign*)a[i]->getKey())->getFile());
-				printf("DSchema Part %d 's Key 's Dataname is %s\n", i, ((DForeign*)a[i]->getKey())->getName());
+			printf("DSchema Part %d Primary Key is %b\n", i, a[i]->getisPrimary());
+			printf("DSchema Part %d Foreign Key is %b\n", i, a[i]->getisForeign());
+			if (a[i]->getisForeign()) {
+				printf("DSchema Part %d 's Key 's Filename is %s\n", i, a[i]->getFile());
+				printf("DSchema Part %d 's Key 's Dataname is %s\n", i, a[i]->getName());
 			}
 			printf("DSchema Part %d 's AllowNull is %d\n", i, a[i]->getAllowNull());
 			hd = a[i]->getHaveDefault();

@@ -72,24 +72,25 @@
      ON = 288,
      AND = 289,
      SET = 290,
-     INTEGER = 291,
-     SMALLINT = 292,
-     CHARTYPE = 293,
-     DOUBLETYPE = 294,
-     FLOATTYPE = 295,
-     DATETYPE = 296,
-     NUMERICTYPE = 297,
-     EQ = 298,
-     GT = 299,
-     LT = 300,
-     GE = 301,
-     LE = 302,
-     NE = 303,
-     NAME = 304,
-     TEXT = 305,
-     INUM = 306,
-     FNUM = 307,
-     DATENUM = 308
+     CONSTRAINT = 291,
+     INTEGER = 292,
+     SMALLINT = 293,
+     CHARTYPE = 294,
+     DOUBLETYPE = 295,
+     FLOATTYPE = 296,
+     DATETYPE = 297,
+     NUMERICTYPE = 298,
+     EQ = 299,
+     GT = 300,
+     LT = 301,
+     GE = 302,
+     LE = 303,
+     NE = 304,
+     NAME = 305,
+     TEXT = 306,
+     INUM = 307,
+     FNUM = 308,
+     DATENUM = 309
    };
 #endif
 
@@ -120,8 +121,11 @@ typedef union YYSTYPE
 	CreateIndexTree *CreateIndextree;
 	DropIndexTree *DropIndextree;
 	
+	AddPrimaryTree *AddPrimaryTree;
+	AddForeignTree *AddForeignTree;
 	DropPrimaryTree *DropPrimarytree;	
-	DropForeignTree *DropForeigntree;
+	DropForeignTree *DropForeigntree;	
+
 	AddAttributeTree *AddAttributetree;
 	DropAttributeTree *DropAttributetree;
 	TableRenameTree *TableRenametree;
@@ -153,7 +157,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 157 "Parser.h"
+#line 161 "Parser.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

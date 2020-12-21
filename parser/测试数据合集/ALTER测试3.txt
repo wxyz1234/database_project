@@ -27,23 +27,6 @@ CREATE TABLE orders(
 	quantity INT(10)	
 );
 
-ALTER TABLE restaurant ADD CONSTRAINT r_id PRIMARY KEY (id);
-ALTER TABLE restaurant DROP PRIMARY KEY;
-ALTER TABLE restaurant ADD CONSTRAINT r_id PRIMARY KEY (id);
-ALTER TABLE restaurant DROP PRIMARY KEY r_id;
-ALTER TABLE restaurant ADD CONSTRAINT r_id PRIMARY KEY (id);
-ALTER TABLE customer ADD CONSTRAINT c_id PRIMARY KEY (id);
-ALTER TABLE food ADD CONSTRAINT f_id PRIMARY KEY (id);
-ALTER TABLE food ADD CONSTRAINT rid FOREIGN KEY (restaurant_id) REFERENCES restaurant(id);
-ALTER TABLE orders ADD CONSTRAINT o_id PRIMARY KEY (id);
-ALTER TABLE orders ADD CONSTRAINT cid FOREIGN KEY (customer_id) REFERENCES customer(id);
-ALTER TABLE orders ADD CONSTRAINT fid FOREIGN KEY (food_id) REFERENCES food(id);
-ALTER TABLE orders DROP FOREIGN KEY fid;
-ALTER TABLE orders ADD CONSTRAINT fid FOREIGN KEY (food_id) REFERENCES food(id);
-ALTER TABLE orders DROP FOREIGN KEY fid;
-ALTER TABLE restaurant DROP PRIMARY KEY;
-ALTER TABLE restaurant DROP PRIMARY KEY r_id;
-
 INSERT INTO restaurant VALUES (1001,'apple pan the','10801 w. pico blvd.','310-475-3585',3.5),(1002,'asahi ramen','2027 sawtelle blvd.','310-479-2231',4.25),(1003,'baja fresh','3345 kimber dr.','805-498-4049',3.71),(1004,'belvedere  the','9882 little santa monica blvd.','310-788-2306',4.81),(1005,'benita\'s frites','1433 third st. promenade','310-458-2889',3.8),(1006,'bernard\'s','515 s. olive st.','213-612-1580',3.64),(1007,'bistro 45','45 s. mentor ave.','818-795-2478',3.75),(1008,'brent\'s deli','19565 parthenia ave.','818-886-5679',3.8),(1009,'brighton coffee shop','9600 brighton way','310-276-7732',4.25),(1010,'bristol farms market cafe','1570 rosecrans ave. s.','310-643-5229',4),(1011,'bruno\'s','3838 centinela ave.','310-397-5703',3),(1012,'cafe\'50s','838 lincoln blvd.','310-399-1955',4),(1013,'cafe blanc','9777 little santa monica blvd.','310-888-0108',5),(1014,'cassell\'s','3266 w. sixth st.','213-480-8668',3.83),(1015,'chez melange','1716 pch','310-540-1222',4.29),(1016,'diaghilev','1020 n. san vicente blvd.','310-854-1111',4.45),(1017,'don antonio\'s','1136 westwood blvd.','310-209-1422',3.67),(1018,'duke\'s','8909 sunset blvd.','310-652-3100',4.4),(1019,'falafel king','1059 broxton ave.','310-208-4444',3.4),(1020,'feast from the east','1949 westwood blvd.','310-475-0400',3.75);
 
 INSERT INTO customer VALUES (300001,'CHAD CABELLO','F'),(300002,'FAUSTO VANNORMAN','F'),(300003,'JO CANNADY','M'),(300004,'LAWERENCE MOTE','F'),(300005,'RODERICK NEVES','F'),(300006,'JACOB LEDGER','M'),(300007,'WALKER JOLIN','M'),(300008,'SELINA TAULBEE','F'),(300009,'BRUCE BARTHOLOMEW','F'),(300010,'PRINCE HALLETT','M'),(300011,'MARGERT MITCHELL','F'),(300012,'WARNER BOWEN','F'),(300013,'VENNIE ANDRESS','F'),(300014,'EUSEBIA PEGG','M'),(300015,'DAN LINEBERGER','F'),(300016,'MAGEN MCARTHUR','F'),(300017,'BABETTE HEATH','F'),(300018,'FIDELA BENNY','F'),(300019,'KARY GUERTIN','F'),(300020,'LUANNE TIMBERLAKE','F'),(300021,'CLAUDIA WAITES','F'),(300022,'DARIN CORDLE','M'),(300023,'JOSHUA KNAUS','M'),(300024,'TAWNA NUSBAUM','F'),(300025,'HALINA NIELSON','M'),(300026,'TODD BOUDREAUX','M'),(300027,'HAYDEN JOSHUA','M'),(300028,'LUCIEN FELICE','M'),(300029,'SONJA SAYLORS','F'),(300030,'SACHA TIGHE','M'),(300031,'BLAKE MCCANN','M'),(300032,'ELVIRA TUCCI','F'),(300033,'NOE CRITTENDEN','F'),(300034,'LONNIE SALAZAR','F'),(300035,'AJA TRIBBLE','M');
@@ -52,7 +35,14 @@ INSERT INTO food VALUES (200001,1001,'Boiled dumplings',64.0236),(200002,1002,'W
 
 INSERT INTO orders VALUES (100010,300032,200002,'2014-09-12',5),(100158,300012,200006,'2017-02-54',2),(100161,300026,200014,'2014-10-17',8),(100162,304127,200011,'2016-01-23',5),(100167,300017,200005,NULL,8),(100186,300022,200002,NULL,1),(102212,300026,209493,'2017-07-30',10),(102224,300024,200009,'2016-08-31',5),(102228,300013,200009,'2013-09-07',10),(102224,300034,200022,'2013-09-02',10);
 
-ALTER TABLE restaurant DROP address;
+ALTER TABLE restaurant ADD CONSTRAINT r_id PRIMARY KEY (id);
+ALTER TABLE customer ADD CONSTRAINT c_id PRIMARY KEY (id);
+ALTER TABLE food ADD CONSTRAINT f_id PRIMARY KEY (id);
+ALTER TABLE food ADD CONSTRAINT rid FOREIGN KEY (restaurant_id) REFERENCES restaurant(id);
+ALTER TABLE orders ADD CONSTRAINT o_id PRIMARY KEY (id);
+ALTER TABLE orders ADD CONSTRAINT cid FOREIGN KEY (customer_id) REFERENCES customer(id);
+ALTER TABLE orders ADD CONSTRAINT fid FOREIGN KEY (food_id) REFERENCES food(id);
+
 SELECT id FROM restaurant;
 SELECT id FROM restaurant WHERE rate>3 AND rate<4;
 SELECT id FROM food WHERE name>3;
@@ -61,6 +51,3 @@ SELECT restaurant.id,food.price FROM restaurant,food WHERE restaurant.rate<4.0 A
 DROP TABLE orders;
 DELETE FROM food WHERE id<=200021 AND price>90;
 SELECT restaurant.id,food.id,food.price FROM restaurant,food WHERE restaurant.rate<4.0;
-SELECT * FROM restaurant WHERE restaurant.rate<4.0;
-ALTER TABLE restaurant ADD address CHAR(100);
-SELECT * FROM restaurant WHERE restaurant.rate<4.0;

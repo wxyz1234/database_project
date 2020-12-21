@@ -1,6 +1,5 @@
 #ifndef DTYPESCHEMA
 #define DTYPESCHEMA
-#include "../DType/DKey.h"
 #include "../DType/TypeName.h"
 #include "../DType/Date.h"
 #include "../DType/DTypeData.h"
@@ -13,13 +12,19 @@ class DtypeSchema {
 	friend class attributeTree;
 	friend class attributelistTree;
 	friend class AddAttributeTree;
+	friend class AddPrimaryTree;
+	friend class AddForeignTree;
 protected:
 	bool AllowNull,HaveDefault;
-	DKey* key;	
+	//DKey* key;	
+	bool isPrimary,isForeign;
+	char* refFile;
+	char* refName;
 	DtypeData* def = NULL;
 public:
 	DtypeSchema() {
-		key = new DKey();
+		isPrimary = false;
+		isForeign = false;
 	}
 	virtual TypeName getType()=0;
 	virtual int getsize()=0;	
@@ -28,6 +33,16 @@ public:
 	}
 	virtual int readBuf(BufType buf) { return 0; };
 	virtual void setDefault(const char* v) = 0;
+	void initfilename() {
+		refFile = new char[20];
+		refName = new char[20];
+	}
+	void clearfileattr() {
+		if (isForeign) {
+			delete refFile;
+			delete refName;
+		}
+	}
 	void setAllowNull(bool i) {
 		AllowNull = i;		
 	}
@@ -37,20 +52,35 @@ public:
 	void setHaveDefault(bool i) {
 		HaveDefault = i;
 	}
+	bool getisPrimary() {
+		return isPrimary;
+	}
+	bool getisForeign() {
+		return isForeign;
+	}
+	void setisPrimary(bool i) {
+		isPrimary = i;
+	}
+	void setisForeign(bool i) {
+		isForeign = i;
+	}
+	void setFile(const char* buf) {
+		memcpy(refFile, buf, 20);
+	}
+	void setName(const char* buf) {
+		memcpy(refName, buf, 20);
+	}
+	char* getFile() {
+		return refFile;
+	}
+	char* getName() {
+		return refName;
+	}
 	bool getHaveDefault() {
 		return HaveDefault;
 	}
 	DtypeData* getDef() {
 		return def;
-	}
-	void setKey(KeyName i) {
-		if (key != NULL)delete key;
-		if (i== KeyName::Null)key=new DKey();
-		if (i == KeyName::Primary)key = new DPrimary();
-		if (i == KeyName::Foreign)key = new DForeign();
-	}
-	DKey* getKey() {
-		return key;
 	}
 	int writeTypeBuf(BufType buf) {
 		int k = 0;
@@ -58,14 +88,14 @@ public:
 		k += 1;	
 		k += writeBuf(buf + k);
 
-		buf[k] = int(key->getKey());
+		buf[k] = int(isPrimary);
 		k += 1;
-		if (key->getKey() == KeyName::Foreign) {
-			char* tmp = key->getFile();
-			memcpy(buf + k, tmp, 20);
-			k += 5;
-			tmp = key->getName();
-			memcpy(buf + k, tmp, 20);
+		buf[k] = int(isForeign);
+		k += 1;
+		if (isForeign) {			
+			memcpy(buf + k, refFile, 20);
+			k += 5;			
+			memcpy(buf + k, refName, 20);
 			k += 5;
 		}
 		buf[k] = AllowNull;
@@ -77,24 +107,18 @@ public:
 	}
 	int readTypebuf(BufType buf) {
 		int k = 0;
-		switch ((KeyName)buf[k]) {
-		case KeyName::Primary:
-			key = new DPrimary();
-			k += 1;
-			break;
-		case KeyName::Foreign:
-			key = new DForeign();
-			k += 1;
-			key->setFile((char*)(buf+k));
+		isPrimary = buf[k];
+		k += 1;
+		isForeign = buf[k];
+		k += 1;
+		if (isForeign) {
+			refFile = new char[20];
+			refName = new char[20];
+			memcpy(refFile, buf, 20);			
 			k += 5;
-			key->setName((char*)(buf+k));
+			memcpy(refName, buf, 20);			
 			k += 5;
-			break;
-		case KeyName::Null:
-			key = new DKey();
-			k += 1;
-			break;
-		};		
+		}		
 		AllowNull = (bool)buf[k];
 		k += 1;
 		HaveDefault = (bool)buf[k];
@@ -103,7 +127,10 @@ public:
 		return k;
 	}
 	virtual ~DtypeSchema() {
-		delete key;
+		if (isForeign) {
+			delete refFile;
+			delete refName;
+		}
 		if (def != NULL)delete def;
 	}
 };

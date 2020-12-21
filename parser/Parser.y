@@ -39,8 +39,11 @@ int sumRID;
 	CreateIndexTree *CreateIndextree;
 	DropIndexTree *DropIndextree;
 	
+	AddPrimaryTree *AddPrimaryTree;
+	AddForeignTree *AddForeignTree;
 	DropPrimaryTree *DropPrimarytree;	
-	DropForeignTree *DropForeigntree;
+	DropForeignTree *DropForeigntree;	
+
 	AddAttributeTree *AddAttributetree;
 	DropAttributeTree *DropAttributetree;
 	TableRenameTree *TableRenametree;
@@ -199,7 +202,19 @@ command: CREATE DATABASE NAME{
 			Tree::setInstance($$);			
 			delete $3;
 			Tree::run();
-		}
+		}	
+	|	ALTER TABLE NAME ADD CONSTRAINT NAME PRIMARY KEY '(' columnlist ')' {
+			$$=new AddPrimaryTree($3,$10,$6);
+			Tree::setInstance($$);			
+			delete $3,$6;
+			Tree::run();
+		}	
+	|	ALTER TABLE NAME ADD CONSTRAINT NAME FOREIGN KEY '(' columnlist ')' REFERENCES NAME '(' columnlist ')' {
+			$$=new AddForeignTree($3,$10,$13,$15,$6);
+			Tree::setInstance($$);			
+			delete $3,$6,$13;
+			Tree::run();
+		}	
 	|	ALTER TABLE NAME DROP PRIMARY KEY {
 			$$=new DropPrimaryTree($3);
 			Tree::setInstance($$);			
@@ -376,27 +391,27 @@ attributelist: attribute{
 		}
 	;
 attribute:	NAME type{
-			$$=new attributeTree($1,$2,true,false);
+			$$=new attributeTree(false,false,$1,$2,true,false);
 			delete $1;
 		}
 	|	NAME type NOT NULLC{
-			$$=new attributeTree($1,$2,false,false);
+			$$=new attributeTree(false,false,$1,$2,false,false);
 			delete $1;
 		}
 	|	NAME type DEFAULT value {
-			$$=new attributeTree($1,$2,true,true,$4);
+			$$=new attributeTree(false,false,$1,$2,true,true,$4);
 			delete $1,$4;
 		}
 	|	NAME type NOT NULLC DEFAULT value{
-			$$=new attributeTree($1,$2,false,true,$6);
+			$$=new attributeTree(false,false,$1,$2,false,true,$6);
 			delete $1,$6;
 		}
 	|	PRIMARY KEY '(' NAME ')' {
-			$$=new attributeTree(KeyName::Primary,$4);
+			$$=new attributeTree(true,false,$4);
 			delete $4;
 		}
 	|	FOREIGN KEY '(' NAME ')' REFERENCES NAME '(' NAME ')'{
-			$$=new attributeTree(KeyName::Foreign,$4,$7,$9);
+			$$=new attributeTree(false,true,$4,$7,$9);
 			delete $4,$7,$9;
 		}
 	;

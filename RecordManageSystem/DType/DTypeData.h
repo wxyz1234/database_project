@@ -1,6 +1,5 @@
 #ifndef DTYPEDATA
 #define DTYPEDATA
-#include "../DType/DKey.h"
 #include "../DType/TypeName.h"
 #include "../DType/Date.h"
 #include "../DType/Numeric.h"
