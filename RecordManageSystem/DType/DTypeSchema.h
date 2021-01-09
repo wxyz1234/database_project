@@ -114,9 +114,9 @@ public:
 		if (isForeign) {
 			refFile = new char[20];
 			refName = new char[20];
-			memcpy(refFile, buf, 20);			
+			memcpy(refFile, buf+k, 20);			
 			k += 5;
-			memcpy(refName, buf, 20);			
+			memcpy(refName, buf+k, 20);			
 			k += 5;
 		}		
 		AllowNull = (bool)buf[k];

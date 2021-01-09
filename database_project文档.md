@@ -23,7 +23,7 @@
 			1、char[20]名字
 			2、一个int对应属性数量
 			3、每个属性，一个char[20]名字开头，然后1个int表示类型，然后具体参数（字符串长度上限等）。
-			4、之后一个int表示主键外键，后跟参数（外键对应主键名字）。一个int表示AllowNull，一个int表示HaveDefault，后跟参数（默认值是多少）。
+			4、之后一个int表示是否是主键，一个int表示是否是外键，后跟参数（外键对应主键名字）。一个int表示AllowNull，一个int表示HaveDefault，后跟参数（默认值是多少）。
 （3）之后每一页：
 			1、单个记录长度128*4字节
 			2、每一页最多存31（32-1）个记录
@@ -35,11 +35,19 @@
 
 #### 1、主键约束
 
+​	本项目支持最多3个一起的联合主键，用Myhash.h中实现的PrimaryData类对象pd（定义在程序入口Parser.c）进行维护，PrimaryData类中有一个Myhash对象，可以hash储存所有的主键数值用于快速判重，PrimaryData类也保存了主键文件名主键属性名，约束名等相关信息，一切对主键约束的判定和修改都会体现为对对象pd的修改。
+
 #### 2、外键约束
+
+​	用Myhash.h中实现的ForeignData类对象fd（定义在程序入口Parser.c）进行维护，ForeignData类保存了外键文件名外键属性名和外键依赖的主键文件名和属性名的相关信息，一切对外键约束的判定和修改都会体现为对ForeignData类对象fd的修改和对PrimaryData类对象pd的查询。
 
 #### 3、NOT NULL约束
 
+​	添加数据的时候进行判断，为空则报错。
+
 #### 4、DEFAULT约束
+
+​	添加数据的时候进行判断，为空则赋默认值。
 
 ## （三）代码文件及相关类介绍
 
@@ -73,18 +81,20 @@
 
 #### 2、RecordManageSystem/TestRecordManager.cpp
 
-​    测试程序1，进行了简单的模式生成和记录生成，并进行了基础的文件创建删除，文件打开关闭，模式读写，记录读写测试，保证RecordManager类正确性。
+​    测试程序1，进行了简单的模式生成和记录生成，并进行了基础的文件创建删除，文件打开关闭，模式读写，记录读写测试，保证RecordManager类正确性，**因后续更新，已不再维护**。
 
 #### 3、RecordManageSystem/ReadFile.cpp
 
 ​    测试程序2，在测试程序1的基础上，进行了大规模记录写入，记录更新，记录删除，记录再写入，并实时检查记录储存准确性，保证RecordManager类正确性。
-​	最后生成了一个Myhash类保存了所有记录的主码信息，保证Myhash类正确性。
+​	最后生成了一个Myhash类保存了所有记录的主码信息，保证Myhash类正确性，**因后续更新，已不再维护**。
 
 ### 三、记录管理模块数据储存部分
 
 #### 1、RecordManageSystem/DType/TypeName.h
 
 ​	内置枚举型变量TypeName，记录了本数据库能支持的所有变量类型。
+
+​	也内置了CharTypeName、opName、clacopName、exprType等用于语法分析的枚举类型变量。
 
 #### 2、RecordManageSystem/DType/DSchema.h
 
@@ -98,7 +108,9 @@
 
 ​	提供DtypeSchema抽象类，记录了一个模块中的属性需要的相关信息。
 
-​	相关变量包括是否允许为空AllowNull，是否有默认值HaveDefault，以及一个def记录对应值。主键外键相关信息DKey类对象key。
+​	相关变量包括是否允许为空AllowNull，是否有默认值HaveDefault，以及一个def记录对应值。
+
+​	主键外键相关信息isPrimary，isForeign，refFile，refName记录外键依赖文件和属性名字。
 
 ​	相关函数有readBuf、writeBuf，子类初始化和文件系统中进行基础信息（比如char类型字符串上限数值）交互的函数。
 
@@ -124,15 +136,11 @@
 
 ​	相关函数有getData、setData等数据读写函数、getType、getsize的基础信息函数和writeDataBuf、readDataBuf等类信息和文件系统交互函数。
 
-#### 6、RecordManageSystem/DType/DKey.h
-
-​	提供了枚举类型KeyName和对应的类DKey、DPrimary、DForeign，分别表示本属性没有特殊信息、是主键、是外键。其中DForeign还额外记录了外键对应的主键所在模式名字以及主键属性名。
-
-#### 7、RecordManageSystem/DType/Date.h
+#### 6、RecordManageSystem/DType/Date.h
 
 ​	提供了DateType类，负责解决日期类型数据的相关底层操作，包括记录，修改，查询，合法性判断。
 
-#### 8、RecordManageSystem/DType/Numeric.h
+#### 7、RecordManageSystem/DType/Numeric.h
 
 ​	提供了NumericType类，负责解决Numeric类型数据的相关第层操作，包括记录，修改，查询，输出，合法性判断等。
 
@@ -149,3 +157,23 @@
 #### 3、RecordManageSystem/utils/Myhash.h
 
 ​	内置Myhash类，一个可以储存TypeName里所有类型数据的hash表，之后的约束性判断会使用此类。
+
+​	内置了PrimaryData类和ForeignData类，用于记录所有主键约束和外键约束
+
+### 五、系统管理模块和查询解析模块
+
+#### 1、Parser/Lexer.l
+
+​	flex词法分析器代码，用于处理所有输入语句，生成lexer.c（但是按照cpp语法编译运行）。
+
+#### 2、Parser/Parser.y
+
+​	bison语法分析器代码，接受lexer.c的数据并进行进一步数据分析，生成parser.h，parser.c（但是按照cpp语法编译运行）最终调用tree.h中的语句具体实现完成输入语句执行。
+
+#### 3、Parser/makefile
+
+​	负责编译链接Lexer.l和Parser.y，生成Lexer.c，Parser.c，Parser.h，Parser.output（这个文件展示了语法分析的所有状态和转移方式）
+
+#### 4、Parser/tree.h
+
+​	内部有一个父类Tree和无数不用子类，这些类会调用之前所有模块的各种代码，用于执行实现各种完全不同的语句。

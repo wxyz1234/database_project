@@ -4,7 +4,7 @@
 enum flag { null = 0, data, deleted };
 class Myhash {
 private:
-	static const int mo = 19997;
+	static const int mo = 199997;
 	int unnum;
 	void* a[mo][3];
 	flag b[mo];
@@ -93,28 +93,36 @@ public:
 		return 0;
 	}
 	bool equal(void* k, void* i,int num) {
+		void* i2;
 		switch (type[num]) {
 		case(TypeName::Int):
-			return ((*(int*)k) == (*(int*)i));
+			i2 = (((DtypeDataInt*)i)->getData());
+			return ((*(int*)k) == (*(int*)i2));
 			break;
 		case(TypeName::SmallInt):
-			return ((*(short*)k) == (*(short*)i));
+			i2 = (((DtypeDataSmallInt*)i)->getData());
+			return ((*(short*)k) == (*(short*)i2));
 			break;
 		case(TypeName::Char):
+			i2 = (((DtypeDataChar*)i)->getData());
 			for (int j = 0; j < len[num]; j++)
-				if (((char*)k)[j] != ((char*)i)[j])return false;
+				if (((char*)k)[j] != ((char*)i2)[j])return false;
 			return true;
 			break;
 		case(TypeName::Double):
+			i2 = (((DtypeDataDouble*)i)->getData());
 			return ((*(double*)k) == (*(double*)i));
 			break;
 		case(TypeName::Float):
+			i2 = (((DtypeDataFloat*)i)->getData());
 			return ((*(float*)k) == (*(float*)i));
 			break;
 		case(TypeName::Date):
+			i2 = (((DtypeDataDate*)i)->getData());
 			return (((DateType*)k)->equal((DateType*)i));
 			break;
 		case (TypeName::Numeric):
+			i2 = (((DtypeDataNumeric*)i)->getData());
 			return (((NumericType*)k)->equal((NumericType*)i));
 			break;
 		default:
@@ -123,7 +131,7 @@ public:
 		return false;
 	}
 	bool equalall(int num,void* i0, void* i1 = NULL, void* i2 = NULL) {
-		if (!equal(a[num][0], i0,0))return false;
+		if (!equal(a[num][0], i0, 0)) return false;
 		if (unnum>1)
 			if (!equal(a[num][1], i1, 1))return false;
 		if (unnum > 2)
@@ -134,35 +142,43 @@ public:
 		int k = 0;
 		k = score(i0, 0);
 		if (unnum > 1)
-			k = k * 197 + score(i1, 1);
+			k = (k * 197 + score(i1, 1)) % mo;
 		if (unnum > 2)
-			k = k * 197 + score(i2, 1);		
+			k = (k * 197 + score(i2, 2)) % mo;
 		while (b[k] == flag::data) {
 			k++;
 			if (k == mo)k = 0;
 		}		
+		void* tmpi;
 		switch (type[0]) {
 		case (TypeName::Int):
-			a[k][0] = new int((*(int*)i0));
+			tmpi = (((DtypeDataInt*)i0)->getData());
+			a[k][0] = new int((*(int*)tmpi));
 			break;
 		case (TypeName::SmallInt):
-			a[k][0] = new short((*(short*)i0));
+			tmpi = (((DtypeDataSmallInt*)i0)->getData());
+			a[k][0] = new short((*(short*)tmpi));
 			break;
 		case (TypeName::Char):
+			tmpi = (((DtypeDataChar*)i0)->getData());
 			a[k][0] = new char[len[0]];
-			for (int j = 0; j < len[0]; j++)((char*)a[k])[j] = ((char*)i0)[j];
+			for (int j = 0; j < len[0]; j++)((char*)a[k])[j] = ((char*)tmpi)[j];
 			break;
 		case (TypeName::Double):
-			a[k][0] = new double((*(double*)i0));
+			tmpi = (((DtypeDataDouble*)i0)->getData());
+			a[k][0] = new double((*(double*)tmpi));
 			break;
 		case (TypeName::Float):
-			a[k][0] = new float((*(float*)i0));
+			tmpi = (((DtypeDataFloat*)i0)->getData());
+			a[k][0] = new float((*(float*)tmpi));
 			break;
 		case (TypeName::Date):
-			a[k][0] = new DateType((*(DateType*)i0));
+			tmpi = (((DtypeDataDate*)i0)->getData());
+			a[k][0] = new DateType((*(DateType*)tmpi));
 			break;
 		case (TypeName::Numeric):
-			a[k][0] = new NumericType((*(NumericType*)i0));
+			tmpi = (((DtypeDataNumeric*)i0)->getData());
+			a[k][0] = new NumericType((*(NumericType*)tmpi));
 			break;
 		default:
 			printf("Hash Insert Type ERROR!\n");
@@ -170,26 +186,33 @@ public:
 		if (unnum>1)
 			switch (type[1]) {
 			case (TypeName::Int):
-				a[k][1] = new int((*(int*)i1));
+				tmpi = (((DtypeDataInt*)i1)->getData());
+				a[k][1] = new int((*(int*)tmpi));
 				break;
 			case (TypeName::SmallInt):
-				a[k][1] = new short((*(short*)i1));
+				tmpi = (((DtypeDataSmallInt*)i1)->getData());
+				a[k][1] = new short((*(short*)tmpi));
 				break;
 			case (TypeName::Char):
-				a[k][1] = new char[len[1]];
-				for (int j = 0; j < len[1]; j++)((char*)a[k])[j] = ((char*)i1)[j];
+				tmpi = (((DtypeDataChar*)i1)->getData());
+				a[k][1] = new char[len[0]];
+				for (int j = 0; j < len[0]; j++)((char*)a[k])[j] = ((char*)tmpi)[j];
 				break;
 			case (TypeName::Double):
-				a[k][1] = new double((*(double*)i1));
+				tmpi = (((DtypeDataDouble*)i1)->getData());
+				a[k][1] = new double((*(double*)tmpi));
 				break;
 			case (TypeName::Float):
-				a[k][1] = new float((*(float*)i1));
+				tmpi = (((DtypeDataFloat*)i1)->getData());
+				a[k][1] = new float((*(float*)tmpi));
 				break;
 			case (TypeName::Date):
-				a[k][1] = new DateType((*(DateType*)i1));
+				tmpi = (((DtypeDataDate*)i1)->getData());
+				a[k][1] = new DateType((*(DateType*)tmpi));
 				break;
 			case (TypeName::Numeric):
-				a[k][1] = new NumericType((*(NumericType*)i1));
+				tmpi = (((DtypeDataNumeric*)i1)->getData());
+				a[k][1] = new NumericType((*(NumericType*)tmpi));
 				break;
 			default:
 				printf("Hash Insert Type ERROR!\n");
@@ -197,26 +220,33 @@ public:
 		if (unnum>2)
 			switch (type[2]) {
 			case (TypeName::Int):
-				a[k][2] = new int((*(int*)i2));
+				tmpi = (((DtypeDataInt*)i2)->getData());
+				a[k][2] = new int((*(int*)tmpi));
 				break;
 			case (TypeName::SmallInt):
-				a[k][2] = new short((*(short*)i2));
+				tmpi = (((DtypeDataSmallInt*)i2)->getData());
+				a[k][2] = new short((*(short*)tmpi));
 				break;
 			case (TypeName::Char):
-				a[k][2] = new char[len[2]];
-				for (int j = 0; j < len[2]; j++)((char*)a[k])[j] = ((char*)i2)[j];
+				tmpi = (((DtypeDataChar*)i2)->getData());
+				a[k][2] = new char[len[0]];
+				for (int j = 0; j < len[0]; j++)((char*)a[k])[j] = ((char*)tmpi)[j];
 				break;
 			case (TypeName::Double):
-				a[k][2] = new double((*(double*)i2));
+				tmpi = (((DtypeDataDouble*)i2)->getData());
+				a[k][2] = new double((*(double*)tmpi));
 				break;
 			case (TypeName::Float):
-				a[k][2] = new float((*(float*)i2));
+				tmpi = (((DtypeDataFloat*)i2)->getData());
+				a[k][2] = new float((*(float*)tmpi));
 				break;
 			case (TypeName::Date):
-				a[k][2] = new DateType((*(DateType*)i2));
+				tmpi = (((DtypeDataDate*)i2)->getData());
+				a[k][2] = new DateType((*(DateType*)tmpi));
 				break;
 			case (TypeName::Numeric):
-				a[k][2] = new NumericType((*(NumericType*)i2));
+				tmpi = (((DtypeDataNumeric*)i2)->getData());
+				a[k][2] = new NumericType((*(NumericType*)tmpi));
 				break;
 			default:
 				printf("Hash Insert Type ERROR!\n");
@@ -227,9 +257,9 @@ public:
 		int k = 0;
 		k = score(i0, 0);
 		if (unnum > 1)
-			k = k * 197 + score(i1, 1);
+			k = (k * 197 + score(i1, 1)) % mo;
 		if (unnum > 2)
-			k = k * 197 + score(i2, 1);
+			k = (k * 197 + score(i2, 2)) % mo;
 		while (b[k] != flag::null) {
 			if ((b[k] == flag::data) && (equalall(k,i0,i1,i2))) {
 				for (int i=0;i<unnum;i++)
@@ -246,9 +276,9 @@ public:
 		int k = 0;
 		k = score(i0, 0);
 		if (unnum > 1)
-			k = k * 197 + score(i1, 1);
+			k = (k * 197 + score(i1, 1)) % mo;
 		if (unnum > 2)
-			k = k * 197 + score(i2, 1);
+			k = (k * 197 + score(i2, 2)) % mo;
 		while (b[k] != flag::null) {
 			if ((b[k]==flag::data)&&(equalall(k, i0,i1,i2))) {
 				return true;

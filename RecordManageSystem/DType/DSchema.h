@@ -150,8 +150,8 @@ public:
 				printf("DSchema Part %d 's sumd is %d\n", i, sumd);
 				printf("DSchema Part %d 's dotd is %d\n", i, dotd);
 			}
-			printf("DSchema Part %d Primary Key is %b\n", i, a[i]->getisPrimary());
-			printf("DSchema Part %d Foreign Key is %b\n", i, a[i]->getisForeign());
+			printf("DSchema Part %d Primary Key is %d\n", i, a[i]->getisPrimary());
+			printf("DSchema Part %d Foreign Key is %d\n", i, a[i]->getisForeign());
 			if (a[i]->getisForeign()) {
 				printf("DSchema Part %d 's Key 's Filename is %s\n", i, a[i]->getFile());
 				printf("DSchema Part %d 's Key 's Dataname is %s\n", i, a[i]->getName());

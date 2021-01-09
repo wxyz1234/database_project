@@ -239,12 +239,11 @@ public:
                     b->a[j]->setData(&tmpdate);
                     break;
                 case TypeName::Numeric:
-                    if (a[i]->a[j]->k != CharTypeName::FNUM) {
+                    if (a[i]->a[j]->k != CharTypeName::FNUM && a[i]->a[j]->k != CharTypeName::INUM) {
                         printf("Convert %d DList Failed!Part %d is Numeric.\n", i, j);
                         flag = true;
                         break;
-                    }
-                    tmpnumeric = NumericType();
+                    }                    
                     tmpnumeric.setd(a[i]->a[j]->data.c_str(),((DtypeSchemaNumeric*)sh->getPart(j))->getsumd(), ((DtypeSchemaNumeric*)sh->getPart(j))->getdotd());
                     b->a[j]->setData(&tmpnumeric);                    
                     break;
@@ -3356,8 +3355,8 @@ public:
         for (i = 0; i < n; i++){
             sh->a[anum[i]]->setisForeign(true);
             sh->a[anum[i]]->initfilename();
-            sh->a[anum[i]]->setFile(tname.c_str());
-            sh->a[anum[i]]->setName(collist->a[i]->aname.c_str());
+            sh->a[anum[i]]->setFile(reftname.c_str());
+            sh->a[anum[i]]->setName(refcollist->a[i]->aname.c_str());
         }
         
         sh->writeSchemaBuf(filebuf + 2);

@@ -5,7 +5,8 @@
 class NumericType {
 private:		
 	int d[3];
-	char* c= NULL;
+	//char c[30];
+	char* c;
 	void makechar(int sumd, int dotd) {
 		int k, help,o;
 		help = sumd - dotd;
@@ -14,7 +15,8 @@ private:
 			c[k] = '0' + d[o / 9] / Wei::shiwei[8 - o % 9] % 10;
 			o++;
 		}
-		c[help] = '.';
+		if (dotd>0)
+			c[help] = '.';
 		for (k = help; k < sumd; k++) {
 			c[k + 1] = '0' + d[o / 9] / Wei::shiwei[8 - o % 9] % 10;
 			o++;
@@ -36,7 +38,7 @@ public:
 	NumericType() {		
 		d[0] = 0;
 		d[1] = 0;
-		d[2] = 0;		
+		d[2] = 0;	
 		c = new char[30];
 	}	
 	NumericType(int y1, int y2, int y3) {		
@@ -48,7 +50,7 @@ public:
 	NumericType(NumericType* i) {		
 		d[0] = i->getd(0);
 		d[1] = i->getd(1);
-		d[2] = i->getd(2);
+		d[2] = i->getd(2);		
 		c = new char[30];
 	}
 	void setd(int i, int j, int k) {
@@ -60,20 +62,25 @@ public:
 		return d[i];
 	}
 	void setd(const char* c2,int sumd,int dotd) {
+		int n;
 		int i,j;
 		int k, help;
 		help = sumd - dotd;
 		for (k = 0; k < help; k++)c[k] = '0';
 		c[help] = '.';
 		for (k = 1; k <= dotd; k++)c[help + k] = '0';
+		c[sumd + 1] = '\0';
 
-		for (i = 0; i <= sumd; i++)
-			if (c2[i] == '.')break;
+		n = strlen(c2);
+		for (i = 0; i < n; i++)
+			if (c2[i] == '.')break;		
+		if (i == n || c2[i] != '.')
+			i = n;
 		for (k = 0; k < i; k++)c[help + k - i] = c2[k];
 		for (k = 1; k <= dotd; k++) {
-			if (c2[i + k] == '\0')break;
+			if (i + k >= n || c2[i + k] == '\0') break;
 			c[help + k] = c2[i + k];
-		}
+		}				
 		makeint(sumd,dotd);
 	}
 	char* getd(int sumd, int dotd) {
@@ -85,7 +92,7 @@ public:
 		return ((d[0] == i->getd(0)) && (d[1] == i->getd(1)) && (d[2] == i->getd(2)));
 	}
 	~NumericType() {
-		if (c!=NULL)
+		if (c != NULL)
 			delete c;
 	}
 };

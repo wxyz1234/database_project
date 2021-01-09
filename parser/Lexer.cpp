@@ -920,37 +920,37 @@ YY_RULE_SETUP
 case 35:
 YY_RULE_SETUP
 #line 67 "Lexer.l"
-{ printf("INTEGER\n"); return INTEGER; }
+{ /*printf("INTEGER\n");*/ return INTEGER; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
 #line 68 "Lexer.l"
-{ printf("SMALLINT\n"); return SMALLINT; }
+{ /*printf("SMALLINT\n");*/ return SMALLINT; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
 #line 69 "Lexer.l"
-{ printf("CHAR\n"); return CHARTYPE; }
+{ /*printf("CHAR\n");*/ return CHARTYPE; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
 #line 70 "Lexer.l"
-{ printf("DOUBLE\n"); return DOUBLETYPE; }
+{ /*printf("DOUBLE\n");*/ return DOUBLETYPE; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 71 "Lexer.l"
-{ printf("FLOAT\n"); return FLOATTYPE; }
+{ /*printf("FLOAT\n");*/ return FLOATTYPE; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 72 "Lexer.l"
-{ printf("DATETYPE\n"); return DATETYPE; }
+{ /*printf("DATETYPE\n");*/ return DATETYPE; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 73 "Lexer.l"
-{ printf("NUMERICTYPE\n"); return NUMERICTYPE; }
+{ /*printf("NUMERICTYPE\n");*/ return NUMERICTYPE; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
